@@ -17,10 +17,10 @@ public class Main {
                 System.out.println(pi);
             }
         } catch (IOException e) {
-            System.out.println("IO");
+            System.out.println("IO error");
             e.printStackTrace();
         } catch (RegisterException e) {
-            System.out.println("Register");
+            System.out.println("Registering error");
             e.printStackTrace();
         }
 
