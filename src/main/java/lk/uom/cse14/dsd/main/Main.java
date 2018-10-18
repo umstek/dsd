@@ -27,7 +27,7 @@ public class Main {
 //        }
 
         try {
-            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(false);
+            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(true);
 
             for (String ownHost : ownHosts) {
                 System.out.println(ownHost);
