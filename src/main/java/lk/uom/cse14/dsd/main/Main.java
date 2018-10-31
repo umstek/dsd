@@ -1,11 +1,10 @@
 package lk.uom.cse14.dsd.main;
 
-import lk.uom.cse14.dsd.bscom.PeerInfo;
-import lk.uom.cse14.dsd.bscom.RegisterException;
-import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
+import lk.uom.cse14.dsd.comm.message.BaseMessage;
+import lk.uom.cse14.dsd.comm.message.HeartbeatMessage;
+import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 
@@ -25,15 +24,26 @@ public class Main {
 //            System.out.println("Registering error");
 //            e.printStackTrace();
 //        }
-
+        String ownHostFinal = null;
         try {
-            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(true);
-
+            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(false);
             for (String ownHost : ownHosts) {
-                System.out.println(ownHost);
+                if (!"".equals(ownHost)) {
+                    ownHostFinal = ownHost;
+                    break;
+                }
             }
         } catch (SocketException e) {
             e.printStackTrace();
         }
+        if (ownHostFinal == null) {
+            System.exit(78);
+        }
+        Peer peer = new Peer(3005);
+        peer.startPeer();
+        peer.getUdpSender().sendMessage(HeartbeatMessage.newHeartbeatMessage(BaseMessage.MessageType.HEARTBEAT,
+                ownHostFinal, "127.0.0.1", 3006));
+
+
     }
 }
