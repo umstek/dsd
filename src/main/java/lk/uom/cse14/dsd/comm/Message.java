@@ -2,11 +2,17 @@ package lk.uom.cse14.dsd.comm;
 
 public class Message {
     private MessageType type;
-    private String host;
-    private int port;
-    private String origin;
-    public Message(String ownHost) {
-        this.origin = ownHost;
+    private String source;
+    private int sourcePort;
+    private String destination;
+    private int destinationPort;
+
+    public Message(String source, int sourePort, String destination, int destinationPort) {
+        this.source = source;
+        this.sourcePort = sourePort;
+        this.destination = destination;
+        this.destinationPort = destinationPort;
+
     }
 
     public MessageType getType() {
@@ -17,23 +23,19 @@ public class Message {
         this.type = type;
     }
 
-    public String getHost() {
-        return host;
+    public String getSource() {
+        return source;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public int getSourcePort() {
+        return sourcePort;
     }
 
-    public int getPort() {
-        return port;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public String getOrigin() {
-        return origin;
+    public int getDestinationPort() {
+        return destinationPort;
     }
 }
