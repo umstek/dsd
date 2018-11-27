@@ -33,7 +33,7 @@ public class Peer {
     /*
     This value is hardcoded
      */
-    private final String FILE_LIST = "/src/main/java/lk/uom/cse14/dsd/fileio/File Names.txt";
+    private final String FILE_LIST = "/config/File Names.txt";
 
     public ArrayList<String> getHostedFileNames() {
         return hostedFileNames;
@@ -73,7 +73,7 @@ public class Peer {
         System.out.println("DisFish Peer Started at: " + new Date().toString());
         System.out.println("Local Address: " + socket.getLocalSocketAddress());
         this.generateFiles();
-        System.out.println("List of hosted files");
+        System.out.println("\n************** List of hosted files **************\n");
         for (String filename : this.hostedFileNames
         ) {
             System.out.println(filename);

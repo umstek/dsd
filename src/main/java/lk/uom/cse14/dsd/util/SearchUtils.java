@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class SearchUtils {
 
-    private static final String QUERY_LIST = "/src/main/java/lk/uom/cse14/dsd/util/Queries.txt";
+    private static final String QUERY_LIST = "/config/Queries.txt";
     private static ArrayList<String> hostedFiles;
     private static ArrayList<String> queries;
 
