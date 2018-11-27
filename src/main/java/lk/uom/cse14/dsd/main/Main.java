@@ -39,7 +39,7 @@ public class Main {
         if (ownHostFinal == null) {
             System.exit(78);
         }
-        Peer peer = new Peer(3005);
+        Peer peer = new Peer(ownHostFinal,3005);
         peer.startPeer();
         peer.getUdpSender().sendMessage(HeartbeatMessage.newHeartbeatMessage(BaseMessage.MessageType.HEARTBEAT,
                 ownHostFinal, "127.0.0.1", 3006));
