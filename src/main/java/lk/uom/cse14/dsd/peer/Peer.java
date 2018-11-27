@@ -1,21 +1,20 @@
 package lk.uom.cse14.dsd.peer;
 
-import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
+import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,8 +30,7 @@ public class Peer {
     private UdpReceiver udpReceiver;
     private ExecutorService taskExecutor;
     private ArrayList<String> hostedFileNames;
-    private ArrayList<Object> hostedFiles;
-
+    private HashMap<String, DummyFile> hostedFiles;
 
     public Peer(int port ) {
         try {
@@ -54,7 +52,7 @@ public class Peer {
     }
 
     public void generateFiles(){
-        BufferedReader br;
+        BufferedReader br = null;
         ArrayList<String> filenames;
 
         filenames = new ArrayList<>();
@@ -64,15 +62,22 @@ public class Peer {
             String line = br.readLine();
             System.out.println("\n****** LIST OF FILES TO BE HOSTED *******\n");
             while (line != null){
-                System.out.println(line);
+                System.out.println(line + "\n");
                 filenames.add(line);
                 line = br.readLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Initialize the \"File Names.txt\" with the list of files to be hosted in this node.");
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        this.hostedFiles = FileGenerator.getFiles(filenames);
+        this.hostedFileNames = filenames;
+        this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
         System.out.println("Files have been successfully generated");
     }
 
