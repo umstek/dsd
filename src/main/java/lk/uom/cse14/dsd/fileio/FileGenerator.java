@@ -62,7 +62,7 @@ public class FileGenerator {
         }
         String data = sb.toString();
         byte[] hash = generateHash(data.getBytes(StandardCharsets.UTF_8));
-        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash.toString() + "\n");
+//        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash.toString() + "\n");
 
         DummyFile df = new DummyFile();
         df.setSize(sizeMB);

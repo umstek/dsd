@@ -73,7 +73,7 @@ public class Peer {
         System.out.println("DisFish Peer Started at: " + new Date().toString());
         System.out.println("Local Address: " + socket.getLocalSocketAddress());
         this.generateFiles();
-        System.out.println("List of hosted files\n");
+        System.out.println("List of hosted files");
         for (String filename : this.hostedFileNames
         ) {
             System.out.println(filename);
