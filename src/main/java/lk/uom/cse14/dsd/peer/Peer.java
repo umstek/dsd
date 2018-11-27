@@ -12,6 +12,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,7 +52,7 @@ public class Peer {
         System.out.println("Local Address: " + socket.getLocalSocketAddress());
     }
 
-    public void generateFiles(){
+    private void generateFiles() {
         BufferedReader br = null;
         ArrayList<String> filenames;
 
@@ -74,10 +75,16 @@ public class Peer {
                 br.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (NullPointerException e) {
+                e.printStackTrace();
             }
         }
         this.hostedFileNames = filenames;
-        this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
+        try {
+            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
         System.out.println("Files have been successfully generated");
     }
 

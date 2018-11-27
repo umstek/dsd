@@ -18,7 +18,7 @@ public class FileGenerator {
     private final static int MAXSIZE = 10;
     private final static int MINSIZE = 2;
 
-    public static HashMap generateAllHostedFiles(ArrayList<String> filenames) {
+    public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException {
         HashMap<String, DummyFile> files = new HashMap<>();
         for (String filename : filenames) {
              DummyFile file = generateFile(filename);
@@ -35,7 +35,7 @@ public class FileGenerator {
         return number;
     }
 
-    public static DummyFile generateFile(String filename){
+    public static DummyFile generateFile(String filename) throws NoSuchAlgorithmException {
         byte[] bigint = FileGenerator.generateLargeNumber();
         int size = bigint.length;
         int sizeMB = size / (1024*1024);
@@ -46,7 +46,7 @@ public class FileGenerator {
         }
         String data = sb.toString();
         byte[] hash = generateHash(data.getBytes(StandardCharsets.UTF_8));
-        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash + "\n" );
+        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash.toString() + "\n");
 
         DummyFile df = new DummyFile();
         df.setSize(sizeMB);
@@ -55,14 +55,8 @@ public class FileGenerator {
         return df;
     }
 
-    public static byte[] generateHash(byte[] file) {
-        MessageDigest digest = null;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
+    public static byte[] generateHash(byte[] file) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return digest.digest(file);
     }
 
