@@ -1,7 +1,6 @@
 package lk.uom.cse14.dsd.util;
 
 import lk.uom.cse14.dsd.comm.Message;
-import lk.uom.cse14.dsd.comm.message.Request;
 
 import java.io.*;
 import java.net.DatagramPacket;
@@ -9,8 +8,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/*
- * MessageUtile provide the utility functions for sending and receiving messages through UDP
+/**
+ * MessageUtils provide the utility functions for sending and receiving messages through UDP
  * */
 public class MessageUtils {
     public static byte[] serializeMessage(Message message) throws Exception {

@@ -4,14 +4,12 @@ import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
+import lk.uom.cse14.dsd.fileio.TextFileHandler;
+import lk.uom.cse14.dsd.util.SearchUtils;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,12 +22,27 @@ import java.util.concurrent.Executors;
  * message passing between peer nodes.
  * todo: implement message scheduler and manage high level message passing
  * todo: dynamic scheduling of messages, peer discovery and queries
+ * todo: handle exceptions properly
  * */
 public class Peer {
     private DatagramSocket socket;
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;
     private ExecutorService taskExecutor;
+
+    /*
+    This value is hardcoded
+     */
+    private final String FILE_LIST = "/src/main/java/lk/uom/cse14/dsd/fileio/File Names.txt";
+
+    public ArrayList<String> getHostedFileNames() {
+        return hostedFileNames;
+    }
+
+    public HashMap<String, DummyFile> getHostedFiles() {
+        return hostedFiles;
+    }
+
     private ArrayList<String> hostedFileNames;
     private HashMap<String, DummyFile> hostedFiles;
     private String ownHost;
@@ -49,47 +62,37 @@ public class Peer {
     }
 
     public void startPeer() {
-        this.generateFiles();
+
+        /*
+        initializes the searching "index" in SearchUtils class
+         */
+        SearchUtils.initialize(this.hostedFileNames);
+
         taskExecutor.submit(this.udpReceiver);
         taskExecutor.submit(this.udpSender);
         System.out.println("DisFish Peer Started at: " + new Date().toString());
         System.out.println("Local Address: " + socket.getLocalSocketAddress());
+        this.generateFiles();
+        System.out.println("List of hosted files\n");
+        for (String filename : this.hostedFileNames
+        ) {
+            System.out.println(filename);
+        }
     }
 
     private void generateFiles() {
-        BufferedReader br = null;
-        ArrayList<String> filenames;
-
-        filenames = new ArrayList<>();
+        ArrayList<String> filenames = null;
         try {
-            Path filepath = Paths.get(Paths.get("").toAbsolutePath() + "/src/main/java/lk/uom/cse14/dsd/fileio/File Names.txt");
-            br = new BufferedReader(new FileReader(filepath.toString()));
-            String line = br.readLine();
-            System.out.println("\n****** LIST OF FILES TO BE HOSTED *******\n");
-            while (line != null){
-                System.out.println(line + "\n");
-                filenames.add(line);
-                line = br.readLine();
-            }
+            filenames = TextFileHandler.readFileContent(FILE_LIST);
+            this.hostedFileNames = filenames;
+            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
+            System.out.println("Files have been successfully generated");
         } catch (IOException e) {
             e.printStackTrace();
-            System.err.println("Initialize the \"File Names.txt\" with the list of files to be hosted in this node.");
-        } finally {
-            try {
-                br.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
-        }
-        this.hostedFileNames = filenames;
-        try {
-            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
+            System.err.println(FILE_LIST + " is not initialized. Initialize it with the filenames to be hosted");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
-        System.out.println("Files have been successfully generated");
     }
 
     public UdpSender getUdpSender() {

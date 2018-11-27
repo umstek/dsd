@@ -9,4 +9,8 @@ public class QueryRequest extends Request {
     public QueryRequest(String ownHost) {
         super(ownHost);
     }
+
+    public String getQuery() {
+        return query;
+    }
 }
