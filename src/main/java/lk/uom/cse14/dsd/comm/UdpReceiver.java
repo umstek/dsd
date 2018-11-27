@@ -1,6 +1,6 @@
 package lk.uom.cse14.dsd.comm;
 
-import lk.uom.cse14.dsd.comm.message.BaseMessage;
+import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.util.MessageUtils;
 
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
  * UdpReceiver listens on the predefined UDP port. On a new UDP message, it receives the message
- * and de-serializes the message into BaseMessage form and pushes it to the receiverQueue.
+ * and de-serializes the message into Request form and pushes it to the receiverQueue.
  * In case of failure in receiving and/or de-serialization, it only logs the stack trace and
  * continues its operation as usual.
  * Users can check for new messages by polling the receiverQueue.
@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class UdpReceiver implements Runnable {
 
     private boolean running = true;
-    private ConcurrentLinkedQueue<BaseMessage> receiverQueue;
+    private ConcurrentLinkedQueue<Message> receiverQueue;
     private DatagramSocket socket;
 
     public UdpReceiver(DatagramSocket socket) {
@@ -26,7 +26,7 @@ public class UdpReceiver implements Runnable {
         this.socket = socket;
     }
 
-    public BaseMessage getMessage() {
+    public Message getMessage() {
         return receiverQueue.poll();
     }
 
@@ -43,7 +43,7 @@ public class UdpReceiver implements Runnable {
             }
             byte[] receivedPacket = packet.getData();
             try {
-                BaseMessage message = MessageUtils.deSerializeMessage(receivedPacket);
+                Message message = MessageUtils.deSerializeMessage(receivedPacket);
                 receiverQueue.add(message);
             } catch (Exception e) {
                 e.printStackTrace();

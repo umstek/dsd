@@ -32,13 +32,17 @@ public class Peer {
     private ExecutorService taskExecutor;
     private ArrayList<String> hostedFileNames;
     private HashMap<String, DummyFile> hostedFiles;
+    private String ownHost;
+    private int ownPort;
 
-    public Peer(int port ) {
+    public Peer(String host,int port) {
         try {
             this.socket = new DatagramSocket(port);
             this.taskExecutor = Executors.newFixedThreadPool(5);
             this.udpSender = new UdpSender(1000, 100, socket);
             this.udpReceiver = new UdpReceiver(socket);
+            this.ownHost = host;
+            this.ownPort = port;
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -90,5 +94,13 @@ public class Peer {
 
     public UdpSender getUdpSender() {
         return udpSender;
+    }
+
+    public String getOwnHost() {
+        return ownHost;
+    }
+
+    public int getOwnPort() {
+        return ownPort;
     }
 }

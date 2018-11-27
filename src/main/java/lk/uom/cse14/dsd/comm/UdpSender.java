@@ -1,6 +1,6 @@
 package lk.uom.cse14.dsd.comm;
 
-import lk.uom.cse14.dsd.comm.message.BaseMessage;
+import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.util.MessageUtils;
 
 import java.net.DatagramSocket;
@@ -17,7 +17,7 @@ public class UdpSender implements Runnable {
     private int sleepTime;
     private int retryCount;
     private boolean running = true;
-    private ConcurrentLinkedQueue<BaseMessage> senderQueue;
+    private ConcurrentLinkedQueue<Message> senderQueue;
     private DatagramSocket socket;
 
     public UdpSender(int maxSleepTime, int maxRetryCount, DatagramSocket socket) {
@@ -27,7 +27,7 @@ public class UdpSender implements Runnable {
         senderQueue = new ConcurrentLinkedQueue<>();
     }
 
-    public void sendMessage(BaseMessage message) {
+    public void sendMessage(Message message) {
         senderQueue.add(message);
     }
 
@@ -43,7 +43,7 @@ public class UdpSender implements Runnable {
                 }
                 continue;
             }
-            BaseMessage message = senderQueue.poll();
+            Message message = senderQueue.poll();
             try {
                 byte[] messageBytes = MessageUtils.serializeMessage(message);
                 MessageUtils.sendUdpMessage(socket, messageBytes, message.getHost(), message.getPort());

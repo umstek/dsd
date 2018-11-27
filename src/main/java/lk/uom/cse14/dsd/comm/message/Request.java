@@ -1,0 +1,18 @@
+package lk.uom.cse14.dsd.comm.message;
+
+import lk.uom.cse14.dsd.comm.Message;
+import lk.uom.cse14.dsd.comm.MessageType;
+
+import java.io.Serializable;
+
+/*
+ * Abstract Base form of a message
+ * Request Type is used for identifying the correct type of message msghandler to be used
+ * host and port fields are used to define the destination of the message
+ * origin field is used to define the source of the message
+ * */
+public abstract class Request extends Message implements Serializable {
+    public Request(String ownHost) {
+        super(ownHost);
+    }
+}

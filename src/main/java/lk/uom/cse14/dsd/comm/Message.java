@@ -1,20 +1,11 @@
-package lk.uom.cse14.dsd.comm.message;
+package lk.uom.cse14.dsd.comm;
 
-import java.io.Serializable;
-
-/*
- * Abstract Base form of a message
- * Message Type is used for identifying the correct type of message msghandler to be used
- * host and port fields are used to define the destination of the message
- * origin field is used to define the source of the message
- * */
-public abstract class BaseMessage implements Serializable {
-
+public class Message {
     private MessageType type;
     private String host;
     private int port;
     private String origin;
-    public BaseMessage(String ownHost) {
+    public Message(String ownHost) {
         this.origin = ownHost;
     }
 
@@ -44,9 +35,5 @@ public abstract class BaseMessage implements Serializable {
 
     public String getOrigin() {
         return origin;
-    }
-
-    public enum MessageType {
-        HEARTBEAT, HEARTBEATRESP, QUERY, DISCOVERY
     }
 }
