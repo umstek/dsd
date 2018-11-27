@@ -39,7 +39,7 @@ abstract class RegistryCommunicator {
          * <message length> UNROK value
          */
         StringTokenizer tokenizer = new StringTokenizer(response);
-        tokenizer.nextToken(); // Message length
+        tokenizer.nextToken(); // Request length
 
         String messageCode = tokenizer.nextToken();
         int statusCode = Integer.parseInt(tokenizer.nextToken());

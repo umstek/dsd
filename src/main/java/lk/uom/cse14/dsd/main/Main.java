@@ -1,7 +1,7 @@
 package lk.uom.cse14.dsd.main;
 
-import lk.uom.cse14.dsd.comm.message.BaseMessage;
-import lk.uom.cse14.dsd.comm.message.HeartbeatMessage;
+import lk.uom.cse14.dsd.comm.message.HeartbeatRequest;
+import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
@@ -41,7 +41,7 @@ public class Main {
         }
         Peer peer = new Peer(ownHostFinal,3005);
         peer.startPeer();
-        peer.getUdpSender().sendMessage(HeartbeatMessage.newHeartbeatMessage(BaseMessage.MessageType.HEARTBEAT,
+        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT,
                 ownHostFinal, "127.0.0.1", 3006));
 
 
