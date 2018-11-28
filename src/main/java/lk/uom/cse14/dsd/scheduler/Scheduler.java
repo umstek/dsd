@@ -1,5 +1,6 @@
 package lk.uom.cse14.dsd.scheduler;
 
+import lk.uom.cse14.dsd.comm.Message;
 import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.msghandler.IHandler;
 
@@ -21,7 +22,7 @@ public class Scheduler {
         this.peerDiscoveryHandler = peerDiscoveryHandler;
     }
 
-    public void schedule(Request request){
+    public void schedule(Message message){
 
     }
 }

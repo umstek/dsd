@@ -80,7 +80,7 @@ public class PeerDiscovery implements Runnable, IHandler {
             }
         }
         response.setDiscoveredPeers(discoveredPeersList);
-        scheduler.schedule(request);
+        scheduler.schedule(response);
 
 
     }

@@ -7,9 +7,9 @@ public class Message {
     private String destination;
     private int destinationPort;
 
-    public Message(String source, int sourePort, String destination, int destinationPort) {
+    public Message(String source, int sourcePort, String destination, int destinationPort) {
         this.source = source;
-        this.sourcePort = sourePort;
+        this.sourcePort = sourcePort;
         this.destination = destination;
         this.destinationPort = destinationPort;
 

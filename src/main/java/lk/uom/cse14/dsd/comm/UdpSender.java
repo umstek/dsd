@@ -46,7 +46,7 @@ public class UdpSender implements Runnable {
             Message message = senderQueue.poll();
             try {
                 byte[] messageBytes = MessageUtils.serializeMessage(message);
-                MessageUtils.sendUdpMessage(socket, messageBytes, message.getHost(), message.getPort());
+                MessageUtils.sendUdpMessage(socket, messageBytes, message.getDestination(), message.getDestinationPort());
             } catch (Exception e) {
                 e.printStackTrace();
                 senderQueue.add(message);
