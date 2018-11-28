@@ -6,8 +6,8 @@ package lk.uom.cse14.dsd.comm.message;
 public class QueryRequest extends Request {
     private String query;
 
-    public QueryRequest(String ownHost) {
-        super(ownHost);
+    public QueryRequest(String source, int sourcePort, String destination, int destinationPort) {
+        super(source, sourcePort, destination, destinationPort);
     }
 
     public String getQuery() {

@@ -2,6 +2,7 @@ package lk.uom.cse14.dsd.peer;
 
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
+import lk.uom.cse14.dsd.discovery.RoutingEntry;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;
@@ -45,6 +46,7 @@ public class Peer {
 
     private ArrayList<String> hostedFileNames;
     private HashMap<String, DummyFile> hostedFiles;
+    private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
 
