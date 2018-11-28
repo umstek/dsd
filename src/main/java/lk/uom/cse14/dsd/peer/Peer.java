@@ -6,6 +6,7 @@ import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;
+import lk.uom.cse14.dsd.msghandler.HeartbeatHandler;
 import lk.uom.cse14.dsd.util.SearchUtils;
 
 import java.io.IOException;
@@ -30,6 +31,8 @@ public class Peer {
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;
     private ExecutorService taskExecutor;
+
+    private HeartbeatHandler heartbeatHandler;
 
     /*
     This value is hardcoded
@@ -58,6 +61,7 @@ public class Peer {
             this.udpReceiver = new UdpReceiver(socket);
             this.ownHost = host;
             this.ownPort = port;
+//            this.heartbeatHandler = new HeartbeatHandler(ownHost, ownPort, scheduler, routingTable);
         } catch (SocketException e) {
             e.printStackTrace();
         }
