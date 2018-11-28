@@ -2,13 +2,28 @@ package lk.uom.cse14.dsd.comm;
 
 public class Message {
     private MessageType type;
-    private String host;
-    private int port;
-    private String origin;
     private long uuid;
-    public Message(String ownHost) {
-        this.origin = ownHost;
-        uuid = System.nanoTime();
+    private String source;
+    private int sourcePort;
+    private String destination;
+    private int destinationPort;
+    private int hopCount = 0;
+
+    public Message(String source, int sourcePort, String destination, int destinationPort) {
+        this.source = source;
+        this.sourcePort = sourcePort;
+        this.destination = destination;
+        this.destinationPort = destinationPort;
+            uuid = System.nanoTime();
+
+        }
+
+    public void redirectRequest(String source, int sourcePort, String destination, int destinationPort){
+        this.setSource(source);
+        this.setSourcePort(sourcePort);
+        this.setDestination(destination);
+        this.setDestinationPort(destinationPort);
+        this.hopCount++;
     }
 
     public MessageType getType() {
@@ -19,24 +34,49 @@ public class Message {
         this.type = type;
     }
 
-    public String getHost() {
-        return host;
+    public String getSource() {
+        return source;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public int getSourcePort() {
+        return sourcePort;
     }
 
-    public int getPort() {
-        return port;
+    public String getDestination() {
+        return destination;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public int getDestinationPort() {
+        return destinationPort;
     }
 
-    public String getOrigin() {
-        return origin;
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Message:\n");
+        builder.append("From: "+this.getSource()+":"+this.getSourcePort()+"\n");
+        builder.append("To: "+this.getDestination()+":"+this.getDestinationPort()+"\n");
+        return builder.toString();
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public void setSourcePort(int sourcePort) {
+        this.sourcePort = sourcePort;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public void setDestinationPort(int destinationPort) {
+        this.destinationPort = destinationPort;
+    }
+
+    public int getHopCount() {
+        return hopCount;
     }
 
     public long getUuid() {

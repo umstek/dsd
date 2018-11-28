@@ -54,7 +54,6 @@ public class Scheduler implements Runnable {
         MessageHandler messageHandler = new MessageHandler(messageTracker, udpSender);
     }
 
-
     @Override
     public void run() {
         while(true) {

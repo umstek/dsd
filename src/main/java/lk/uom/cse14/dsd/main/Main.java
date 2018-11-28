@@ -42,6 +42,8 @@ public class Main {
         Peer peer = new Peer(ownHostFinal,3005);
         peer.startPeer();
 //        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT, ownHostFinal, "127.0.0.1", 3006));
+//        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT,
+//                ownHostFinal, "127.0.0.1", 3006));
 
 
     }
