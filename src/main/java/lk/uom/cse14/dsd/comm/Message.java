@@ -5,8 +5,10 @@ public class Message {
     private String host;
     private int port;
     private String origin;
+    private long uuid;
     public Message(String ownHost) {
         this.origin = ownHost;
+        uuid = System.nanoTime();
     }
 
     public MessageType getType() {
@@ -35,5 +37,9 @@ public class Message {
 
     public String getOrigin() {
         return origin;
+    }
+
+    public long getUuid() {
+        return uuid;
     }
 }
