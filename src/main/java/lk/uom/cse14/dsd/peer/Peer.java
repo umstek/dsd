@@ -50,7 +50,7 @@ public class Peer {
     private String ownHost;
     private int ownPort;
 
-    public Peer(String host,int port) {
+    public Peer(String host, int port) {
         try {
             this.socket = new DatagramSocket(port);
             this.taskExecutor = Executors.newFixedThreadPool(5);
