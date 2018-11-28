@@ -15,6 +15,8 @@ import java.net.SocketException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class Scheduler implements Runnable {
@@ -25,12 +27,12 @@ public class Scheduler implements Runnable {
     private UdpSender udpSender;
     private Map<Long, MessageTracker> messageTrackerMap = new ConcurrentHashMap<>();
     private final Logger log = LoggerFactory.getLogger(Scheduler.class);
-
-
+    ExecutorService executorService;
 
     public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
         this.udpReceiver = udpReceiver;
         this.udpSender = udpSender;
+        this.executorService = Executors.newFixedThreadPool(10);
     }
 
     public void setQueryHandler(IHandler queryHandler) {
@@ -52,6 +54,7 @@ public class Scheduler implements Runnable {
         udpSender.sendMessage(message);
         messageTracker.setStatus(Status.SENT);
         MessageHandler messageHandler = new MessageHandler(messageTracker, udpSender);
+        this.executorService.submit(messageHandler);
     }
 
     @Override
@@ -59,12 +62,17 @@ public class Scheduler implements Runnable {
         while(true) {
             try {
                 Message receivedMessage = udpReceiver.getMessage();
-                MessageType receivedMessageType = receivedMessage.getType();
                 if (receivedMessage == null) {
                     Thread.sleep(1000);
                 }else {
+                    MessageType receivedMessageType = receivedMessage.getType();
                     if(isItMyMessage(receivedMessage)) {
-                        Message myMessage = messageTrackerMap.get(receivedMessage.getUuid()).getMessage();
+                        MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
+                        Message myMessage = null;
+                        synchronized (messageTracker) {
+                            myMessage = messageTracker.getMessage();
+                            messageTracker.setStatus(Status.RESPONSED);
+                        }
                         if(myMessage != null) {
                             Request myRequest = (Request) myMessage;
                             Response receivedResponse = (Response) receivedMessage;
@@ -78,6 +86,7 @@ public class Scheduler implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            removeDeadTrackers();
         }
     }
 
@@ -122,6 +131,14 @@ public class Scheduler implements Runnable {
             case DISCOVERY:
                 log.info("QUERY request");
                 peerDiscoveryHandler.handle(request, response);
+        }
+    }
+
+    public void removeDeadTrackers() {
+        for (MessageTracker m: messageTrackerMap.values()) {
+            if(m.getStatus() == Status.DEAD) {
+                messageTrackerMap.remove(m);
+            }
         }
     }
 

@@ -19,18 +19,23 @@ public class MessageHandler implements Runnable{
     public void run() {
         while (active) {
             try{
-                if(messageTracker.getRetryCount() < 5) {
-                    if(messageTracker.getStatus() == Status.SENT) {
-                        udpSender.sendMessage(messageTracker.getMessage());
-                        messageTracker.incrementRetryCount();
-                        Thread.sleep(1000);
-                    } else if(messageTracker.getStatus() == Status.RESPONSED) {
+                synchronized (messageTracker){
+                    if(messageTracker.getRetryCount() < 5) {
+                        if(messageTracker.getStatus() == Status.SENT) {
+                            udpSender.sendMessage(messageTracker.getMessage());
+                            messageTracker.incrementRetryCount();
+                            Thread.sleep(1000);
+                        } else if(messageTracker.getStatus() == Status.RESPONSED) {
+                            messageTracker.setStatus(Status.DEAD);
+                            active = false;
+                        }
+                    } else {
+                        System.out.println("No Response");
+                        messageTracker.setStatus(Status.DEAD);
                         active = false;
                     }
-                } else {
-                    System.out.println("No Response");
-                    active = false;
                 }
+
 
             }catch (Exception e) {
                 e.printStackTrace();
