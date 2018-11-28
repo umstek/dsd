@@ -1,10 +1,8 @@
 package lk.uom.cse14.dsd.comm.message;
 
-import lk.uom.cse14.dsd.comm.MessageType;
-
-/*
- * Heartbeat message is used for periodical heartbeats to check if neighbours are alive
- * */
+/**
+ * Heartbeat message is used to test the liveliness of the neighboring peers.
+ */
 public class HeartbeatRequest extends Request {
 
     public HeartbeatRequest(String source, int sourcePort, String destination, int destinationPort) {
