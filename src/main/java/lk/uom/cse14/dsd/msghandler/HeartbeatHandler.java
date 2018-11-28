@@ -4,7 +4,6 @@ import lk.uom.cse14.dsd.comm.message.HeartbeatRequest;
 import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.comm.response.HeartbeatResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
-import lk.uom.cse14.dsd.discovery.RoutingEntry;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 
 import java.util.ArrayList;

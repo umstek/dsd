@@ -108,4 +108,8 @@ public class Peer {
     public int getOwnPort() {
         return ownPort;
     }
+
+    public UdpReceiver getUdpReceiver() {
+        return udpReceiver;
+    }
 }

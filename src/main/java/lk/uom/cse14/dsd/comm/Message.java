@@ -2,6 +2,7 @@ package lk.uom.cse14.dsd.comm;
 
 public class Message {
     private MessageType type;
+    private long uuid;
     private String source;
     private int sourcePort;
     private String destination;
@@ -13,8 +14,9 @@ public class Message {
         this.sourcePort = sourcePort;
         this.destination = destination;
         this.destinationPort = destinationPort;
+            uuid = System.nanoTime();
 
-    }
+        }
 
     public void redirectRequest(String source, int sourcePort, String destination, int destinationPort){
         this.setSource(source);
@@ -75,5 +77,9 @@ public class Message {
 
     public int getHopCount() {
         return hopCount;
+    }
+
+    public long getUuid() {
+        return uuid;
     }
 }
