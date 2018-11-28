@@ -2,7 +2,7 @@ package lk.uom.cse14.dsd.peer;
 
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
-import lk.uom.cse14.dsd.discovery.RoutingEntry;
+import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;

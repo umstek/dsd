@@ -16,4 +16,9 @@ public abstract class Request extends Message implements Serializable {
     public Request(String source, int sourcePort, String destination, int destinationPort) {
         super(source, sourcePort, destination, destinationPort);
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

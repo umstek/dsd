@@ -19,4 +19,9 @@ public abstract class Response extends Message {
     public void setStatus(int status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }
