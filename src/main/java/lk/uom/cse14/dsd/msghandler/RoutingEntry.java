@@ -19,6 +19,7 @@ public class RoutingEntry implements Cloneable,Serializable {
     }
 
     public RoutingEntry() {
+
     }
 
     public String getPeerIP() {
