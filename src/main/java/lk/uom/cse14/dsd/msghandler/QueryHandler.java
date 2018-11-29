@@ -43,15 +43,20 @@ public class QueryHandler implements IHandler {
     @Override
     public void handle(Request request, Response response) {
         QueryRequest queryRequest = (QueryRequest) request;
-        QueryResponse queryResponse = (QueryResponse) response;
-        if (queryResponse.getStatus() == QueryResponse.SUCCESS) { // if successful response, update cache
+        QueryResponse queryResponse = null;
+        if(response != null){
+            queryResponse  = (QueryResponse) response;
+        }
+        if (queryResponse != null) { // if successful response, update cache
             cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet());
         }
         if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                 this.ownPort == queryRequest.getGetRequesterPort()) {
             // UI.show result of notify file downloads handler
         } else { // originated from somewhere else. should redirect to the requester
-            queryResponse.redirectRequest(ownHost, ownPort, request.getSource(), request.getSourcePort());
+            QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
+            response1.setUuid(request.getUuid());
+            response1.setStatus(Response.FAIL);
             scheduler.schedule(queryResponse);
         }
     }

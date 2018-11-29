@@ -105,7 +105,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
     public void handle(Request request, Response response) {
         try{
             synchronized (RoutingEntry.class) {
-            if (response.getStatus() == Response.SUCCESS &&
+            if (response != null &&
                     response instanceof DiscoveryResponse) {
                 DiscoveryResponse dResponse = (DiscoveryResponse) response;
                 for (RoutingEntry discoveredEntry : dResponse.getDiscoveredPeers()) {
