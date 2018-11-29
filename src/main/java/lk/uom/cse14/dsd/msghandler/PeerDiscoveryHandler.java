@@ -77,8 +77,8 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
             boolean flag1 = false;
             try {
                 synchronized (RoutingEntry.class){
+                    logger.info("Trying to find neighbours. Routing table size:" + routingTable.size());
                     if (routingTable.size() < peerLimit - 3 && !routingTable.isEmpty()) {
-                        logger.info("Trying to find neighbours. Routing table size:" + routingTable.size());
                         RoutingEntry entry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
                         if (entry.getStatus().equals(RoutingEntry.Status.ONLINE)) {
                             DiscoveryRequest request = new DiscoveryRequest(this.ownHost, this.ownPort, entry.getPeerIP(), entry.getPeerPort());
