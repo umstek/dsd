@@ -20,9 +20,9 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
      */
     public TcpRegistryCommunicator(String serverHost, int serverPort) {
         super(serverHost, serverPort);
-        this.ownHost = "";
-        this.ownPort = 0;
-        this.username = null;
+        this.setOwnHost("");
+        this.setOwnPort(0);
+        this.setUsername(null);
     }
 
     /**
@@ -35,7 +35,7 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
     private String request(String message) throws IOException {
         /* Take this method out if needed elsewhere. */
 
-        try (Socket clientSocket = new Socket(serverHost, serverPort)) {
+        try (Socket clientSocket = new Socket(getServerHost(), getServerPort())) {
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
@@ -60,17 +60,17 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
          * Otherwise, we try unregistering first, and if successful, we try to register again.
          * If this fails, the function will return null, so a new username and ownPort has to be tried.
          */
-        if (this.username == null ||
-                (this.ownPort != ownPort || !this.ownHost.equals(ownHost)) && !this.username.equals(username)
+        if (this.getUsername() == null ||
+                (this.getOwnPort() != ownPort || !this.getOwnHost().equals(ownHost)) && !this.getUsername().equals(username)
                 || unregister()) {
 
             String requestMessage = generateRequestString(ownHost, ownPort, username, false);
             String response = request(requestMessage);
             List<PeerInfo> peerInfos = parseRegisterResponse(response);
 
-            this.ownHost = ownHost;
-            this.ownPort = ownPort;
-            this.username = username;
+            this.setOwnHost(ownHost);
+            this.setOwnPort(ownPort);
+            this.setUsername(username);
 
             return peerInfos;
         }
@@ -81,17 +81,17 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
     @Override
     public boolean unregister() throws IOException, UnknownUnregisterResponseException {
         /* Cannot register if we have not yet registered/have already unregistered. */
-        if (this.username == null || this.ownPort < 1024) {
+        if (this.getUsername() == null || this.getOwnPort() < 1024) {
             return false;
         }
 
-        String requestMessage = generateRequestString(ownHost, ownPort, username, true);
+        String requestMessage = generateRequestString(getOwnHost(), getOwnPort(), getUsername(), true);
         String response = request(requestMessage);
         boolean status = parseUnregisterResponse(response);
 
-        this.ownHost = "";
-        this.ownPort = 0;
-        this.username = "";
+        this.setOwnHost("");
+        this.setOwnPort(0);
+        this.setUsername("");
 
         return status;
     }

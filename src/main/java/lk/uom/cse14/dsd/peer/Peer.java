@@ -1,12 +1,19 @@
 package lk.uom.cse14.dsd.peer;
 
+import lk.uom.cse14.dsd.bscom.PeerInfo;
+import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
-import lk.uom.cse14.dsd.msghandler.RoutingEntry;
+import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;
-import lk.uom.cse14.dsd.msghandler.HeartbeatHandler;
+import lk.uom.cse14.dsd.query.DummyCacheQueryProcessor;
+import lk.uom.cse14.dsd.query.DummyFileQueryProcessor;
+import lk.uom.cse14.dsd.query.ICacheQuery;
+import lk.uom.cse14.dsd.query.IFileQuery;
+import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.SearchUtils;
 
 import java.io.IOException;
@@ -16,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,9 +39,12 @@ public class Peer {
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;
     private ExecutorService taskExecutor;
-
-    private HeartbeatHandler heartbeatHandler;
-
+    private Scheduler scheduler;
+    private IHandler queryHandler;
+    private IHandler heartbeatHandler;
+    private IHandler peerDiscoveryHandler;
+    private IFileQuery fileQueryProcessor;
+    private ICacheQuery cacheQueryProcessor;
     /*
     This value is hardcoded
      */
@@ -53,15 +64,23 @@ public class Peer {
     private String ownHost;
     private int ownPort;
 
-    public Peer(String host, int port) {
+    public Peer(String BSHost,int BSPort,String ownHost,int ownPort) throws IOException, RegisterException {
+        TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost,BSPort);
         try {
-            this.socket = new DatagramSocket(port);
-            this.taskExecutor = Executors.newFixedThreadPool(5);
+            this.socket = new DatagramSocket(ownPort);
+            this.taskExecutor = Executors.newFixedThreadPool(10);
             this.udpSender = new UdpSender(1000, 100, socket);
             this.udpReceiver = new UdpReceiver(socket);
-            this.ownHost = host;
-            this.ownPort = port;
-//            this.heartbeatHandler = new HeartbeatHandler(ownHost, ownPort, scheduler, routingTable);
+            this.routingTable = new ArrayList<>();
+            this.scheduler = new Scheduler(udpReceiver,udpSender);
+            List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost,ownPort,"DisFishIWKA");
+            this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable,ownHost,ownPort,scheduler,peers);
+            this.fileQueryProcessor = new DummyFileQueryProcessor();
+            this.cacheQueryProcessor = new DummyCacheQueryProcessor();
+            this.queryHandler = new QueryHandler(routingTable,scheduler,cacheQueryProcessor,fileQueryProcessor,ownHost,ownPort);
+            this.heartbeatHandler = new HeartbeatHandler(ownHost,ownPort,scheduler,routingTable);
+            this.ownHost = ownHost;
+            this.ownPort = ownPort;
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -76,8 +95,11 @@ public class Peer {
 
         taskExecutor.submit(this.udpReceiver);
         taskExecutor.submit(this.udpSender);
+        taskExecutor.submit((Runnable) this.peerDiscoveryHandler);
+        taskExecutor.submit((Runnable)this.heartbeatHandler);
+        taskExecutor.submit(scheduler);
         System.out.println("DisFish Peer Started at: " + new Date().toString());
-        System.out.println("Local Address: " + socket.getLocalSocketAddress());
+        System.out.println("Local Address: " + ownHost+":"+ownPort);
         this.generateFiles();
         System.out.println("\n************** List of hosted files **************\n");
         for (String filename : this.hostedFileNames

@@ -1,33 +1,71 @@
 package lk.uom.cse14.dsd.msghandler;
 
+import lk.uom.cse14.dsd.bscom.PeerInfo;
+import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.MessageType;
 import lk.uom.cse14.dsd.comm.message.DiscoveryRequest;
 import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.comm.response.DiscoveryResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.List;
 
 public class PeerDiscoveryHandler implements Runnable, IHandler {
     private final ArrayList<RoutingEntry> routingTable;
-    private Logger logger = Logger.getLogger(this.getClass().toString());
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeerDiscoveryHandler.class);
     private Scheduler scheduler;
     private int peerLimit = 10;
     private boolean running = true;
     private String ownHost;
     private int ownPort;
 
-    public PeerDiscoveryHandler(ArrayList<RoutingEntry> routingTable, String ownHost, int ownPort, Scheduler scheduler){
+    public PeerDiscoveryHandler(ArrayList<RoutingEntry> routingTable,
+                                String ownHost, int ownPort, Scheduler scheduler,List<PeerInfo> peersList){
         this.routingTable = routingTable;
         this.ownHost = ownHost;
         this.ownPort = ownPort;
         this.scheduler = scheduler;
+        this.init(peersList);
     }
 
-    public void init(){
-        // todo: communicate with BS server and populate first two entries of the table
+    public void init(List<PeerInfo> peersList) {
+        if(peersList.size() < 3){
+            for (PeerInfo info: peersList) {
+                RoutingEntry routingEntry = new RoutingEntry();
+                routingEntry.setPeerIP(info.getHost());
+                routingEntry.setPeerPort(info.getPort());
+                routingEntry.setStatus(RoutingEntry.Status.UNKNOWN);
+                routingEntry.setRetryCount(0);
+                routingTable.add(routingEntry);
+            }
+
+
+        }else {
+            int random1 = ((int)(Math.random()*100))% peersList.size();
+            int random2 = ((int)(Math.random()*100))% peersList.size();
+            while (random1 == random2){
+                random2 = ((int)(Math.random()*100))% peersList.size();
+            }
+            PeerInfo info1 = peersList.get(random1);
+            RoutingEntry routingEntry1 = new RoutingEntry();
+            routingEntry1.setPeerIP(info1.getHost());
+            routingEntry1.setPeerPort(info1.getPort());
+            routingEntry1.setStatus(RoutingEntry.Status.UNKNOWN);
+            routingEntry1.setRetryCount(0);
+            routingTable.add(routingEntry1);
+            PeerInfo info2 = peersList.get(random2);
+            RoutingEntry routingEntry2 = new RoutingEntry();
+            routingEntry2.setPeerIP(info2.getHost());
+            routingEntry2.setPeerPort(info2.getPort());
+            routingEntry2.setStatus(RoutingEntry.Status.UNKNOWN);
+            routingEntry2.setRetryCount(0);
+            routingTable.add(routingEntry2);
+        }
     }
 
     @Override

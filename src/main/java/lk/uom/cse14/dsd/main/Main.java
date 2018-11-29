@@ -1,33 +1,34 @@
 package lk.uom.cse14.dsd.main;
 
+import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.comm.message.HeartbeatRequest;
+import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Please specify a port. ");
-            System.exit(20);
-        }
 
-        int port = 0;
-        try {
-            port = Integer.parseInt(args[0]);
-
-            if (port < 1 || port > 65535) {
-                throw new IllegalArgumentException("Invalid port number. ");
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("Please specify a positive integer less than 65535 as the port number. ");
-            System.exit(20);
-        }
-
+//        TcpRegistryCommunicator x = new TcpRegistryCommunicator("127.0.0.1", 5000);
+//        try {
+//            List<PeerInfo> peerInfos = x.register("127.0.0.1", 4990, "user1");
+//            for (PeerInfo pi : peerInfos) {
+//                System.out.println(pi);
+//            }
+//        } catch (IOException e) {
+//            System.out.println("IO error");
+//            e.printStackTrace();
+//        } catch (RegisterException e) {
+//            System.out.println("Registering error");
+//            e.printStackTrace();
+//        }
         String ownHostFinal = null;
         try {
-            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(true);
+            List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(false);
             for (String ownHost : ownHosts) {
                 if (!"".equals(ownHost)) {
                     ownHostFinal = ownHost;
@@ -40,8 +41,20 @@ public class Main {
         if (ownHostFinal == null) {
             System.exit(78);
         }
+        Peer peer = null;
+        try {
+            peer = new Peer("127.0.0.1",5000,ownHostFinal,3009);
+            peer.startPeer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RegisterException e) {
+            e.printStackTrace();
+        }
 
-        Peer peer = new Peer(ownHostFinal, port);
-        peer.startPeer();
+//        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT, ownHostFinal, "127.0.0.1", 3006));
+//        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT,
+//                ownHostFinal, "127.0.0.1", 3006));
+
+
     }
 }
