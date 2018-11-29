@@ -111,9 +111,16 @@ public class Scheduler implements Runnable {
                                 handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
                             }
                         } else {
-                            Request receivedRequest = (Request) receivedMessage;
-                            handleRequestMessage(receivedRequest, receivedMessageType);
-                            log.info("Passing to handleRequestMessage");
+                            log.info("Casting to RequestMessage");
+                            if(receivedMessage instanceof Request){
+                                Request receivedRequest = (Request) receivedMessage;
+                                log.info("Passing to handleRequestMessage");
+                                handleRequestMessage(receivedRequest, receivedMessageType);
+                                log.info("Passing to handleRequestMessage done");
+                            }else{
+                                log.info("Ignoring unknown request message");
+                            }
+
                         }
                     }
                     removeDeadTrackers();
