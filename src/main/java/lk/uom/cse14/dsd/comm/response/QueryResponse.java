@@ -12,7 +12,7 @@ public class QueryResponse extends Response {
     }
 
     public QueryResultSet getQueryResultSet() {
-        return queryResultSet;
+        return this.queryResultSet;
     }
 
     public void setQueryResultSet(QueryResultSet queryResultSet) {
