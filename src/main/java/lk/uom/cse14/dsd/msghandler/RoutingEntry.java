@@ -1,9 +1,11 @@
 package lk.uom.cse14.dsd.msghandler;
 
+import java.io.Serializable;
+
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.ONLINE;
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.UNKNOWN;
 
-public class RoutingEntry implements Cloneable {
+public class RoutingEntry implements Cloneable,Serializable {
     private String peerIP;
     private int peerPort;
     private Status status;
