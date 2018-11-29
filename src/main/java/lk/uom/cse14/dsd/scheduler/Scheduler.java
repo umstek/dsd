@@ -118,10 +118,12 @@ public class Scheduler implements Runnable {
             case QUERY:
                 log.info("QUERY Request");
                 queryHandler.handle(request);
+                break;
 
             case DISCOVERY:
                 log.info("DISCOVERY Request");
                 peerDiscoveryHandler.handle(request);
+                break;
         }
     }
 
@@ -135,10 +137,12 @@ public class Scheduler implements Runnable {
             case QUERY:
                 log.info("QUERY Response");
                 queryHandler.handle(request, response);
+                break;
 
             case DISCOVERY:
                 log.info("QUERY Response");
                 peerDiscoveryHandler.handle(request, response);
+                break;
         }
     }
 

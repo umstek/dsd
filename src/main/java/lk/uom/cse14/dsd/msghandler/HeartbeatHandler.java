@@ -33,23 +33,24 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void handle(Request request, Response response) {
         // N.B.: Destination of the original request and the source of its reply response are the same and vice versa.
-
-        if (response == null) {
-            for (RoutingEntry routingEntry : routingEntries) {
-                if (routingEntry.getPeerIP().equals(request.getDestination())
-                        && routingEntry.getPeerPort() == request.getDestinationPort()) {
-                    routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
-                    routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
-                    break;
+        synchronized (RoutingEntry.class){
+            if (response == null) {
+                for (RoutingEntry routingEntry : routingEntries) {
+                    if (routingEntry.getPeerIP().equals(request.getDestination())
+                            && routingEntry.getPeerPort() == request.getDestinationPort()) {
+                        routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
+                        routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
+                        break;
+                    }
                 }
-            }
-        } else {
-            for (RoutingEntry routingEntry : routingEntries) {
-                if (routingEntry.getPeerIP().equals(response.getSource())
-                        && routingEntry.getPeerPort() == response.getSourcePort()) {
-                    routingEntry.setStatus(RoutingEntry.Status.ONLINE);
-                    routingEntry.setRetryCount(0);
-                    break;
+            } else {
+                for (RoutingEntry routingEntry : routingEntries) {
+                    if (routingEntry.getPeerIP().equals(response.getSource())
+                            && routingEntry.getPeerPort() == response.getSourcePort()) {
+                        routingEntry.setStatus(RoutingEntry.Status.ONLINE);
+                        routingEntry.setRetryCount(0);
+                        break;
+                    }
                 }
             }
         }
@@ -84,7 +85,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
             return;
         }
 
-        synchronized (this) {
+        synchronized (RoutingEntry.class) {
 
             boolean peerExists = false;
             for (RoutingEntry routingEntry : routingEntries) {

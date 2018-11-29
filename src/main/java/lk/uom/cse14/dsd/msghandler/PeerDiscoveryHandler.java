@@ -74,22 +74,25 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
     @Override
     public void run() {
         while (running) {
+            boolean flag1 = false;
             try {
-                if (routingTable.size() < peerLimit - 3 && !routingTable.isEmpty()) {
-                    logger.info("Trying to find neighbours. Routing table size:" + routingTable.size());
-                    RoutingEntry entry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
-                    if (entry.getStatus().equals(RoutingEntry.Status.ONLINE)) {
-                        DiscoveryRequest request = new DiscoveryRequest(this.ownHost, this.ownPort, entry.getPeerIP(), entry.getPeerPort());
-                        request.setType(MessageType.DISCOVERY);
-                        request.setRequestedPeerCount(2);
-                        logger.info("Sending discovery request to:" + request.getDestination() + ":" + request.getDestinationPort());
-                        scheduler.schedule(request);
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                synchronized (RoutingEntry.class){
+                    if (routingTable.size() < peerLimit - 3 && !routingTable.isEmpty()) {
+                        logger.info("Trying to find neighbours. Routing table size:" + routingTable.size());
+                        RoutingEntry entry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
+                        if (entry.getStatus().equals(RoutingEntry.Status.ONLINE)) {
+                            DiscoveryRequest request = new DiscoveryRequest(this.ownHost, this.ownPort, entry.getPeerIP(), entry.getPeerPort());
+                            request.setType(MessageType.DISCOVERY);
+                            request.setRequestedPeerCount(2);
+                            logger.info("Sending discovery request to:" + request.getDestination() + ":" + request.getDestinationPort());
+                            scheduler.schedule(request);
+                            flag1 = true;
+
                         }
                     }
+                }
+                if(flag1){
+                    Thread.sleep(1000);
                 }
                 Thread.sleep(1500);
             } catch (InterruptedException e) {
@@ -100,7 +103,8 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
 
     @Override
     public void handle(Request request, Response response) {
-        //synchronized (PeerDiscoveryHandler.class) {
+        try{
+            synchronized (RoutingEntry.class) {
             if (response.getStatus() == Response.SUCCESS &&
                     response instanceof DiscoveryResponse) {
                 DiscoveryResponse dResponse = (DiscoveryResponse) response;
@@ -122,7 +126,11 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                 logger.info("Routing Table Status: ");
                 //logger.info(routingTable.toString());
             }
-        //}
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
