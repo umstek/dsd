@@ -64,6 +64,7 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (true) {
+            log.info("Scheduler Up");
             try {
                 boolean flag = false;
                 Message receivedMessage = udpReceiver.getMessage();
@@ -71,6 +72,7 @@ public class Scheduler implements Runnable {
                     log.info("Empty udpReceiver");
                     flag = true;
                 } else {
+                    log.info("Message Found: {}", receivedMessage.getUuid());
                     MessageType receivedMessageType = receivedMessage.getType();
                     if (isItMyMessage(receivedMessage)) {
                         log.info("Response to my message, uuid: {}", receivedMessage.getUuid());
@@ -82,17 +84,23 @@ public class Scheduler implements Runnable {
                         //}
                         if (myMessage != null) {
                             Request myRequest = (Request) myMessage;
+                            log.info("Retrieved Matching Request");
                             Response receivedResponse = (Response) receivedMessage;
+                            log.info("Passing to handleResponseMessage");
                             handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
                         }
                     } else {
                         Request receivedRequest = (Request) receivedMessage;
                         handleRequestMessage(receivedRequest, receivedMessageType);
+                        log.info("Passing to handleRequestMessage");
                     }
                 }
                 removeDeadTrackers();
+                log.info("Removed Dead Trackers");
                 if (flag) {
+                    log.info("Scheduler Sleeping for 1 Second");
                     Thread.sleep(1000);
+                    log.info("Scheduler Woke Up");
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -140,7 +148,7 @@ public class Scheduler implements Runnable {
                 break;
 
             case DISCOVERY:
-                log.info("QUERY Response");
+                log.info("DISCOVERY Response");
                 peerDiscoveryHandler.handle(request, response);
                 break;
         }
