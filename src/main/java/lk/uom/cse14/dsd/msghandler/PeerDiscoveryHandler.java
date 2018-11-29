@@ -7,14 +7,15 @@ import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.DiscoveryResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PeerDiscoveryHandler implements Runnable, IHandler {
     private final ArrayList<RoutingEntry> routingTable;
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeerDiscoveryHandler.class);
+    private final Logger logger = Logger.getLogger(PeerDiscoveryHandler.class);
     private Scheduler scheduler;
     private int peerLimit = 10;
     private boolean running = true;

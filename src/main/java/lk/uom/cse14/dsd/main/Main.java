@@ -3,6 +3,7 @@ package lk.uom.cse14.dsd.main;
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
+import org.apache.log4j.PropertyConfigurator;
 //import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
@@ -26,7 +27,7 @@ public class Main {
 //            System.out.println("Registering error");
 //            e.printStackTrace();
 //        }
-        //PropertyConfigurator.configure("log4j.properties");
+        PropertyConfigurator.configure("log4j.properties");
         System.out.println(new File("").getAbsolutePath());
         String ownHostFinal = null;
         try {
