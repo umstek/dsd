@@ -123,7 +123,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                     }
                 }
             }catch (Exception e){
-
+                e.printStackTrace();
             }
 
         }
