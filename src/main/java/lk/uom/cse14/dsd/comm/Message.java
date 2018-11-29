@@ -1,6 +1,8 @@
 package lk.uom.cse14.dsd.comm;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
     private MessageType type;
     private long uuid;
     private String source;
@@ -8,6 +10,10 @@ public class Message {
     private String destination;
     private int destinationPort;
     private int hopCount = 0;
+
+    public Message(){
+
+    }
 
     public Message(String source, int sourcePort, String destination, int destinationPort) {
         this.source = source;
