@@ -1,5 +1,6 @@
 package lk.uom.cse14.dsd.msghandler;
 
+import lk.uom.cse14.dsd.comm.MessageType;
 import lk.uom.cse14.dsd.comm.request.QueryRequest;
 import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.QueryResponse;
@@ -86,8 +87,8 @@ public class QueryHandler implements IHandler {
             if(qt != null){
                 qt.setQueryResult(result);
             }
-        } else if (result != null && !this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found, but originated from another Host/Port
-                this.ownPort != queryRequest.getGetRequesterPort()) {
+        } else if (result != null && (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
+                this.ownPort != queryRequest.getGetRequesterPort())) {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
                     queryRequest.getSourcePort());
             response.setStatus(QueryResponse.SUCCESS);
@@ -123,6 +124,7 @@ public class QueryHandler implements IHandler {
         request.setGetRequesterPort(ownPort);
         request.setRequesterHost(ownHost);
         request.setSkipCache(queryTask.isSkipCache());
+        request.setType(MessageType.QUERY);
         String uuid = UUID.randomUUID().toString();
         request.setRequestID(uuid);
         queryTasks.put(uuid, queryTask);
