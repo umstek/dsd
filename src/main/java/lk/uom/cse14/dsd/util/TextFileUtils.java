@@ -1,4 +1,4 @@
-package lk.uom.cse14.dsd.fileio;
+package lk.uom.cse14.dsd.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-public class TextFileHandler {
+public class TextFileUtils {
 
     /**
      * @param filename name of the file to read
