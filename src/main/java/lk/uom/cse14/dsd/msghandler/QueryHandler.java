@@ -115,7 +115,9 @@ public class QueryHandler implements IHandler {
             while (count < 50) {  // find a random neighbour who is online
                 if(!routingTable.isEmpty()){
                     RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
-                    if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE) {
+                    if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
+                            !(tempEntry.getPeerIP().equals(request.getSource()) &&
+                                    tempEntry.getPeerPort() == request.getSourcePort())) {
                         destinationEntry = tempEntry;
                         break;
                     }
