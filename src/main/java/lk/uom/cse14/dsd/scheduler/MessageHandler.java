@@ -1,9 +1,12 @@
 package lk.uom.cse14.dsd.scheduler;
 
 import lk.uom.cse14.dsd.comm.UdpSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageHandler implements Runnable {
 
+    private final Logger log = LoggerFactory.getLogger(MessageHandler.class);
     private MessageTracker messageTracker;
     private boolean active;
     private UdpSender udpSender;
@@ -18,21 +21,27 @@ public class MessageHandler implements Runnable {
     public void run() {
         while (active) {
             try {
+                boolean flag = false;
+                synchronized (Scheduler.class){
                     if (messageTracker.getRetryCount() < 5) {
                         if (messageTracker.getStatus() == Status.SENT) {
                             udpSender.sendMessage(messageTracker.getMessage());
                             messageTracker.incrementRetryCount();
-                            Thread.sleep(10000);
+                            log.info("Message Resent: {}");
+                            flag = true;
                         } else if (messageTracker.getStatus() == Status.RESPONSED) {
                             messageTracker.setStatus(Status.DEAD);
                             active = false;
                         }
                     } else {
-                        System.out.println("No Response");
                         messageTracker.setStatus(Status.DEAD);
+                        log.info("Retry count exceeded. Status set to DEAD");
                         active = false;
                     }
-
+                }
+                if(flag){
+                    Thread.sleep(10000);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

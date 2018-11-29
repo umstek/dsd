@@ -47,13 +47,16 @@ public class Scheduler implements Runnable {
         log.info("Inside Schedule");
         if (message instanceof Response) {
             udpSender.sendMessage(message);
+            log.info("Response type : {}", message.getType() );
+            log.info("Response sent to: {}", message.getDestination() );
             return;
         }
-
+        log.info("Request type : {}", message.getType() );
         MessageTracker messageTracker = new MessageTracker(message);
         messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
         udpSender.sendMessage(message);
         messageTracker.setStatus(Status.SENT);
+        log.info("Request sent to: {}", message.getDestination() );
         MessageHandler messageHandler = new MessageHandler(messageTracker, udpSender);
         this.executorService.submit(messageHandler);
     }
@@ -61,11 +64,12 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (true) {
+            boolean flag = false;
             synchronized (Scheduler.class) {
                 try {
                     Message receivedMessage = udpReceiver.getMessage();
                     if (receivedMessage == null) {
-                        Thread.sleep(1000);
+                        flag = true;
                     } else {
                         MessageType receivedMessageType = receivedMessage.getType();
                         if (isItMyMessage(receivedMessage)) {
@@ -84,6 +88,9 @@ public class Scheduler implements Runnable {
                             Request receivedRequest = (Request) receivedMessage;
                             handleRequestMessage(receivedRequest, receivedMessageType);
                         }
+                    }
+                    if(flag){
+                        Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
