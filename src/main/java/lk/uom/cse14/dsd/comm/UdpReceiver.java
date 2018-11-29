@@ -1,6 +1,5 @@
 package lk.uom.cse14.dsd.comm;
 
-import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.util.MessageUtils;
 
 import java.io.IOException;
@@ -9,8 +8,8 @@ import java.net.DatagramSocket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /*
- * UdpReceiver listens on the predefined UDP port. On a new UDP message, it receives the message
- * and de-serializes the message into Request form and pushes it to the receiverQueue.
+ * UdpReceiver listens on the predefined UDP port. On a new UDP request, it receives the request
+ * and de-serializes the request into Request form and pushes it to the receiverQueue.
  * In case of failure in receiving and/or de-serialization, it only logs the stack trace and
  * continues its operation as usual.
  * Users can check for new messages by polling the receiverQueue.

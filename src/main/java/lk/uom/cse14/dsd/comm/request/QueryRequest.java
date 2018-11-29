@@ -1,7 +1,7 @@
-package lk.uom.cse14.dsd.comm.message;
+package lk.uom.cse14.dsd.comm.request;
 
 /*
- * IFileQuery message is used for searching for files in neighbour peers
+ * IFileQuery request is used for searching for files in neighbour peers
  * */
 public class QueryRequest extends Request {
     private String query;

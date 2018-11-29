@@ -1,28 +1,43 @@
 package lk.uom.cse14.dsd.msghandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class QueryResultSet {
-    private RoutingEntry routingEntry;
-    private ArrayList<String> fileNames;
+    /**
+     * This class represents the result of a query.
+     */
 
-    public QueryResultSet(){
-        this.fileNames = new ArrayList<>();
+//    private RoutingEntry routingEntry;
+//    private ArrayList<String> fileNames;
+    private HashMap<String, ArrayList<RoutingEntry>> results;
+
+    public QueryResultSet() {
+        this.results = new HashMap<>();
     }
 
-    public RoutingEntry getRoutingEntry() {
-        return routingEntry;
+    public HashMap<String, ArrayList<RoutingEntry>> getResults() {
+        return results;
     }
 
-    public void setRoutingEntry(RoutingEntry routingEntry) {
-        this.routingEntry = routingEntry;
+//    public QueryResultSet() {
+//        this.fileNames = new ArrayList<>();
+//    }
+
+    public void setResults(HashMap<String, ArrayList<RoutingEntry>> results) {
+        this.results = results;
+    }
+
+    public ArrayList<RoutingEntry> getRoutingEntries(String file) {
+        return results.get(file);
     }
 
     public ArrayList<String> getFileNames() {
-        return fileNames;
+        return new ArrayList<>(this.results.keySet());
     }
 
-    public void setFileNames(ArrayList<String> fileNames) {
-        this.fileNames = fileNames;
+    public void addEntry(String file, ArrayList<RoutingEntry> routingEntries) {
+        this.results.put(file, routingEntries);
     }
+
 }

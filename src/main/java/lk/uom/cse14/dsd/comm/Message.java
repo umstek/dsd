@@ -1,7 +1,19 @@
 package lk.uom.cse14.dsd.comm;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
     private MessageType type;
+
+    public MessageKind getDirection() {
+        return direction;
+    }
+
+    public void setDirection(MessageKind direction) {
+        this.direction = direction;
+    }
+
+    private MessageKind direction;
     private long uuid;
     private String source;
     private int sourcePort;
@@ -9,16 +21,27 @@ public class Message {
     private int destinationPort;
     private int hopCount = 0;
 
+    public Message() {
+
+    }
+
     public Message(String source, int sourcePort, String destination, int destinationPort) {
         this.source = source;
         this.sourcePort = sourcePort;
         this.destination = destination;
         this.destinationPort = destinationPort;
-            uuid = System.nanoTime();
+        uuid = System.nanoTime();
+    }
 
-        }
+    public Message(String source, int sourcePort, String destination, int destinationPort, long uuid) {
+        this.source = source;
+        this.sourcePort = sourcePort;
+        this.destination = destination;
+        this.destinationPort = destinationPort;
+        this.uuid = uuid;
+    }
 
-    public void redirectRequest(String source, int sourcePort, String destination, int destinationPort){
+    public void redirectRequest(String source, int sourcePort, String destination, int destinationPort) {
         this.setSource(source);
         this.setSourcePort(sourcePort);
         this.setDestination(destination);
@@ -38,41 +61,41 @@ public class Message {
         return source;
     }
 
-    public int getSourcePort() {
-        return sourcePort;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public int getDestinationPort() {
-        return destinationPort;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Message:\n");
-        builder.append("From: "+this.getSource()+":"+this.getSourcePort()+"\n");
-        builder.append("To: "+this.getDestination()+":"+this.getDestinationPort()+"\n");
-        return builder.toString();
-    }
-
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public int getSourcePort() {
+        return sourcePort;
     }
 
     public void setSourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
     public void setDestination(String destination) {
         this.destination = destination;
     }
 
+    public int getDestinationPort() {
+        return destinationPort;
+    }
+
     public void setDestinationPort(int destinationPort) {
         this.destinationPort = destinationPort;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Message:\n");
+        builder.append("From: " + this.getSource() + ":" + this.getSourcePort() + "\n");
+        builder.append("To: " + this.getDestination() + ":" + this.getDestinationPort() + "\n");
+        return builder.toString();
     }
 
     public int getHopCount() {
@@ -81,5 +104,9 @@ public class Message {
 
     public long getUuid() {
         return uuid;
+    }
+
+    public void setUuid(long uuid) {
+        this.uuid = uuid;
     }
 }

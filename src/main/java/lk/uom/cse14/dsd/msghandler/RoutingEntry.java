@@ -1,13 +1,26 @@
 package lk.uom.cse14.dsd.msghandler;
 
+import java.io.Serializable;
+
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.ONLINE;
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.UNKNOWN;
 
-public class RoutingEntry implements Cloneable{
+public class RoutingEntry implements Cloneable,Serializable {
     private String peerIP;
     private int peerPort;
     private Status status;
     private int retryCount;
+
+    public RoutingEntry(String peerIP, int peerPort, Status status, int retryCount) {
+        this.peerIP = peerIP;
+        this.peerPort = peerPort;
+        this.status = status;
+        this.retryCount = retryCount;
+    }
+
+    public RoutingEntry() {
+
+    }
 
     public String getPeerIP() {
         return peerIP;
@@ -33,6 +46,7 @@ public class RoutingEntry implements Cloneable{
         this.status = status;
     }
 
+
     public int getRetryCount() {
         return retryCount;
     }
@@ -41,24 +55,24 @@ public class RoutingEntry implements Cloneable{
         this.retryCount = retryCount;
     }
 
-    public enum Status {
-        ONLINE, OFFLINE, UNKNOWN
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Peer : "+this.peerIP+":"+peerPort+(this.status == ONLINE?"Online":"Offline")+" Retry Count"+retryCount+"\n");
+        builder.append("Peer : " + this.peerIP + ":" + peerPort + (this.status == ONLINE ? "Online" : "Offline") + " Retry Count" + retryCount + "\n");
         return super.toString();
     }
 
     @Override
-    public RoutingEntry clone(){
+    public RoutingEntry clone() {
         RoutingEntry entry = new RoutingEntry();
         entry.setPeerIP(this.peerIP);
         entry.setPeerPort(this.peerPort);
         entry.setStatus(UNKNOWN);
         entry.setRetryCount(0);
         return entry;
+    }
+
+    public enum Status {
+        ONLINE, OFFLINE, UNKNOWN
     }
 }

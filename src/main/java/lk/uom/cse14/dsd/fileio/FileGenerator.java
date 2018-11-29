@@ -1,6 +1,10 @@
 package lk.uom.cse14.dsd.fileio;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -24,7 +28,7 @@ public class FileGenerator {
      * @return a hashmap which has filenames as the set of keys
      * @throws NoSuchAlgorithmException
      */
-    public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException {
+    public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException, IOException {
         HashMap<String, DummyFile> files = new HashMap<>();
         for (String filename : filenames) {
             DummyFile file = generateFile(filename);
@@ -47,14 +51,13 @@ public class FileGenerator {
     }
 
     /**
-     * @param filename the name of the file that should be randomly generated
      * @return a DummyFile object
      * @throws NoSuchAlgorithmException
      */
-    public static DummyFile generateFile(String filename) throws NoSuchAlgorithmException {
+    public static DummyFile generateDummyFile() throws NoSuchAlgorithmException {
         byte[] bigint = FileGenerator.generateLargeNumber();
         int size = bigint.length;
-        int sizeMB = size / (1024*1024);
+        int sizeMB = size / (1024 * 1024);
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size; i++) {
@@ -69,6 +72,20 @@ public class FileGenerator {
         df.setData(data);
         df.setHash(hash);
         return df;
+    }
+
+    public static DummyFile generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+        FileOutputStream file = new FileOutputStream(Paths.get("").toAbsolutePath() + "Hosted Files" + filename);
+        ObjectOutputStream out = new ObjectOutputStream(file);
+
+        DummyFile dummyFile = FileGenerator.generateDummyFile();
+
+        // Method for serialization of object
+        out.writeObject(dummyFile);
+
+        out.close();
+        file.close();
+        return dummyFile;
     }
 
     /**

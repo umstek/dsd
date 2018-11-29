@@ -1,16 +1,17 @@
 package lk.uom.cse14.dsd.query;
 
+import lk.uom.cse14.dsd.msghandler.QueryResultSet;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.ui.QueryTaskListener;
 
-public class QueryTask implements Runnable{
+public class QueryTask implements Runnable {
     private String query;
     private boolean skipCache;
-    private RoutingEntry queryResult = null;
+    private QueryResultSet queryResult = null;
     private int retryCount = 50;
     private QueryTaskListener listener;
 
-    public QueryTask(QueryTaskListener listener,String query,boolean skipCache){
+    public QueryTask(QueryTaskListener listener, String query, boolean skipCache) {
         this.listener = listener;
         this.query = query;
         this.skipCache = skipCache;
@@ -19,9 +20,8 @@ public class QueryTask implements Runnable{
     @Override
     public void run() {
         int count = 0;
-        while (count<retryCount){
-            if(queryResult != null){
-                //listener.notifyQueryComplete(this);
+        while (count < retryCount) {
+            if (queryResult != null) {
                 break;
             } else {
                 try {
@@ -32,9 +32,7 @@ public class QueryTask implements Runnable{
                 }
             }
         }
-        if(queryResult == null){
-            listener.notifyQueryComplete(this);
-        }
+        listener.notifyQueryComplete(this);
     }
 
     public String getQuery() {
@@ -45,13 +43,7 @@ public class QueryTask implements Runnable{
         this.query = query;
     }
 
-    public RoutingEntry getQueryResult() {
-        return queryResult;
-    }
 
-    public void setQueryResult(RoutingEntry queryResult) {
-        this.queryResult = queryResult;
-    }
 
     public boolean isSkipCache() {
         return skipCache;
@@ -63,5 +55,13 @@ public class QueryTask implements Runnable{
 
     public QueryTaskListener getListener() {
         return listener;
+    }
+
+    public QueryResultSet getQueryResult() {
+        return queryResult;
+    }
+
+    public void setQueryResult(QueryResultSet queryResult) {
+        this.queryResult = queryResult;
     }
 }

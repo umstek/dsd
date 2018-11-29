@@ -10,11 +10,11 @@ import java.util.StringTokenizer;
  * Abstract class for communicating with bootstrap server. Has methods for parsing responses.
  */
 abstract class RegistryCommunicator {
-    String serverHost;
-    int serverPort;
-    String ownHost;
-    int ownPort;
-    String username;
+    private String serverHost;
+    private int serverPort;
+    private String ownHost;
+    private int ownPort;
+    private String username;
 
     /**
      * Allows creating different types of RegistryCommunicators.
@@ -32,11 +32,11 @@ abstract class RegistryCommunicator {
      *
      * @param response Response received from bootstrap server.
      * @return Whether un-registration was successful.
-     * @throws UnknownUnregisterResponseException If unknown value or message code received, this will throw.
+     * @throws UnknownUnregisterResponseException If unknown value or request code received, this will throw.
      */
     static boolean parseUnregisterResponse(String response) throws UnknownUnregisterResponseException {
         /*
-         * <message length> UNROK value
+         * <request length> UNROK value
          */
         StringTokenizer tokenizer = new StringTokenizer(response);
         tokenizer.nextToken(); // Request length
@@ -54,7 +54,7 @@ abstract class RegistryCommunicator {
                 throw new UnknownUnregisterResponseException();
             }
         } else {
-            /* Should be unreachable unless we are sending an unknown message, which is not. */
+            /* Should be unreachable unless we are sending an unknown request, which is not. */
             throw new UnknownUnregisterResponseException();
         }
     }
@@ -68,7 +68,7 @@ abstract class RegistryCommunicator {
      */
     static List<PeerInfo> parseRegisterResponse(String response) throws RegisterException {
         /*
-         * <message length> REGOK <node count> <node 1 host> <node 1 port> <node 2 host> <node 2 port> ...
+         * <request length> REGOK <node count> <node 1 host> <node 1 port> <node 2 host> <node 2 port> ...
          * We trust the registry to send the correct response.
          */
 
@@ -85,35 +85,50 @@ abstract class RegistryCommunicator {
 
             switch (nodeCount) {
                 case 9999:
-                    /* Failed: Some error in the message we sent.
-                    This shouldn't happen. TODO Server sends this when already registered. */
-                    throw new IncorrectRegisterRequestException();
-                case 9998:
                     /* Failed: Already registered to you. We have to unregister.
-                    This happens if our app crashed. TODO Server sends this when error in message. */
+                    This happens if our app crashed. */
                     throw new AlreadyRegisteredException();
+                case 9998:
+                    /* Failed: Some error in the request we sent.
+                    This shouldn't happen. */
+                    throw new IncorrectRegisterRequestException();
                 case 9997:
-                    /* Failed: Registered to another user. TODO Server sends this when registry full.
-                    This might happen only when running multiple peers in the same host. */
-                    throw new UnavailableAddressException();
-                case 9996:
-                    /* Failed: Registry full. TODO Server sends ERROR, not REGOK.
+                    /* Failed: Registry full.
                     If this happens, we give up. Try later. */
                     throw new RegistryFullException();
+                case 9996: // There is no such message code.
+                    /* Failed: Registered to another user.
+                    This might happen only when running multiple peers in the same host. */
+                    throw new UnavailableAddressException();
                 default:
                     /* We have nodeCount nodes. */
                     List<PeerInfo> peerInfos = new ArrayList<>();
                     for (int i = 0; i < nodeCount; i++) {
                         /* Again we fully trust bootstrap server to send a correct reply. */
                         peerInfos.add(new PeerInfo(tokenizer.nextToken(), Integer.parseInt(tokenizer.nextToken())));
+                        tokenizer.nextToken(); // discard
                     }
 
                     return peerInfos;
             }
         } else {
-            /* Should be unreachable unless we are sending an unknown message, which is not. */
+            /* Should be unreachable unless we are sending an unknown request, which is not. */
             throw new UnknownRegisterResponseException();
         }
+    }
+
+    static String generateRequestString(String ownHost, int ownPort, String username, boolean unregister) {
+        String strOwnPort = String.valueOf(ownPort);
+
+        int msgLength = 4 + (unregister ? 5 : 3) +
+                ownHost.length() + strOwnPort.length() + username.length()
+                + 4; // Spaces
+        String strMsgLength = String.format("%04d", msgLength);
+
+        return String.join(
+                " ",
+                strMsgLength, unregister ? "UNREG" : "REG", ownHost, strOwnPort, username
+        );
     }
 
     /**
@@ -134,18 +149,35 @@ abstract class RegistryCommunicator {
      */
     abstract boolean unregister() throws IOException, UnknownUnregisterResponseException;
 
-    static String generateRequestString(String ownHost, int ownPort, String username, boolean unregister) {
-        String strOwnPort = String.valueOf(ownPort);
-
-        int msgLength = 4 + (unregister ? 5 : 3) +
-                ownHost.length() + strOwnPort.length() + username.length()
-                + 4; // Spaces
-        String strMsgLength = String.format("%04d", msgLength);
-
-        return String.join(
-                " ",
-                strMsgLength, unregister ? "UNREG" : "REG", ownHost, strOwnPort, username
-        );
+    public String getServerHost() {
+        return serverHost;
     }
 
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public String getOwnHost() {
+        return ownHost;
+    }
+
+    public void setOwnHost(String ownHost) {
+        this.ownHost = ownHost;
+    }
+
+    public int getOwnPort() {
+        return ownPort;
+    }
+
+    public void setOwnPort(int ownPort) {
+        this.ownPort = ownPort;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }

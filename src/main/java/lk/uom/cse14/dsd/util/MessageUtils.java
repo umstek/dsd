@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 
 /**
  * MessageUtils provide the utility functions for sending and receiving messages through UDP
- * */
+ */
 public class MessageUtils {
     public static byte[] serializeMessage(Message message) throws Exception {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();

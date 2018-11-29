@@ -16,12 +16,12 @@ public class MessageTracker {
         this.status = Status.SCHEDULED;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
     public Status getStatus() {
         return status;
+    }
+
+    public synchronized void setStatus(Status status) {
+        this.status = status;
     }
 
     public long getUuid() {
@@ -37,7 +37,7 @@ public class MessageTracker {
     }
 
     public void incrementRetryCount() {
-        retryCount ++;
+        retryCount++;
     }
 
     public void resetCount() {
