@@ -70,7 +70,8 @@ public class QueryHandler implements IHandler {
             scheduler.schedule(response);
             return;
         }
-        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery()); // check query in local files
+//        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery()); // check query in local files
+        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
         if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
             result = cacheQueryProcessor.query(queryRequest.getQuery());
         }
