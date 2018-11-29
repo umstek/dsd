@@ -108,22 +108,41 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void run() {
         while (true) {
-            try {
-                int entryCount = routingEntries.size();
-                if (entryCount < 1) {
-                    Thread.sleep(1000);
-                } else {
-                    for (RoutingEntry routingEntry : routingEntries) {
-                        HeartbeatRequest heartbeatRequest = new HeartbeatRequest(
-                                ownHost, ownPort, routingEntry.getPeerIP(), routingEntry.getPeerPort()
-                        );
-
-                        scheduler.schedule(heartbeatRequest);
-                        Thread.sleep(10000 / entryCount);
+            boolean flag1 = false;
+            boolean flag2 = false;
+            int entryCount = 0;
+            synchronized (RoutingEntry.class){
+                try {
+                    entryCount = routingEntries.size();
+                    if (entryCount < 1) {
+                        flag1 = true;
+                    } else {
+                        for (RoutingEntry routingEntry : routingEntries) {
+                            HeartbeatRequest heartbeatRequest = new HeartbeatRequest(
+                                    ownHost, ownPort, routingEntry.getPeerIP(), routingEntry.getPeerPort()
+                            );
+                            scheduler.schedule(heartbeatRequest);
+                            flag2 = true;
+                        }
                     }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-            }catch (Exception e){
-                e.printStackTrace();
+            }
+            if(flag1){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(flag2){
+                try {
+                    Thread.sleep(10000 / entryCount);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
             }
 
         }
