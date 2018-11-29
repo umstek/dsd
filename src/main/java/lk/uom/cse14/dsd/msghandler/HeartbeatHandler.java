@@ -72,6 +72,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
         HeartbeatResponse heartbeatResponse = new HeartbeatResponse(
                 ownHost, ownPort, heartbeatRequest.getSource(), heartbeatRequest.getSourcePort()
         );
+        heartbeatResponse.setUuid(heartbeatRequest.getUuid());
         scheduler.schedule(heartbeatResponse);
 
         /*
