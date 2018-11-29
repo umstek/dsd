@@ -90,10 +90,10 @@ public class QueryHandler implements IHandler {
         }
         if (result != null && this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request originated from this Host/Port
                 this.ownPort == queryRequest.getGetRequesterPort()) {
-            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-            if(qt != null){
-                qt.setQueryResult(result);
-            }
+//            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+//            if(qt != null){
+//                qt.setQueryResult(result);
+//            }
         } else if (result != null && (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
                 this.ownPort != queryRequest.getGetRequesterPort())) {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
