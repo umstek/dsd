@@ -4,6 +4,8 @@ import lk.uom.cse14.dsd.comm.request.QueryRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * QueryUtils provide the utility functions for searching
@@ -63,18 +65,21 @@ public class QueryUtils {
      * @return a list of matched filenames for the query
      */
     public static ArrayList<String> search(String query, ArrayList<String> files) {
-        ArrayList<String> matches = new ArrayList<>();
+        Set<String> matches = new HashSet<>();
 
         for (String filename : files) {
             String[] words = filename.split(" ");
-            for (String word : words) {
-                if (query.equalsIgnoreCase(word)) {
-                    matches.add(filename);
-                    break;
+            String[] queryTerms = query.split(" ");
+            for (String queryTerm : queryTerms) {
+                for (String word : words) {
+                    if (queryTerm.equalsIgnoreCase(word)) {
+                        matches.add(filename);
+                        break;
+                    }
                 }
             }
         }
-        return matches;
+        return new ArrayList<>(matches);
     }
 
 
