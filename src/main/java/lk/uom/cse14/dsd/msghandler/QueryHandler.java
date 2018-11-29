@@ -106,10 +106,12 @@ public class QueryHandler implements IHandler {
             RoutingEntry destinationEntry = null;
             int count = 0;
             while (count < 50) {  // find a random neighbour who is online
-                RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
-                if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE) {
-                    destinationEntry = tempEntry;
-                    break;
+                if(!routingTable.isEmpty()){
+                    RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
+                    if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE) {
+                        destinationEntry = tempEntry;
+                        break;
+                    }
                 }
                 count++;
             }
