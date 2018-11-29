@@ -45,6 +45,11 @@ public class Scheduler implements Runnable {
 
     public void schedule(Message message) {
         log.info("Inside Schedule");
+        if (message instanceof Response) {
+            udpSender.sendMessage(message);
+            return;
+        }
+
         MessageTracker messageTracker = new MessageTracker(message);
         messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
         udpSender.sendMessage(message);

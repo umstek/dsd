@@ -18,7 +18,6 @@ public class MessageHandler implements Runnable {
     public void run() {
         while (active) {
             try {
-                synchronized (Scheduler.class) {
                     if (messageTracker.getRetryCount() < 5) {
                         if (messageTracker.getStatus() == Status.SENT) {
                             udpSender.sendMessage(messageTracker.getMessage());
@@ -33,8 +32,6 @@ public class MessageHandler implements Runnable {
                         messageTracker.setStatus(Status.DEAD);
                         active = false;
                     }
-                }
-
 
             } catch (Exception e) {
                 e.printStackTrace();
