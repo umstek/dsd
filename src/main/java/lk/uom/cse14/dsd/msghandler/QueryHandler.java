@@ -50,19 +50,20 @@ public class QueryHandler implements IHandler {
             queryResponse  = (QueryResponse) response;
         }
         if (queryResponse != null) { // if successful response, update cache
-            cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet());
+            cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
         }
         if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                 this.ownPort == queryRequest.getGetRequesterPort()) {
             // UI.show result of notify file downloads handler
             QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
             if(queryResponse != null){
-                QueryResultSet resultSetDummy = new QueryResultSet();
-                if(queryResponse.getQueryResultSet() == null){
-                    queryResponse.setQueryResultSet(resultSetDummy);
-                }
                 if(qt != null){
                     qt.setQueryResult(queryResponse.getQueryResultSet());
+                }
+            }else{
+                QueryResultSet resultSetDummy = new QueryResultSet();
+                if(qt != null){
+                    qt.setQueryResult(resultSetDummy);
                 }
             }
 

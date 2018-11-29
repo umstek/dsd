@@ -12,7 +12,7 @@ public class CacheQueryProcessor implements ICacheQuery {
     private HashMap<String, ArrayList<RoutingEntry>> QueryCache = new HashMap<>();
 
     @Override
-    public void updateCache(QueryResultSet resultSet) {
+    public void updateCache(QueryResultSet resultSet,String query) {
         ArrayList<String> fileToUpdate = resultSet.getFileNames();
 
         for (String file : fileToUpdate) {
@@ -47,7 +47,7 @@ public class CacheQueryProcessor implements ICacheQuery {
         if (!cacheHitFiles.isEmpty()) {
             HashMap<String, ArrayList<RoutingEntry>> cacheHits = new HashMap<>();
             for (String file : cacheHitFiles) {
-                ArrayList<RoutingEntry> peers = QueryCache.get(query);
+                ArrayList<RoutingEntry> peers = QueryCache.get(file);
                 cacheHits.put(file, peers);
             }
             return QueryProcessor.constructCacheQueryResult(cacheHits);

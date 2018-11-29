@@ -33,6 +33,9 @@ public class QueryTask implements Runnable {
                 }
             }
         }
+        if(count>=retryCount){
+            this.queryResult = new QueryResultSet();
+        }
         listener.notifyQueryComplete(this);
     }
 
