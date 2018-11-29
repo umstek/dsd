@@ -141,7 +141,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
         response.setType(MessageType.DISCOVERY);
         response.setUuid(request.getUuid());
         ArrayList<RoutingEntry> discoveredPeersList = new ArrayList<>();
-        //synchronized (PeerDiscoveryHandler.class) {
+        synchronized (RoutingEntry.class) {
             for (int i = 0; i < routingTable.size(); i++) {
                 if (discoveredPeersList.size() >= ((DiscoveryRequest) request).getRequestedPeerCount()) {
                     break;
@@ -150,7 +150,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     discoveredPeersList.add(routingTable.get(i).clone());
                 }
             }
-        //}
+        }
         logger.info("Sending Response for Request");
         //logger.info(request.toString());
         //logger.info(response.toString());
