@@ -93,9 +93,7 @@ public class QueryHandler implements IHandler {
         }
         if (result != null &&
                 this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request coming to this host/port
-                this.ownPort == queryRequest.getGetRequesterPort() &&
-                this.ownHost.equals(queryRequest.getDestination()) &&
-                this.ownPort == queryRequest.getDestinationPort())
+                this.ownPort == queryRequest.getGetRequesterPort())
         {
             QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
             if(qt != null){
