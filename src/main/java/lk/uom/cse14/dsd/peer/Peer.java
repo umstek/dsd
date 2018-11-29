@@ -7,7 +7,6 @@ import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
-import lk.uom.cse14.dsd.fileio.TextFileHandler;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.DummyCacheQueryProcessor;
 import lk.uom.cse14.dsd.query.DummyFileQueryProcessor;
@@ -15,6 +14,7 @@ import lk.uom.cse14.dsd.query.ICacheQuery;
 import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.SearchUtils;
+import lk.uom.cse14.dsd.util.TextFileUtils;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -94,7 +94,7 @@ public class Peer {
         /*
         initializes the searching "index" in SearchUtils class
          */
-        SearchUtils.initialize(this.hostedFileNames);
+        SearchUtils.initializeCache();
 
         taskExecutor.submit(this.udpReceiver);
         taskExecutor.submit(this.udpSender);
@@ -114,7 +114,7 @@ public class Peer {
     private void generateFiles() {
         ArrayList<String> filenames = null;
         try {
-            filenames = TextFileHandler.readFileContent(FILE_LIST);
+            filenames = TextFileUtils.readFileContent(FILE_LIST);
             this.hostedFileNames = filenames;
             this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
             System.out.println("Files have been successfully generated");
