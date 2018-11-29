@@ -9,6 +9,16 @@ public class RoutingEntry implements Cloneable {
     private Status status;
     private int retryCount;
 
+    public RoutingEntry(String peerIP, int peerPort, Status status, int retryCount) {
+        this.peerIP = peerIP;
+        this.peerPort = peerPort;
+        this.status = status;
+        this.retryCount = retryCount;
+    }
+
+    public RoutingEntry() {
+    }
+
     public String getPeerIP() {
         return peerIP;
     }

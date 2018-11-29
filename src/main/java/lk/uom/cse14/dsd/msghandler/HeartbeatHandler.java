@@ -73,6 +73,35 @@ public class HeartbeatHandler implements IHandler, Runnable {
                 ownHost, ownPort, heartbeatRequest.getSource(), heartbeatRequest.getSourcePort()
         );
         scheduler.schedule(heartbeatResponse);
+
+        /*
+         * It is possible that someone who we don't have in our routing table sent us the request.
+         * If that's the case, add a new record to the routing table.
+         * We don't do this if we have 7+ peers.
+         */
+        if (routingEntries.size() >= 7) {
+            return;
+        }
+
+        synchronized (this) {
+
+            boolean peerExists = false;
+            for (RoutingEntry routingEntry : routingEntries) {
+                if (routingEntry.getPeerIP().equals(heartbeatRequest.getSource())
+                        && routingEntry.getPeerPort() == heartbeatRequest.getSourcePort()) {
+                    peerExists = true;
+                }
+            }
+
+            if (!peerExists) {
+                RoutingEntry routingEntry = new RoutingEntry(
+                        heartbeatRequest.getSource(),
+                        heartbeatRequest.getSourcePort(),
+                        RoutingEntry.Status.ONLINE,
+                        0);
+                routingEntries.add(routingEntry);
+            }
+        }
     }
 
     @Override
