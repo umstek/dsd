@@ -24,7 +24,7 @@ public class MessageHandler implements Runnable{
                         if(messageTracker.getStatus() == Status.SENT) {
                             udpSender.sendMessage(messageTracker.getMessage());
                             messageTracker.incrementRetryCount();
-                            Thread.sleep(1000);
+                            Thread.sleep(10000);
                         } else if(messageTracker.getStatus() == Status.RESPONSED) {
                             messageTracker.setStatus(Status.DEAD);
                             active = false;

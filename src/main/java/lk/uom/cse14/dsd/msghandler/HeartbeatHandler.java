@@ -81,7 +81,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
             int entryCount = routingEntries.size();
             if (entryCount < 1) {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     e.printStackTrace(); // XXX
                 }
@@ -93,7 +93,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                         );
 
                         scheduler.schedule(heartbeatRequest);
-                        Thread.sleep(10000 / entryCount);
+                        Thread.sleep(30000 / entryCount);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
