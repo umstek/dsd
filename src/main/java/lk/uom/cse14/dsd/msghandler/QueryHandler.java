@@ -85,7 +85,7 @@ public class QueryHandler implements IHandler {
             return;
         }
         QueryResultSet result = null;
-        if(!this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort != queryRequest.getGetRequesterPort()){
+        if(!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())){
             result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
         }
         if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
