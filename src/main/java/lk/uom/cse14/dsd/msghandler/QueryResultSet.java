@@ -4,7 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class QueryResultSet {
-    //    private RoutingEntry routingEntry;
+    /**
+     * This class represents the result of a query.
+     */
+
+//    private RoutingEntry routingEntry;
 //    private ArrayList<String> fileNames;
     private HashMap<String, ArrayList<RoutingEntry>> results;
 
