@@ -60,33 +60,35 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while(true) {
-            try {
-                Message receivedMessage = udpReceiver.getMessage();
-                if (receivedMessage == null) {
-                    Thread.sleep(1000);
-                }else {
-                    MessageType receivedMessageType = receivedMessage.getType();
-                    if(isItMyMessage(receivedMessage)) {
-                        MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
-                        Message myMessage = null;
-                        synchronized (MessageTracker.class) {
+            synchronized (Scheduler.class){
+                try {
+                    Message receivedMessage = udpReceiver.getMessage();
+                    if (receivedMessage == null) {
+                        Thread.sleep(1000);
+                    }else {
+                        MessageType receivedMessageType = receivedMessage.getType();
+                        if(isItMyMessage(receivedMessage)) {
+                            MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
+                            Message myMessage = null;
+                            //synchronized (MessageTracker.class) {
                             myMessage = messageTracker.getMessage();
                             messageTracker.setStatus(Status.RESPONSED);
+                            //}
+                            if(myMessage != null) {
+                                Request myRequest = (Request) myMessage;
+                                Response receivedResponse = (Response) receivedMessage;
+                                handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
+                            }
+                        }else {
+                            Request receivedRequest = (Request) receivedMessage;
+                            handleRequestMessage(receivedRequest, receivedMessageType);
                         }
-                        if(myMessage != null) {
-                            Request myRequest = (Request) myMessage;
-                            Response receivedResponse = (Response) receivedMessage;
-                            handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
-                        }
-                    }else {
-                        Request receivedRequest = (Request) receivedMessage;
-                        handleRequestMessage(receivedRequest, receivedMessageType);
                     }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                removeDeadTrackers();
             }
-            removeDeadTrackers();
         }
     }
 

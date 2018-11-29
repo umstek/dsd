@@ -19,7 +19,7 @@ public class MessageHandler implements Runnable{
     public void run() {
         while (active) {
             try{
-                synchronized (MessageTracker.class){
+                synchronized (Scheduler.class){
                     if(messageTracker.getRetryCount() < 5) {
                         if(messageTracker.getStatus() == Status.SENT) {
                             udpSender.sendMessage(messageTracker.getMessage());
