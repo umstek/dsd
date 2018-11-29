@@ -8,6 +8,7 @@ import lk.uom.cse14.dsd.query.ICacheQuery;
 import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
+import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -53,6 +54,10 @@ public class QueryHandler implements IHandler {
         if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                 this.ownPort == queryRequest.getGetRequesterPort()) {
             // UI.show result of notify file downloads handler
+            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+            if(qt != null && queryResponse != null){
+                qt.setQueryResult(queryResponse.getQueryResultSet());
+            }
         } else { // originated from somewhere else. should redirect to the requester
             QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
             response1.setUuid(request.getUuid());
@@ -76,7 +81,10 @@ public class QueryHandler implements IHandler {
         }
         if (result != null && this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request originated from this Host/Port
                 this.ownPort == queryRequest.getGetRequesterPort()) {
-            // UI.show result or notify file downloads handler
+            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+            if(qt != null){
+                qt.setQueryResult(result);
+            }
         } else if (result != null && !this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found, but originated from another Host/Port
                 this.ownPort != queryRequest.getGetRequesterPort()) {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
@@ -115,6 +123,7 @@ public class QueryHandler implements IHandler {
         request.setRequesterHost(ownHost);
         request.setSkipCache(queryTask.isSkipCache());
         String uuid = UUID.randomUUID().toString();
+        request.setRequestID(uuid);
         queryTasks.put(uuid, queryTask);
         executorService.submit(queryTask);
         handle(request);
