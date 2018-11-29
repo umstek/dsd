@@ -6,7 +6,6 @@ import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.fileio.DummyFile;
-import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.CacheQueryProcessor;
 import lk.uom.cse14.dsd.query.FileQueryProcessor;
@@ -20,9 +19,7 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -123,15 +120,16 @@ public class Peer {
         try {
             filenames = TextFileUtils.readFileContent(FILE_LIST);
             this.hostedFileNames = filenames;
-            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
+//            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
 //            System.out.println("Files have been successfully generated");
             log.info("Files have been successfully generated");
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(FILE_LIST + " is not initialized. Initialize it with the filenames to be hosted");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
         }
+//        catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public UdpSender getUdpSender() {

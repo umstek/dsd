@@ -31,8 +31,8 @@ public class FileGenerator {
     public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException, IOException {
         HashMap<String, DummyFile> files = new HashMap<>();
         for (String filename : filenames) {
-            DummyFile file = generateFile(filename);
-            files.put(filename, file);
+//            DummyFile file = generateFile(filename);
+//            files.put(filename, file);
         }
         return files;
     }
@@ -70,22 +70,22 @@ public class FileGenerator {
         DummyFile df = new DummyFile();
         df.setSize(sizeMB);
         df.setData(data);
-        df.setHash(hash);
+//        df.setHash(hash);
         return df;
     }
 
-    public static DummyFile generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+    public static byte[] generateFile(String filename) throws IOException, NoSuchAlgorithmException {
         FileOutputStream file = new FileOutputStream(Paths.get("").toAbsolutePath() + "Hosted Files" + filename);
         ObjectOutputStream out = new ObjectOutputStream(file);
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
+        byte[] hash = FileGenerator.getHashByteArray(dummyFile.toString());//todo:generate hash of the dummy file
 
-        // Method for serialization of object
         out.writeObject(dummyFile);
 
         out.close();
         file.close();
-        return dummyFile;
+        return hash;
     }
 
     /**
@@ -98,8 +98,6 @@ public class FileGenerator {
         return digest.digest(file);
     }
 
-
-    //Ashan
     public static byte[] getHashByteArray(String data) {
         MessageDigest digest = null;
         try {

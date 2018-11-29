@@ -1,8 +1,6 @@
 package lk.uom.cse14.dsd.fileio;
 
 
-import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
-
 import java.io.Serializable;
 
 /**
@@ -13,7 +11,7 @@ public class DummyFile extends Object implements Serializable {
 
     private String data;
     private int size;
-    private byte[] hash;
+//    private byte[] hash;
 
     public String getData() {
         return data;
@@ -31,12 +29,12 @@ public class DummyFile extends Object implements Serializable {
         this.size = size;
     }
 
-    public byte[] getHash() {
-        return hash;
-    }
-
-    public void setHash(byte[] hash) {
-        this.hash = hash;
-    }
+//    public byte[] getHash() {
+//        return hash;
+//    }
+//
+//    public void setHash(byte[] hash) {
+//        this.hash = hash;
+//    }
 
 }
