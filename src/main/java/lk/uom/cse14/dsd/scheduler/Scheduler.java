@@ -4,7 +4,7 @@ import lk.uom.cse14.dsd.comm.Message;
 import lk.uom.cse14.dsd.comm.MessageType;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
-import lk.uom.cse14.dsd.comm.message.Request;
+import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.msghandler.IHandler;
 import org.slf4j.Logger;

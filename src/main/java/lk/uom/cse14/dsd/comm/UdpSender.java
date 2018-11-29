@@ -8,9 +8,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /*
  * UdpSender polls the senderQueue from time to time and sends the messages in the queue
  * to the defined address through UDP.
- * In case of failure, it pushes the failed message into the end of the queue
+ * In case of failure, it pushes the failed request into the end of the queue
  * in order to retry sending it later.
- * todo: Use retryCount and limit the number of times a particular message is retried to send
+ * todo: Use retryCount and limit the number of times a particular request is retried to send
  * */
 public class UdpSender implements Runnable {
     private int sleepTime;

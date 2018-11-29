@@ -28,7 +28,7 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
     /**
      * Sends a string based request and accepts a reply using a one-time TCP socket.
      *
-     * @param message The message as a string to be sent to the bootstrap server.
+     * @param message The request as a string to be sent to the bootstrap server.
      * @return Reply received from the bootstrap server.
      * @throws IOException If cannot connect to the server, this will throw an IOException.
      */

@@ -1,8 +1,6 @@
 package lk.uom.cse14.dsd.peer;
 
-import lk.uom.cse14.dsd.bscom.PeerInfo;
-import lk.uom.cse14.dsd.bscom.RegisterException;
-import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
+import lk.uom.cse14.dsd.bscom.*;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.fileio.DummyFile;
@@ -29,8 +27,8 @@ import java.util.concurrent.Executors;
 
 /*
  * Peer class represents an actual peer. It contains UdpSender and UdpReceiver objects to manage
- * message passing between peer nodes.
- * todo: implement message scheduler and manage high level message passing
+ * request passing between peer nodes.
+ * todo: implement request scheduler and manage high level request passing
  * todo: dynamic scheduling of messages, peer discovery and queries
  * todo: handle exceptions properly
  * */
@@ -54,7 +52,8 @@ public class Peer {
     private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
-    public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, RegisterException {
+
+    public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, UnknownUnregisterResponseException {
         TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);
         try {
             this.ownHost = ownHost;
@@ -65,8 +64,14 @@ public class Peer {
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
             this.scheduler = new Scheduler(udpReceiver, udpSender);
-            List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
-            this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
+            try {
+                List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
+                this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
+            } catch (AlreadyRegisteredException e) {
+                tcpRegistryCommunicator.unregister();
+            } catch (RegisterException e) {
+                e.printStackTrace();
+            }
             this.fileQueryProcessor = new DummyFileQueryProcessor();
             this.cacheQueryProcessor = new DummyCacheQueryProcessor();
             this.queryHandler = new QueryHandler(routingTable, scheduler, cacheQueryProcessor, fileQueryProcessor, ownHost, ownPort);

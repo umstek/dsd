@@ -4,6 +4,16 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     private MessageType type;
+
+    public MessageKind getDirection() {
+        return direction;
+    }
+
+    public void setDirection(MessageKind direction) {
+        this.direction = direction;
+    }
+
+    private MessageKind direction;
     private long uuid;
     private String source;
     private int sourcePort;

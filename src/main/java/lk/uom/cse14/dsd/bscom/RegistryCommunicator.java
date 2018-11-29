@@ -32,11 +32,11 @@ abstract class RegistryCommunicator {
      *
      * @param response Response received from bootstrap server.
      * @return Whether un-registration was successful.
-     * @throws UnknownUnregisterResponseException If unknown value or message code received, this will throw.
+     * @throws UnknownUnregisterResponseException If unknown value or request code received, this will throw.
      */
     static boolean parseUnregisterResponse(String response) throws UnknownUnregisterResponseException {
         /*
-         * <message length> UNROK value
+         * <request length> UNROK value
          */
         StringTokenizer tokenizer = new StringTokenizer(response);
         tokenizer.nextToken(); // Request length
@@ -54,7 +54,7 @@ abstract class RegistryCommunicator {
                 throw new UnknownUnregisterResponseException();
             }
         } else {
-            /* Should be unreachable unless we are sending an unknown message, which is not. */
+            /* Should be unreachable unless we are sending an unknown request, which is not. */
             throw new UnknownUnregisterResponseException();
         }
     }
@@ -68,7 +68,7 @@ abstract class RegistryCommunicator {
      */
     static List<PeerInfo> parseRegisterResponse(String response) throws RegisterException {
         /*
-         * <message length> REGOK <node count> <node 1 host> <node 1 port> <node 2 host> <node 2 port> ...
+         * <request length> REGOK <node count> <node 1 host> <node 1 port> <node 2 host> <node 2 port> ...
          * We trust the registry to send the correct response.
          */
 
@@ -85,21 +85,21 @@ abstract class RegistryCommunicator {
 
             switch (nodeCount) {
                 case 9999:
-                    /* Failed: Some error in the message we sent.
-                    This shouldn't happen. TODO Server sends this when already registered. */
-                    throw new IncorrectRegisterRequestException();
-                case 9998:
                     /* Failed: Already registered to you. We have to unregister.
-                    This happens if our app crashed. TODO Server sends this when error in message. */
+                    This happens if our app crashed. */
                     throw new AlreadyRegisteredException();
+                case 9998:
+                    /* Failed: Some error in the request we sent.
+                    This shouldn't happen. */
+                    throw new IncorrectRegisterRequestException();
                 case 9997:
-                    /* Failed: Registered to another user. TODO Server sends this when registry full.
-                    This might happen only when running multiple peers in the same host. */
-                    throw new UnavailableAddressException();
-                case 9996:
-                    /* Failed: Registry full. TODO Server sends ERROR, not REGOK.
+                    /* Failed: Registry full.
                     If this happens, we give up. Try later. */
                     throw new RegistryFullException();
+                case 9996: // There is no such message code.
+                    /* Failed: Registered to another user.
+                    This might happen only when running multiple peers in the same host. */
+                    throw new UnavailableAddressException();
                 default:
                     /* We have nodeCount nodes. */
                     List<PeerInfo> peerInfos = new ArrayList<>();
@@ -112,7 +112,7 @@ abstract class RegistryCommunicator {
                     return peerInfos;
             }
         } else {
-            /* Should be unreachable unless we are sending an unknown message, which is not. */
+            /* Should be unreachable unless we are sending an unknown request, which is not. */
             throw new UnknownRegisterResponseException();
         }
     }

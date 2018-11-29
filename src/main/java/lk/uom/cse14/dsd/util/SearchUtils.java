@@ -1,6 +1,6 @@
 package lk.uom.cse14.dsd.util;
 
-import lk.uom.cse14.dsd.comm.message.QueryRequest;
+import lk.uom.cse14.dsd.comm.request.QueryRequest;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;
 
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class SearchUtils {
     }
 
     /**
-     * @param queryRequest the query message received from the overlay
+     * @param queryRequest the query request received from the overlay
      * @return a list of matched filenames for the query
      */
     public static ArrayList<String> runSearchQuery(QueryRequest queryRequest) {
