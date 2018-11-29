@@ -7,11 +7,9 @@ import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.msghandler.*;
-import lk.uom.cse14.dsd.query.CacheQueryProcessor;
-import lk.uom.cse14.dsd.query.FileQueryProcessor;
-import lk.uom.cse14.dsd.query.ICacheQuery;
-import lk.uom.cse14.dsd.query.IFileQuery;
+import lk.uom.cse14.dsd.query.*;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
+import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import lk.uom.cse14.dsd.util.QueryUtils;
 import lk.uom.cse14.dsd.util.TextFileUtils;
 import org.apache.log4j.Logger;
@@ -146,5 +144,20 @@ public class Peer {
 
     public UdpReceiver getUdpReceiver() {
         return udpReceiver;
+    }
+
+    public void printRoutingTable() {
+        for (int i = 0; i < this.routingTable.size(); i++) {
+            RoutingEntry entry = routingTable.get(i);
+            System.out.println((i + 1) + ".\t" +
+                    entry.getPeerIP() + "\t" +
+                    entry.getPeerPort() + "\t" +
+                    entry.getStatus());
+        }
+    }
+
+    public void query(QueryTaskListener queryTaskListener, String queryStr, boolean skipCache) {
+        QueryTask queryTask = new QueryTask(queryTaskListener, queryStr, skipCache);
+        ((QueryHandler) queryHandler).submitQuery(queryTask);
     }
 }

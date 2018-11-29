@@ -2,6 +2,7 @@ package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.peer.Peer;
+import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
 import java.io.IOException;
@@ -51,24 +52,28 @@ public class GUI {
         return result;
     }
 
+    private static volatile boolean searching = false;
+
     public static void main(String[] args) {
         List<String> argsList = Arrays.asList(args);
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\n");
 
+        // Print help information
         boolean help = argExists(argsList, "--help") || argExists(argsList, "-h");
         if (help) {
-            System.out.println(
-                    "Arguments: \n"
-                            + "--help, -h: Display this help info. \n"
-                            + "--dev: Enable loopback NI. \n"
-                            + "-p: Specify the port to run the peer. \n"
-                            + "-bs: Specify the bootstrap server address in `ip.address:port` format. ");
+            System.out.println("Arguments: \n"
+                    + "--help, -h: Display this help info. \n"
+                    + "--dev: Enable loopback NI. \n"
+                    + "-p: Specify the port to run the peer. \n"
+                    + "-bs: Specify the bootstrap server address in `ip.address:port` format. ");
             System.exit(0);
         }
 
+        // Capture dev flag to allow loopback address
         boolean dev = argExists(argsList, "--dev");
 
+        // Set-up port to run peer
         int port = 3000;
         try {
             port = Integer.parseInt(argValue(argsList, "-p"));
@@ -76,6 +81,7 @@ public class GUI {
             // Do not change the port
         }
 
+        // Configure bootstrap server address
         String bsAddr = null;
         int bsPort = 0;
         String bs = argValue(argsList, "-bs");
@@ -94,8 +100,10 @@ public class GUI {
             }
         }
 
+        // Find a unique username to be used as the peer name
         String username = readUsername(scanner);
 
+        // Find current peer address using open network interfaces
         String address = "";
         try {
             List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(dev);
@@ -130,6 +138,7 @@ public class GUI {
         }
         System.out.println("Starting on address " + address + " and port " + port);
 
+        // Create a peer
         Peer peer = null;
         try {
             peer = new Peer(bsAddr, bsPort, address, port, username);
@@ -152,7 +161,9 @@ public class GUI {
                     case ":routing":
                         // Fallthrough
                     case ":rt":
-                        // TODO Show routing table
+                        if (peer != null) {
+                            peer.printRoutingTable();
+                        }
                         break;
                     case ":own-files":
                         // Fallthrough
@@ -164,14 +175,40 @@ public class GUI {
                         }
                         break;
                     case ":exit":
+                        System.exit(1);
                         break main_loop;
                     default:
-                        System.out.println("Unknown command `" + query + " `");
+                        System.out.println("Unknown command `" + query + "`");
                         break;
                 }
             } else {
                 boolean useCache = readUseCacheResponse(scanner);
-                // TODO Query
+                if (peer != null) {
+                    GUI.searching = true;
+
+                    peer.query(new QueryTaskListener() {
+                        @Override
+                        public void notifyQueryComplete(QueryTask queryTask) {
+                            GUI.searching = false;
+                            System.out.println();
+                            System.out.println("Results [" + queryTask.getQueryResult().getFileNames().size() + "]: ");
+                            List<String> fileNames = queryTask.getQueryResult().getFileNames();
+                            for (int i = 0; i < fileNames.size(); i++) {
+                                System.out.println((i + 1) + ".\t" + fileNames.get(i));
+                            }
+                        }
+                    }, query, !useCache);
+
+                    System.out.println("Searching...");
+                    while (searching) {
+                        System.out.print(".");
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         }
     }

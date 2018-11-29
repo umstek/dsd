@@ -1,9 +1,10 @@
 package lk.uom.cse14.dsd.msghandler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class QueryResultSet {
+public class QueryResultSet implements Serializable {
     /**
      * This class represents the result of a query.
      */
