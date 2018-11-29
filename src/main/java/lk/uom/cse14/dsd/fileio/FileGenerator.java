@@ -1,8 +1,6 @@
 package lk.uom.cse14.dsd.fileio;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -64,27 +62,46 @@ public class FileGenerator {
             sb.append('a');
         }
         String data = sb.toString();
-        byte[] hash = generateHash(data.getBytes(StandardCharsets.UTF_8));
 //        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash.toString() + "\n");
 
         DummyFile df = new DummyFile();
         df.setSize(sizeMB);
         df.setData(data);
-//        df.setHash(hash);
         return df;
     }
 
+    /**
+     * This method will generate a file with size between 2-10 MB and return the hash of it
+     *
+     * @param filename the name of the file
+     * @return hash of the randomly generated file
+     * @throws IOException              if the output file is missing
+     * @throws NoSuchAlgorithmException if hashing algorithm is not available
+     */
+
     public static byte[] generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+        byte[] bytes;
+        ObjectOutput oOut;
         FileOutputStream file = new FileOutputStream(Paths.get("").toAbsolutePath() + "Hosted Files" + filename);
         ObjectOutputStream out = new ObjectOutputStream(file);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
-        byte[] hash = FileGenerator.getHashByteArray(dummyFile.toString());//todo:generate hash of the dummy file
 
+        //writing object to file
         out.writeObject(dummyFile);
-
         out.close();
         file.close();
+
+        //calculating the byte array of the dummy file object
+        oOut = new ObjectOutputStream(bos);
+        oOut.writeObject(dummyFile);
+        oOut.flush();
+        bytes = bos.toByteArray();
+
+        //calculating the hash of the dummy file
+        byte[] hash = FileGenerator.generateHash(bytes);
+
         return hash;
     }
 
@@ -97,6 +114,7 @@ public class FileGenerator {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return digest.digest(file);
     }
+
 
     public static byte[] getHashByteArray(String data) {
         MessageDigest digest = null;
