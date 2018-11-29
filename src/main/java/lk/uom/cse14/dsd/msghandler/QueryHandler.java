@@ -84,19 +84,34 @@ public class QueryHandler implements IHandler {
             return;
         }
 //        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery()); // check query in local files
-        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
+        QueryResultSet result = null;
+        if(!this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort != queryRequest.getGetRequesterPort()){
+            result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
+        }
         if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
             result = cacheQueryProcessor.query(queryRequest.getQuery());
         }
-        if (result != null && (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
-                this.ownPort != queryRequest.getGetRequesterPort())) {
+        if (result != null &&
+                this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request coming to this host/port
+                this.ownPort == queryRequest.getGetRequesterPort() &&
+                this.ownHost.equals(queryRequest.getDestination()) &&
+                this.ownPort == queryRequest.getDestinationPort())
+        {
+            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+            if(qt != null){
+                qt.setQueryResult(result);
+            }
+        } else if (result != null &&
+                (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
+                this.ownPort != queryRequest.getGetRequesterPort()))
+        {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
                     queryRequest.getSourcePort());
             response.setStatus(QueryResponse.SUCCESS);
             response.setQueryResultSet(result);
             response.setUuid(request.getUuid());
             scheduler.schedule(response);
-        } else if (result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
+        } else if(result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
             RoutingEntry destinationEntry = null;
             int count = 0;
             while (count < 50) {  // find a random neighbour who is online
