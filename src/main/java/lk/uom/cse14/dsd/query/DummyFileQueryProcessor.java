@@ -8,4 +8,9 @@ public class DummyFileQueryProcessor implements IFileQuery {
         System.out.println("File Query");
         return null;
     }
+
+    @Override
+    public QueryResultSet query(String query, String ownIP, int ownPort) {
+        return null;
+    }
 }

@@ -1,11 +1,15 @@
 package lk.uom.cse14.dsd.fileio;
 
 
+import org.omg.PortableServer.SERVANT_RETENTION_POLICY_ID;
+
+import java.io.Serializable;
+
 /**
  * This class represents the dummy file object that is generated
  */
 
-public class DummyFile extends Object {
+public class DummyFile extends Object implements Serializable {
 
     private String data;
     private int size;
