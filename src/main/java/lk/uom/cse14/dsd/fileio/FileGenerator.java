@@ -1,6 +1,10 @@
 package lk.uom.cse14.dsd.fileio;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -24,7 +28,7 @@ public class FileGenerator {
      * @return a hashmap which has filenames as the set of keys
      * @throws NoSuchAlgorithmException
      */
-    public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException {
+    public static HashMap<String, DummyFile> generateAllHostedFiles(ArrayList<String> filenames) throws NoSuchAlgorithmException, IOException {
         HashMap<String, DummyFile> files = new HashMap<>();
         for (String filename : filenames) {
             DummyFile file = generateFile(filename);
@@ -47,11 +51,10 @@ public class FileGenerator {
     }
 
     /**
-     * @param filename the name of the file that should be randomly generated
      * @return a DummyFile object
      * @throws NoSuchAlgorithmException
      */
-    public static DummyFile generateFile(String filename) throws NoSuchAlgorithmException {
+    public static DummyFile generateDummyFile() throws NoSuchAlgorithmException {
         byte[] bigint = FileGenerator.generateLargeNumber();
         int size = bigint.length;
         int sizeMB = size / (1024 * 1024);
@@ -71,6 +74,20 @@ public class FileGenerator {
         return df;
     }
 
+    public static DummyFile generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+        FileOutputStream file = new FileOutputStream(Paths.get("").toAbsolutePath() + "Hosted Files" + filename);
+        ObjectOutputStream out = new ObjectOutputStream(file);
+
+        DummyFile dummyFile = FileGenerator.generateDummyFile();
+
+        // Method for serialization of object
+        out.writeObject(dummyFile);
+
+        out.close();
+        file.close();
+        return dummyFile;
+    }
+
     /**
      * @param file the byetearray of the the file that should be hashed
      * @return SHA-256 hash of the file
@@ -79,6 +96,42 @@ public class FileGenerator {
     public static byte[] generateHash(byte[] file) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         return digest.digest(file);
+    }
+
+
+    //Ashan
+    public static byte[] getHashByteArray(String data) {
+        MessageDigest digest = null;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return digest.digest(data.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i+1), 16));
+        }
+        return data;
+    }
+
+    public static String getHash(String data) {
+        return bytesToHex(getHashByteArray(data));
     }
 
 }

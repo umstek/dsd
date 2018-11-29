@@ -13,14 +13,16 @@ public class QueryProcessor {
      * constructs the query result for local search results
      *
      * @param files list of files matching the query
+     * @param ownIP
+     * @param ownPort
      * @return QueryResultSet object
      */
 
-    public static QueryResultSet constructFileQueryResult(ArrayList<String> files) {
+    public static QueryResultSet constructFileQueryResult(ArrayList<String> files, String ownIP, int ownPort) {
         QueryResultSet queryResultSet = new QueryResultSet();
         HashMap<String, ArrayList<RoutingEntry>> results = new HashMap<>();
 
-        RoutingEntry re = new RoutingEntry();//todo: add port and host address
+        RoutingEntry re = new RoutingEntry(ownIP, ownPort, RoutingEntry.Status.ONLINE, 5);
         for (String filename : files) {
             results.put(filename, new ArrayList<>(
                     Arrays.asList(re)));
