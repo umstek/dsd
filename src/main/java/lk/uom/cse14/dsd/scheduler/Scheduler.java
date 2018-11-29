@@ -59,19 +59,19 @@ public class Scheduler implements Runnable {
         log.info("Request sent to: {}", message.getDestination());
         switch (message.getType()){
             case HEARTBEAT:
-                log.info("HEARTBEAT Response");
+                log.info("HEARTBEAT Request");
                 MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
                 this.executorService.submit(messageHandlerH);
                 break;
 
             case QUERY:
-                log.info("QUERY Response");
+                log.info("QUERY Request");
                 MessageHandler messageHandlerQ = new MessageHandler(messageTracker, udpSender,this.queryHandler);
                 this.executorService.submit(messageHandlerQ);
                 break;
 
             case DISCOVERY:
-                log.info("DISCOVERY Response");
+                log.info("DISCOVERY Request");
                 MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
                 this.executorService.submit(messageHandlerD);
                 break;
@@ -86,35 +86,38 @@ public class Scheduler implements Runnable {
             log.info("Scheduler Up");
             try {
                 boolean flag = false;
-                Message receivedMessage = udpReceiver.getMessage();
-                if (receivedMessage == null) {
-                    log.info("Empty udpReceiver");
-                    flag = true;
-                } else {
-                    log.info("Message Found: {}", receivedMessage.getUuid());
-                    MessageType receivedMessageType = receivedMessage.getType();
-                    if (isItMyMessage(receivedMessage)) {
-                        log.info("Response to my message, uuid: {}", receivedMessage.getUuid());
-                        MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
-                        Message myMessage = null;
-                        //synchronized (MessageTracker.class) {
-                        myMessage = messageTracker.getMessage();
-                        messageTracker.setStatus(Status.RESPONSED);
-                        //}
-                        if (myMessage != null) {
-                            Request myRequest = (Request) myMessage;
-                            log.info("Retrieved Matching Request");
-                            Response receivedResponse = (Response) receivedMessage;
-                            log.info("Passing to handleResponseMessage");
-                            handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
-                        }
+                synchronized (MessageTracker.class){
+                    Message receivedMessage = udpReceiver.getMessage();
+                    if (receivedMessage == null) {
+                        log.info("Empty udpReceiver");
+                        flag = true;
                     } else {
-                        Request receivedRequest = (Request) receivedMessage;
-                        handleRequestMessage(receivedRequest, receivedMessageType);
-                        log.info("Passing to handleRequestMessage");
+                        log.info("Message Found: {}", receivedMessage.getUuid());
+                        MessageType receivedMessageType = receivedMessage.getType();
+                        if (isItMyMessage(receivedMessage)) {
+                            log.info("Response to my message, uuid: {}", receivedMessage.getUuid());
+                            MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
+                            Message myMessage = null;
+                            //synchronized (MessageTracker.class) {
+                            myMessage = messageTracker.getMessage();
+                            messageTracker.setStatus(Status.RESPONSED);
+                            log.info("Status changed to Request: {}", myMessage.getUuid());
+                            //}
+                            if (myMessage != null) {
+                                Request myRequest = (Request) myMessage;
+                                log.info("Retrieved Matching Request");
+                                Response receivedResponse = (Response) receivedMessage;
+                                log.info("Passing to handleResponseMessage");
+                                handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
+                            }
+                        } else {
+                            Request receivedRequest = (Request) receivedMessage;
+                            handleRequestMessage(receivedRequest, receivedMessageType);
+                            log.info("Passing to handleRequestMessage");
+                        }
                     }
+                    removeDeadTrackers();
                 }
-                removeDeadTrackers();
                 log.info("Removed Dead Trackers");
                 if (flag) {
                     log.info("Scheduler Sleeping for 1 Second");
