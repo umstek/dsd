@@ -15,6 +15,8 @@ import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.QueryUtils;
 import lk.uom.cse14.dsd.util.TextFileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -38,6 +40,7 @@ public class Peer {
     /*
     This value is hardcoded
      */
+    private final Logger log = LoggerFactory.getLogger(Peer.class);
     private final String FILE_LIST = "/config/File Names.txt";
     private DatagramSocket socket;
     private UdpSender udpSender;
@@ -103,10 +106,13 @@ public class Peer {
         taskExecutor.submit((Runnable) this.peerDiscoveryHandler);
         taskExecutor.submit((Runnable) this.heartbeatHandler);
         taskExecutor.submit(scheduler);
-        System.out.println("DisFish Peer Started at: " + new Date().toString());
-        System.out.println("Local Address: " + ownHost + ":" + ownPort);
+//        System.out.println("DisFish Peer Started at: " + new Date().toString());
+//        System.out.println("Local Address: " + ownHost + ":" + ownPort);
+        log.info("DisFish Peer Started at: {}", new Date().toString());
+        log.info("Local Address: {}, {}", ownHost, ownPort);
         this.generateFiles();
-        System.out.println("\n************** List of hosted files **************\n");
+//        System.out.println("\n************** List of hosted files **************\n");
+        log.info("************** List of hosted files **************");
         for (String filename : this.hostedFileNames
         ) {
             System.out.println(filename);
@@ -119,7 +125,8 @@ public class Peer {
             filenames = TextFileUtils.readFileContent(FILE_LIST);
             this.hostedFileNames = filenames;
             this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
-            System.out.println("Files have been successfully generated");
+//            System.out.println("Files have been successfully generated");
+            log.info("Files have been successfully generated");
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(FILE_LIST + " is not initialized. Initialize it with the filenames to be hosted");
