@@ -64,33 +64,33 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (true) {
-            boolean flag = false;
-            Message receivedMessage = udpReceiver.getMessage();
-            if (receivedMessage == null) {
-                log.info("Empty udpReceiver");
-                flag = true;
-            } else {
-                MessageType receivedMessageType = receivedMessage.getType();
-                if (isItMyMessage(receivedMessage)) {
-                    log.info("Response to my message");
-                    MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
-                    Message myMessage = null;
-                    //synchronized (MessageTracker.class) {
-                    myMessage = messageTracker.getMessage();
-                    messageTracker.setStatus(Status.RESPONSED);
-                    //}
-                    if (myMessage != null) {
-                        Request myRequest = (Request) myMessage;
-                        Response receivedResponse = (Response) receivedMessage;
-                        handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
-                    }
-                } else {
-                    Request receivedRequest = (Request) receivedMessage;
-                    handleRequestMessage(receivedRequest, receivedMessageType);
-                }
-            }
-            removeDeadTrackers();
             try {
+                boolean flag = false;
+                Message receivedMessage = udpReceiver.getMessage();
+                if (receivedMessage == null) {
+                    log.info("Empty udpReceiver");
+                    flag = true;
+                } else {
+                    MessageType receivedMessageType = receivedMessage.getType();
+                    if (isItMyMessage(receivedMessage)) {
+                        log.info("Response to my message");
+                        MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
+                        Message myMessage = null;
+                        //synchronized (MessageTracker.class) {
+                        myMessage = messageTracker.getMessage();
+                        messageTracker.setStatus(Status.RESPONSED);
+                        //}
+                        if (myMessage != null) {
+                            Request myRequest = (Request) myMessage;
+                            Response receivedResponse = (Response) receivedMessage;
+                            handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
+                        }
+                    } else {
+                        Request receivedRequest = (Request) receivedMessage;
+                        handleRequestMessage(receivedRequest, receivedMessageType);
+                    }
+                }
+                removeDeadTrackers();
                 if(flag){
                     Thread.sleep(1000);
                 }
