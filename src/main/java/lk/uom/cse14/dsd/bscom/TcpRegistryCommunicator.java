@@ -54,6 +54,10 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
             return null;
         }
 
+        this.setOwnHost(ownHost);
+        this.setOwnPort(ownPort);
+        this.setUsername(username);
+
         /*
          * If username is null, that means we can register safely.
          * If at least username/port supplied is different, that means we are re-registering with a different identity.
@@ -67,10 +71,6 @@ public class TcpRegistryCommunicator extends RegistryCommunicator {
             String requestMessage = generateRequestString(ownHost, ownPort, username, false);
             String response = request(requestMessage);
             List<PeerInfo> peerInfos = parseRegisterResponse(response);
-
-            this.setOwnHost(ownHost);
-            this.setOwnPort(ownPort);
-            this.setUsername(username);
 
             return peerInfos;
         }
