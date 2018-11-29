@@ -4,6 +4,7 @@ import lk.uom.cse14.dsd.msghandler.QueryResultSet;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class QueryProcessor {
@@ -17,10 +18,14 @@ public class QueryProcessor {
 
     public static QueryResultSet constructFileQueryResult(ArrayList<String> files) {
         QueryResultSet queryResultSet = new QueryResultSet();
-        queryResultSet.setFileNames(files);
-        /**
-         * todo: populate queryResultSet with node ip and port
-         **/
+        HashMap<String, ArrayList<RoutingEntry>> results = new HashMap<>();
+
+        RoutingEntry re = new RoutingEntry();//todo: add port and host address
+        for (String filename : files) {
+            results.put(filename, new ArrayList<>(
+                    Arrays.asList(re)));
+        }
+        queryResultSet.setResults(results);
         return queryResultSet;
     }
 
@@ -32,7 +37,7 @@ public class QueryProcessor {
      */
     public static QueryResultSet constructCacheQueryResult(HashMap<String, ArrayList<RoutingEntry>> peers) {
         QueryResultSet queryResultSet = new QueryResultSet();
-        queryResultSet.setCacheResult(peers);
+        queryResultSet.setResults(peers);
         return queryResultSet;
     }
 }
