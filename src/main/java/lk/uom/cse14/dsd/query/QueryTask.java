@@ -8,7 +8,7 @@ public class QueryTask implements Runnable {
     private String query;
     private boolean skipCache;
     private QueryResultSet queryResult = null;
-    private int retryCount = 50;
+    private int retryCount = 10;
     private QueryTaskListener listener;
 
     public QueryTask(QueryTaskListener listener, String query, boolean skipCache) {
@@ -25,7 +25,7 @@ public class QueryTask implements Runnable {
                 break;
             } else {
                 try {
-//                    System.out.println("SLEEPING");
+                    System.out.println(" ");
                     Thread.sleep(1500);
                     count++;
                 } catch (InterruptedException e) {

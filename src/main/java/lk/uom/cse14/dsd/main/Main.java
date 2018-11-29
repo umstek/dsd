@@ -2,6 +2,8 @@ package lk.uom.cse14.dsd.main;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.peer.Peer;
+import lk.uom.cse14.dsd.query.QueryTask;
+import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 import org.apache.log4j.PropertyConfigurator;
 //import org.apache.log4j.PropertyConfigurator;
@@ -53,6 +55,13 @@ public class Main {
         } catch (RegisterException e) {
             e.printStackTrace();
         }
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
 //        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT, ownHostFinal, "127.0.0.1", 3006));
 //        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT,
