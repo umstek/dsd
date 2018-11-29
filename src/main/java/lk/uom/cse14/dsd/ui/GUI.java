@@ -1,7 +1,10 @@
 package lk.uom.cse14.dsd.ui;
 
+import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.Arrays;
 import java.util.InputMismatchException;
@@ -10,7 +13,7 @@ import java.util.Scanner;
 
 public class GUI {
     private static String readQuery(Scanner scanner) {
-        System.out.print("Search: ");
+        System.out.print("> ");
         return scanner.next();
     }
 
@@ -27,24 +30,71 @@ public class GUI {
         return useCacheStr.toLowerCase().equals("y");
     }
 
+    private static String readUsername(Scanner scanner) {
+        System.out.print("Enter a unique username for the peer: ");
+        return scanner.next();
+    }
+
+    private static boolean argExists(List<String> argsList, String arg) {
+        return argsList.size() > 0 && argsList.contains(arg);
+    }
+
+    private static String argValue(List<String> argsList, String arg) {
+        String result = null;
+        if (argsList.size() > 0 && argsList.contains(arg)) {
+            int r = argsList.indexOf(arg) + 1;
+            if (r < argsList.size()) {
+                result = argsList.get(r);
+            }
+        }
+
+        return result;
+    }
+
     public static void main(String[] args) {
         List<String> argsList = Arrays.asList(args);
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\n");
 
-        boolean dev = argsList.size() > 0 && argsList.contains("--dev");
+        boolean help = argExists(argsList, "--help") || argExists(argsList, "-h");
+        if (help) {
+            System.out.println(
+                    "Arguments: \n"
+                            + "--help, -h: Display this help info. \n"
+                            + "--dev: Enable loopback NI. \n"
+                            + "-p: Specify the port to run the peer. \n"
+                            + "-bs: Specify the bootstrap server address in `ip.address:port` format. ");
+            System.exit(0);
+        }
+
+        boolean dev = argExists(argsList, "--dev");
 
         int port = 3000;
-        if (argsList.size() > 0 && argsList.contains("-p")) {
-            int r = argsList.indexOf("-p") + 1;
-            if (r < argsList.size()) {
-                try {
-                    port = Integer.parseInt(argsList.get(r));
-                } catch (NumberFormatException e) {
-                    // Do not change the port
-                }
+        try {
+            port = Integer.parseInt(argValue(argsList, "-p"));
+        } catch (NumberFormatException e) {
+            // Do not change the port
+        }
+
+        String bsAddr = null;
+        int bsPort = 0;
+        String bs = argValue(argsList, "-bs");
+        if (bs == null || !bs.contains(":")) {
+            System.out.println("Please specify bootstrap server address in the correct format. ");
+            System.out.println("e.g.: `-bs 192.168.1.2:5000`");
+            System.exit(65);
+        } else {
+            bsAddr = bs.split(":")[0];
+            try {
+                bsPort = Integer.parseInt(bs.split(":")[1]);
+            } catch (NumberFormatException e) {
+                System.out.println("Please specify bootstrap server address in the correct format. ");
+                System.out.println("e.g.: `-bs 192.168.1.2:5000`");
+                System.exit(66);
             }
         }
+
+        String username = readUsername(scanner);
 
         String address = "";
         try {
@@ -79,5 +129,50 @@ public class GUI {
             System.out.println("Running in dev mode...");
         }
         System.out.println("Starting on address " + address + " and port " + port);
+
+        Peer peer = null;
+        try {
+            peer = new Peer(bsAddr, bsPort, address, port, username);
+            peer.startPeer();
+        } catch (IOException | RegisterException e) {
+            e.printStackTrace();
+        }
+
+        // MAIN_LOOP
+        String query;
+        main_loop:
+        while (true) {
+            query = readQuery(scanner);
+            if (query.isEmpty()) {
+                System.out.println();
+            } else if (query.startsWith(":")) {
+                switch (query) {
+                    case ":routing-table":
+                        // Fallthrough
+                    case ":routing":
+                        // Fallthrough
+                    case ":rt":
+                        // TODO Show routing table
+                        break;
+                    case ":own-files":
+                        // Fallthrough
+                    case ":files":
+                        if (peer != null && peer.getHostedFileNames() != null) {
+                            for (int i = 0; i < peer.getHostedFileNames().size(); i++) {
+                                System.out.println(peer.getHostedFileNames().get(i));
+                            }
+                        }
+                        break;
+                    case ":exit":
+                        break main_loop;
+                    default:
+                        System.out.println("Unknown command `" + query + " `");
+                        break;
+                }
+            } else {
+                boolean useCache = readUseCacheResponse(scanner);
+                // TODO Query
+            }
+        }
     }
 }
