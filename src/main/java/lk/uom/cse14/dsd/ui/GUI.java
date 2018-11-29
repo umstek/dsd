@@ -1,6 +1,7 @@
 package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
@@ -36,6 +37,25 @@ public class GUI {
         return scanner.next();
     }
 
+    private static int readPort(Scanner scanner) {
+        int port = 0;
+        do {
+            System.out.print("Enter the port number of bootstrap server: ");
+            try {
+                port = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                // Don't do anything
+            }
+        } while (port <= 0 || port > 65535);
+
+        return port;
+    }
+
+    private static String readAddress(Scanner scanner) {
+        System.out.print("Enter the address of bootstrap server: ");
+        return scanner.next();
+    }
+
     private static boolean argExists(List<String> argsList, String arg) {
         return argsList.size() > 0 && argsList.contains(arg);
     }
@@ -53,6 +73,23 @@ public class GUI {
     }
 
     private static volatile boolean searching = false;
+    private static volatile QueryTask queryTask = null;
+
+    private static void printResults() {
+//        System.out.println(GUI);
+        System.out.println("Results [" + GUI.queryTask.getQueryResult().getFileNames().size() + "]: ");
+        List<String> fileNames = GUI.queryTask.getQueryResult().getFileNames();
+        for (int i = 0; i < fileNames.size(); i++) {
+            String filename = fileNames.get(i);
+            System.out.println((i + 1) + ".\t" + filename);
+            for (RoutingEntry re : GUI.queryTask.getQueryResult().getRoutingEntries(filename)) {
+                System.out.println("\t\u2517\u2501\u2501\u2501"
+                        + re.getPeerIP() + "\t"
+                        + (re.getPeerPort() + 5) + "\t"
+                        + re.getStatus());
+            }
+        }
+    }
 
     public static void main(String[] args) {
         List<String> argsList = Arrays.asList(args);
@@ -82,13 +119,14 @@ public class GUI {
         }
 
         // Configure bootstrap server address
-        String bsAddr = null;
-        int bsPort = 0;
+        String bsAddr;
+        int bsPort;
         String bs = argValue(argsList, "-bs");
         if (bs == null || !bs.contains(":")) {
-            System.out.println("Please specify bootstrap server address in the correct format. ");
+            System.out.println("Bootstrap server address is not specified in arguments. ");
             System.out.println("e.g.: `-bs 192.168.1.2:5000`");
-            System.exit(65);
+            bsAddr = readAddress(scanner);
+            bsPort = readPort(scanner);
         } else {
             bsAddr = bs.split(":")[0];
             try {
@@ -96,7 +134,8 @@ public class GUI {
             } catch (NumberFormatException e) {
                 System.out.println("Please specify bootstrap server address in the correct format. ");
                 System.out.println("e.g.: `-bs 192.168.1.2:5000`");
-                System.exit(66);
+                bsAddr = readAddress(scanner);
+                bsPort = readPort(scanner);
             }
         }
 
@@ -185,17 +224,13 @@ public class GUI {
                 boolean useCache = readUseCacheResponse(scanner);
                 if (peer != null) {
                     GUI.searching = true;
+                    GUI.queryTask = null;
 
                     peer.query(new QueryTaskListener() {
                         @Override
                         public void notifyQueryComplete(QueryTask queryTask) {
+                            GUI.queryTask = queryTask;
                             GUI.searching = false;
-                            System.out.println();
-                            System.out.println("Results [" + queryTask.getQueryResult().getFileNames().size() + "]: ");
-                            List<String> fileNames = queryTask.getQueryResult().getFileNames();
-                            for (int i = 0; i < fileNames.size(); i++) {
-                                System.out.println((i + 1) + ".\t" + fileNames.get(i));
-                            }
                         }
                     }, query, !useCache);
 
@@ -207,6 +242,12 @@ public class GUI {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    }
+
+                    if (GUI.queryTask != null) {
+                        printResults();
+                    } else {
+                        System.out.println("No results found. ");
                     }
                 }
             }
