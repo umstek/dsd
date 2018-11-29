@@ -57,8 +57,27 @@ public class Scheduler implements Runnable {
         udpSender.sendMessage(message);
         messageTracker.setStatus(Status.SENT);
         log.info("Request sent to: {}", message.getDestination());
-        MessageHandler messageHandler = new MessageHandler(messageTracker, udpSender);
-        this.executorService.submit(messageHandler);
+        switch (message.getType()){
+            case HEARTBEAT:
+                log.info("HEARTBEAT Response");
+                MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
+                this.executorService.submit(messageHandlerH);
+                break;
+
+            case QUERY:
+                log.info("QUERY Response");
+                MessageHandler messageHandlerQ = new MessageHandler(messageTracker, udpSender,this.queryHandler);
+                this.executorService.submit(messageHandlerQ);
+                break;
+
+            case DISCOVERY:
+                log.info("DISCOVERY Response");
+                MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
+                this.executorService.submit(messageHandlerD);
+                break;
+
+        }
+
     }
 
     @Override

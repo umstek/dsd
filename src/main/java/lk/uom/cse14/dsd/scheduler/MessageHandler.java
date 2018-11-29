@@ -1,6 +1,8 @@
 package lk.uom.cse14.dsd.scheduler;
 
 import lk.uom.cse14.dsd.comm.UdpSender;
+import lk.uom.cse14.dsd.comm.request.Request;
+import lk.uom.cse14.dsd.msghandler.IHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,11 +12,14 @@ public class MessageHandler implements Runnable {
     private MessageTracker messageTracker;
     private boolean active;
     private UdpSender udpSender;
+    private IHandler handler;
 
-    public MessageHandler(MessageTracker messageTracker, UdpSender udpSender) {
+    public MessageHandler(MessageTracker messageTracker, UdpSender udpSender,
+                          IHandler handler) {
         this.messageTracker = messageTracker;
         active = true;
         this.udpSender = udpSender;
+        this.handler = handler;
     }
 
     @Override
@@ -22,7 +27,7 @@ public class MessageHandler implements Runnable {
         while (active) {
             try {
                 boolean flag = false;
-                if (messageTracker.getRetryCount() < 5) {
+                if (messageTracker.getRetryCount() < 15) {
                     if (messageTracker.getStatus() == Status.SENT) {
                         udpSender.sendMessage(messageTracker.getMessage());
                         messageTracker.incrementRetryCount();
@@ -35,6 +40,7 @@ public class MessageHandler implements Runnable {
                     }
                 } else {
                     messageTracker.setStatus(Status.DEAD);
+                    this.handler.handle((Request) this.messageTracker.getMessage(),null);
                     log.info("Retry count exceeded. Status set to DEAD, uuid: {}", messageTracker.getUuid());
                     active = false;
                 }
