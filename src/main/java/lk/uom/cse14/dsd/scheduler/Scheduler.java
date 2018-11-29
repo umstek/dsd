@@ -83,7 +83,7 @@ public class Scheduler implements Runnable {
     @Override
     public void run() {
         while (true) {
-            log.info("Scheduler Up");
+            log.info("Scheduler Up ->->->->->->->->->->->->->->->->->->->->->->->->->->->");
             try {
                 boolean flag = false;
                 synchronized (MessageTracker.class){
@@ -125,7 +125,6 @@ public class Scheduler implements Runnable {
                     }
                     removeDeadTrackers();
                 }
-                log.info("Removed Dead Trackers");
                 if (flag) {
                     log.info("Scheduler Sleeping for 1 Second");
                     Thread.sleep(1000);
@@ -186,6 +185,7 @@ public class Scheduler implements Runnable {
     public void removeDeadTrackers() {
         for (Long k : messageTrackerMap.keySet()) {
             if (messageTrackerMap.get(k).getStatus() == Status.DEAD) {
+                log.info("Removing Dead Tracker: {}", k);
                 messageTrackerMap.remove(k);
             }
         }
