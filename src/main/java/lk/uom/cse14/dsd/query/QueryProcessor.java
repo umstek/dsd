@@ -22,12 +22,16 @@ public class QueryProcessor {
         QueryResultSet queryResultSet = new QueryResultSet();
         HashMap<String, ArrayList<RoutingEntry>> results = new HashMap<>();
 
-        RoutingEntry re = new RoutingEntry(ownIP, ownPort, RoutingEntry.Status.ONLINE, 5);
+        RoutingEntry re = new RoutingEntry(ownIP, ownPort, RoutingEntry.Status.ONLINE, 0);
         for (String filename : files) {
             results.put(filename, new ArrayList<>(
                     Arrays.asList(re)));
         }
         queryResultSet.setResults(results);
+
+        if (queryResultSet.getFileNames().isEmpty()) {
+            return null;
+        }
         return queryResultSet;
     }
 
@@ -40,6 +44,9 @@ public class QueryProcessor {
     public static QueryResultSet constructCacheQueryResult(HashMap<String, ArrayList<RoutingEntry>> peers) {
         QueryResultSet queryResultSet = new QueryResultSet();
         queryResultSet.setResults(peers);
+        if (queryResultSet.getFileNames().isEmpty()) {
+            return null;
+        }
         return queryResultSet;
     }
 }
