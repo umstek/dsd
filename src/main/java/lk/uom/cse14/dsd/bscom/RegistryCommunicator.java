@@ -106,6 +106,7 @@ abstract class RegistryCommunicator {
                     for (int i = 0; i < nodeCount; i++) {
                         /* Again we fully trust bootstrap server to send a correct reply. */
                         peerInfos.add(new PeerInfo(tokenizer.nextToken(), Integer.parseInt(tokenizer.nextToken())));
+                        tokenizer.nextToken(); // discard
                     }
 
                     return peerInfos;
