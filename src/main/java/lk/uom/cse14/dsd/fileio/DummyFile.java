@@ -11,7 +11,6 @@ public class DummyFile extends Object implements Serializable {
 
     private String data;
     private int size;
-//    private byte[] hash;
 
     public String getData() {
         return data;
@@ -28,13 +27,5 @@ public class DummyFile extends Object implements Serializable {
     public void setSize(int size) {
         this.size = size;
     }
-
-//    public byte[] getHash() {
-//        return hash;
-//    }
-//
-//    public void setHash(byte[] hash) {
-//        this.hash = hash;
-//    }
 
 }
