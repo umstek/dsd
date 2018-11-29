@@ -25,7 +25,7 @@ public class QueryTask implements Runnable {
                 break;
             } else {
                 try {
-                    System.out.println("SLEEPING");
+//                    System.out.println("SLEEPING");
                     Thread.sleep(1500);
                     count++;
                 } catch (InterruptedException e) {
