@@ -55,4 +55,18 @@ public class FileTransferUtils {
         os.flush();
         sock.close();
     }
+
+
+//    public static boolean validateFile(File file) throws IOException, ClassNotFoundException {
+//        DummyFile dummyFileObject;
+//        ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+//
+//        dummyFileObject = (DummyFile) in.readObject();
+//        byte[] calculatedHash = FileGenerator.getHashByteArray(dummyFileObject.getData());
+//
+//        in.close();
+//        file.close();
+//
+//    }
+
 }
