@@ -13,7 +13,7 @@ import lk.uom.cse14.dsd.query.DummyFileQueryProcessor;
 import lk.uom.cse14.dsd.query.ICacheQuery;
 import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import lk.uom.cse14.dsd.util.SearchUtils;
+import lk.uom.cse14.dsd.util.QueryUtils;
 import lk.uom.cse14.dsd.util.TextFileUtils;
 
 import java.io.IOException;
@@ -92,9 +92,9 @@ public class Peer {
     public void startPeer() {
 
         /*
-        initializes the searching "index" in SearchUtils class
+        initializes the searching "index" in QueryUtils class
          */
-        SearchUtils.initializeCache();
+        QueryUtils.initializeCache();
 
         taskExecutor.submit(this.udpReceiver);
         taskExecutor.submit(this.udpSender);

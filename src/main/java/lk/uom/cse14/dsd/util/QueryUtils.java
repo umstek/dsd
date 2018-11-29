@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * SearchUtils provide the utility functions for searching
+ * QueryUtils provide the utility functions for searching
  */
-public class SearchUtils {
+public class QueryUtils {
 
     private static final String QUERY_LIST = "/config/Queries.txt";
     private static final String FILE_LIST = "/config/File Names.txt";
@@ -19,10 +19,10 @@ public class SearchUtils {
      * this method initializes the cache for searching and querying
      */
     public static void initializeCache() {
-//        SearchUtils.hostedFiles = hostedFiles;
+//        QueryUtils.hostedFiles = hostedFiles;
         try {
-            SearchUtils.hostedFiles = TextFileUtils.readFileContent(FILE_LIST);
-            SearchUtils.queries = TextFileUtils.readFileContent(QUERY_LIST);
+            QueryUtils.hostedFiles = TextFileUtils.readFileContent(FILE_LIST);
+            QueryUtils.queries = TextFileUtils.readFileContent(QUERY_LIST);
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(QUERY_LIST + " file is missing");
@@ -44,7 +44,7 @@ public class SearchUtils {
      */
     public static ArrayList<String> runSearchQuery(String query, boolean cache) {
         if (cache) {
-            return SearchUtils.search(query, SearchUtils.hostedFiles);
+            return QueryUtils.search(query, QueryUtils.hostedFiles);
         } else {
             ArrayList<String> files = null;
             try {
@@ -52,7 +52,7 @@ public class SearchUtils {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return SearchUtils.search(query, files);
+            return QueryUtils.search(query, files);
         }
     }
 
@@ -79,8 +79,8 @@ public class SearchUtils {
 
 
 //    public static QueryRequest issueSearchQuery() {
-//        int index = ThreadLocalRandom.current().nextInt(SearchUtils.queries.size());
-//        String query = SearchUtils.queries.get(index);
+//        int index = ThreadLocalRandom.current().nextInt(QueryUtils.queries.size());
+//        String query = QueryUtils.queries.get(index);
 //        QueryRequest qr = new QueryRequest();
 //    }
 

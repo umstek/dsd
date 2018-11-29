@@ -2,7 +2,7 @@ package lk.uom.cse14.dsd.query;
 
 import lk.uom.cse14.dsd.msghandler.QueryResultSet;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
-import lk.uom.cse14.dsd.util.SearchUtils;
+import lk.uom.cse14.dsd.util.QueryUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,25 +13,28 @@ public class CacheQueryProcessor implements ICacheQuery {
 
     @Override
     public void updateCache(QueryResultSet resultSet) {
-        ArrayList<String> files = resultSet.getFileNames();
-        RoutingEntry entry = resultSet.getRoutingEntry();
-        String IP = entry.getPeerIP();
+        ArrayList<String> fileToUpdate = resultSet.getFileNames();
 
-        for (String file : files) {
-            ArrayList<RoutingEntry> cacheEntries = QueryCache.get(file);
-            if (cacheEntries != null) {
-                for (RoutingEntry re : cacheEntries) {
-                    String cachedIP = re.getPeerIP();
-                    if (cachedIP.equals(IP)) {
-                        break;
-                    } else {
-                        cacheEntries.add(entry);
+        for (String file : fileToUpdate) {
+            ArrayList<RoutingEntry> entriesToUpdate = resultSet.getRoutingEntries(file);
+            ArrayList<RoutingEntry> cachedFileEntries = QueryCache.get(file);
+
+            for (RoutingEntry re : entriesToUpdate) {
+                String IP = re.getPeerIP();
+                if (cachedFileEntries != null) {
+                    for (RoutingEntry cre : cachedFileEntries) {
+                        String cachedIP = cre.getPeerIP();
+                        if (cachedIP.equals(IP)) {
+                            break;
+                        } else {
+                            cachedFileEntries.add(re);
+                        }
                     }
+                } else {
+                    cachedFileEntries = entriesToUpdate;
                 }
-            } else {
-                cacheEntries = new ArrayList<>();
             }
-            QueryCache.put(file, cacheEntries);
+            QueryCache.put(file, cachedFileEntries);
         }
 
     }
@@ -39,7 +42,7 @@ public class CacheQueryProcessor implements ICacheQuery {
     @Override
     public QueryResultSet query(String query) {
         ArrayList<String> cachedFiles = new ArrayList<>(QueryCache.keySet());
-        ArrayList<String> cacheHitFiles = SearchUtils.search(query, cachedFiles);
+        ArrayList<String> cacheHitFiles = QueryUtils.search(query, cachedFiles);
 
         if (!cacheHitFiles.isEmpty()) {
             HashMap<String, ArrayList<RoutingEntry>> cacheHits = new HashMap<>();
