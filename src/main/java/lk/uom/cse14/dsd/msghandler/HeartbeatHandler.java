@@ -108,27 +108,24 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void run() {
         while (true) {
-            int entryCount = routingEntries.size();
-            if (entryCount < 1) {
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace(); // XXX
-                }
-            } else {
-                for (RoutingEntry routingEntry : routingEntries) {
-                    try {
+            try {
+                int entryCount = routingEntries.size();
+                if (entryCount < 1) {
+                    Thread.sleep(1000);
+                } else {
+                    for (RoutingEntry routingEntry : routingEntries) {
                         HeartbeatRequest heartbeatRequest = new HeartbeatRequest(
                                 ownHost, ownPort, routingEntry.getPeerIP(), routingEntry.getPeerPort()
                         );
 
                         scheduler.schedule(heartbeatRequest);
-                        Thread.sleep(30000 / entryCount);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        Thread.sleep(10000 / entryCount);
                     }
                 }
+            }catch (Exception e){
+
             }
+
         }
     }
 }
