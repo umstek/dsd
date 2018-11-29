@@ -1,10 +1,12 @@
 package lk.uom.cse14.dsd.main;
 
+import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.comm.message.HeartbeatRequest;
 import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
 
@@ -39,8 +41,16 @@ public class Main {
         if (ownHostFinal == null) {
             System.exit(78);
         }
-        Peer peer = new Peer(ownHostFinal,3005);
-        peer.startPeer();
+        Peer peer = null;
+        try {
+            peer = new Peer("127.0.0.1",5000,ownHostFinal,3009);
+            peer.startPeer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (RegisterException e) {
+            e.printStackTrace();
+        }
+
 //        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT, ownHostFinal, "127.0.0.1", 3006));
 //        peer.getUdpSender().sendMessage(HeartbeatRequest.newHeartbeatMessage(Request.MessageType.HEARTBEAT,
 //                ownHostFinal, "127.0.0.1", 3006));

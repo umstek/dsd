@@ -10,11 +10,11 @@ import java.util.StringTokenizer;
  * Abstract class for communicating with bootstrap server. Has methods for parsing responses.
  */
 abstract class RegistryCommunicator {
-    String serverHost;
-    int serverPort;
-    String ownHost;
-    int ownPort;
-    String username;
+    private String serverHost;
+    private int serverPort;
+    private String ownHost;
+    private int ownPort;
+    private String username;
 
     /**
      * Allows creating different types of RegistryCommunicators.
@@ -148,4 +148,35 @@ abstract class RegistryCommunicator {
         );
     }
 
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public String getOwnHost() {
+        return ownHost;
+    }
+
+    public void setOwnHost(String ownHost) {
+        this.ownHost = ownHost;
+    }
+
+    public int getOwnPort() {
+        return ownPort;
+    }
+
+    public void setOwnPort(int ownPort) {
+        this.ownPort = ownPort;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
