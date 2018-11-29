@@ -1,9 +1,8 @@
 package lk.uom.cse14.dsd.scheduler;
 
-import lk.uom.cse14.dsd.comm.Message;
 import lk.uom.cse14.dsd.comm.UdpSender;
 
-public class MessageHandler implements Runnable{
+public class MessageHandler implements Runnable {
 
     private MessageTracker messageTracker;
     private boolean active;
@@ -18,14 +17,14 @@ public class MessageHandler implements Runnable{
     @Override
     public void run() {
         while (active) {
-            try{
-                synchronized (Scheduler.class){
-                    if(messageTracker.getRetryCount() < 5) {
-                        if(messageTracker.getStatus() == Status.SENT) {
+            try {
+                synchronized (Scheduler.class) {
+                    if (messageTracker.getRetryCount() < 5) {
+                        if (messageTracker.getStatus() == Status.SENT) {
                             udpSender.sendMessage(messageTracker.getMessage());
                             messageTracker.incrementRetryCount();
                             Thread.sleep(10000);
-                        } else if(messageTracker.getStatus() == Status.RESPONSED) {
+                        } else if (messageTracker.getStatus() == Status.RESPONSED) {
                             messageTracker.setStatus(Status.DEAD);
                             active = false;
                         }
@@ -37,7 +36,7 @@ public class MessageHandler implements Runnable{
                 }
 
 
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

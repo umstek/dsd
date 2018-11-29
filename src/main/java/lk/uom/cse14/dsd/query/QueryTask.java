@@ -3,14 +3,14 @@ package lk.uom.cse14.dsd.query;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.ui.QueryTaskListener;
 
-public class QueryTask implements Runnable{
+public class QueryTask implements Runnable {
     private String query;
     private boolean skipCache;
     private RoutingEntry queryResult = null;
     private int retryCount = 50;
     private QueryTaskListener listener;
 
-    public QueryTask(QueryTaskListener listener,String query,boolean skipCache){
+    public QueryTask(QueryTaskListener listener, String query, boolean skipCache) {
         this.listener = listener;
         this.query = query;
         this.skipCache = skipCache;
@@ -19,8 +19,8 @@ public class QueryTask implements Runnable{
     @Override
     public void run() {
         int count = 0;
-        while (count<retryCount){
-            if(queryResult != null){
+        while (count < retryCount) {
+            if (queryResult != null) {
                 //listener.notifyQueryComplete(this);
                 break;
             } else {
@@ -32,7 +32,7 @@ public class QueryTask implements Runnable{
                 }
             }
         }
-        if(queryResult == null){
+        if (queryResult == null) {
             listener.notifyQueryComplete(this);
         }
     }

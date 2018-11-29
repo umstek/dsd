@@ -7,27 +7,23 @@ import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.message.Request;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.msghandler.IHandler;
-import lk.uom.cse14.dsd.peer.Peer;
-import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.net.SocketException;
-import java.util.List;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class Scheduler implements Runnable {
+    private final Logger log = LoggerFactory.getLogger(Scheduler.class);
+    ExecutorService executorService;
     private IHandler queryHandler;
     private IHandler heartbeatHandler;
     private IHandler peerDiscoveryHandler;
     private UdpReceiver udpReceiver;
     private UdpSender udpSender;
     private Map<Long, MessageTracker> messageTrackerMap = new ConcurrentHashMap<>();
-    private final Logger log = LoggerFactory.getLogger(Scheduler.class);
-    ExecutorService executorService;
 
     public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
         this.udpReceiver = udpReceiver;
@@ -59,27 +55,27 @@ public class Scheduler implements Runnable {
 
     @Override
     public void run() {
-        while(true) {
-            synchronized (Scheduler.class){
+        while (true) {
+            synchronized (Scheduler.class) {
                 try {
                     Message receivedMessage = udpReceiver.getMessage();
                     if (receivedMessage == null) {
                         Thread.sleep(1000);
-                    }else {
+                    } else {
                         MessageType receivedMessageType = receivedMessage.getType();
-                        if(isItMyMessage(receivedMessage)) {
+                        if (isItMyMessage(receivedMessage)) {
                             MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
                             Message myMessage = null;
                             //synchronized (MessageTracker.class) {
                             myMessage = messageTracker.getMessage();
                             messageTracker.setStatus(Status.RESPONSED);
                             //}
-                            if(myMessage != null) {
+                            if (myMessage != null) {
                                 Request myRequest = (Request) myMessage;
                                 Response receivedResponse = (Response) receivedMessage;
                                 handleResponseMessage(myRequest, receivedResponse, receivedMessageType);
                             }
-                        }else {
+                        } else {
                             Request receivedRequest = (Request) receivedMessage;
                             handleRequestMessage(receivedRequest, receivedMessageType);
                         }
@@ -94,10 +90,8 @@ public class Scheduler implements Runnable {
 
     public boolean isItMyMessage(Message message) {
         long uuid = message.getUuid();
-        if(uuid != 0) {
-            if(messageTrackerMap.containsKey(uuid)) {
-                return true;
-            }
+        if (uuid != 0) {
+            return messageTrackerMap.containsKey(uuid);
         }
         return false;
     }
@@ -137,8 +131,8 @@ public class Scheduler implements Runnable {
     }
 
     public void removeDeadTrackers() {
-        for (MessageTracker m: messageTrackerMap.values()) {
-            if(m.getStatus() == Status.DEAD) {
+        for (MessageTracker m : messageTrackerMap.values()) {
+            if (m.getStatus() == Status.DEAD) {
                 //messageTrackerMap.remove(m);
             }
         }

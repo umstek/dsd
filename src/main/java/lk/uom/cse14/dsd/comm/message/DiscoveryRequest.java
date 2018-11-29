@@ -5,6 +5,7 @@ package lk.uom.cse14.dsd.comm.message;
  * */
 public class DiscoveryRequest extends Request {
     private int requestedPeerCount;
+
     public DiscoveryRequest(String source, int sourcePort, String destination, int destinationPort) {
         super(source, sourcePort, destination, destinationPort);
     }

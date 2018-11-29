@@ -22,9 +22,9 @@ public class DiscoveryResponse extends Response {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (RoutingEntry entry:discoveredPeers) {
+        for (RoutingEntry entry : discoveredPeers) {
             builder.append(entry.toString());
         }
-        return super.toString()+builder.toString() ;
+        return super.toString() + builder.toString();
     }
 }

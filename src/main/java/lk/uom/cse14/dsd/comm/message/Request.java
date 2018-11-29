@@ -1,9 +1,6 @@
 package lk.uom.cse14.dsd.comm.message;
 
 import lk.uom.cse14.dsd.comm.Message;
-import lk.uom.cse14.dsd.comm.MessageType;
-
-import java.io.Serializable;
 
 /*
  * Abstract Base form of a message

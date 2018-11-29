@@ -11,7 +11,7 @@ public class Message implements Serializable {
     private int destinationPort;
     private int hopCount = 0;
 
-    public Message(){
+    public Message() {
 
     }
 
@@ -20,11 +20,11 @@ public class Message implements Serializable {
         this.sourcePort = sourcePort;
         this.destination = destination;
         this.destinationPort = destinationPort;
-            uuid = System.nanoTime();
+        uuid = System.nanoTime();
 
-        }
+    }
 
-    public void redirectRequest(String source, int sourcePort, String destination, int destinationPort){
+    public void redirectRequest(String source, int sourcePort, String destination, int destinationPort) {
         this.setSource(source);
         this.setSourcePort(sourcePort);
         this.setDestination(destination);
@@ -44,41 +44,41 @@ public class Message implements Serializable {
         return source;
     }
 
-    public int getSourcePort() {
-        return sourcePort;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public int getDestinationPort() {
-        return destinationPort;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Message:\n");
-        builder.append("From: "+this.getSource()+":"+this.getSourcePort()+"\n");
-        builder.append("To: "+this.getDestination()+":"+this.getDestinationPort()+"\n");
-        return builder.toString();
-    }
-
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public int getSourcePort() {
+        return sourcePort;
     }
 
     public void setSourcePort(int sourcePort) {
         this.sourcePort = sourcePort;
     }
 
+    public String getDestination() {
+        return destination;
+    }
+
     public void setDestination(String destination) {
         this.destination = destination;
     }
 
+    public int getDestinationPort() {
+        return destinationPort;
+    }
+
     public void setDestinationPort(int destinationPort) {
         this.destinationPort = destinationPort;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Message:\n");
+        builder.append("From: " + this.getSource() + ":" + this.getSourcePort() + "\n");
+        builder.append("To: " + this.getDestination() + ":" + this.getDestinationPort() + "\n");
+        return builder.toString();
     }
 
     public int getHopCount() {

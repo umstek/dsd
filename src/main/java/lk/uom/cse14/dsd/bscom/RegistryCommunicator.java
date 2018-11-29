@@ -117,6 +117,20 @@ abstract class RegistryCommunicator {
         }
     }
 
+    static String generateRequestString(String ownHost, int ownPort, String username, boolean unregister) {
+        String strOwnPort = String.valueOf(ownPort);
+
+        int msgLength = 4 + (unregister ? 5 : 3) +
+                ownHost.length() + strOwnPort.length() + username.length()
+                + 4; // Spaces
+        String strMsgLength = String.format("%04d", msgLength);
+
+        return String.join(
+                " ",
+                strMsgLength, unregister ? "UNREG" : "REG", ownHost, strOwnPort, username
+        );
+    }
+
     /**
      * Registers with a bootstrap server and returns a list of registrants found in the registry.
      * It automatically finds the host where to start the ports.
@@ -134,20 +148,6 @@ abstract class RegistryCommunicator {
      * @return Whether un-registration was successful.
      */
     abstract boolean unregister() throws IOException, UnknownUnregisterResponseException;
-
-    static String generateRequestString(String ownHost, int ownPort, String username, boolean unregister) {
-        String strOwnPort = String.valueOf(ownPort);
-
-        int msgLength = 4 + (unregister ? 5 : 3) +
-                ownHost.length() + strOwnPort.length() + username.length()
-                + 4; // Spaces
-        String strMsgLength = String.format("%04d", msgLength);
-
-        return String.join(
-                " ",
-                strMsgLength, unregister ? "UNREG" : "REG", ownHost, strOwnPort, username
-        );
-    }
 
     public String getServerHost() {
         return serverHost;

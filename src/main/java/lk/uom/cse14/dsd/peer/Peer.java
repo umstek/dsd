@@ -5,10 +5,10 @@ import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
-import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 import lk.uom.cse14.dsd.fileio.TextFileHandler;
+import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.DummyCacheQueryProcessor;
 import lk.uom.cse14.dsd.query.DummyFileQueryProcessor;
 import lk.uom.cse14.dsd.query.ICacheQuery;
@@ -35,6 +35,10 @@ import java.util.concurrent.Executors;
  * todo: handle exceptions properly
  * */
 public class Peer {
+    /*
+    This value is hardcoded
+     */
+    private final String FILE_LIST = "/config/File Names.txt";
     private DatagramSocket socket;
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;
@@ -45,27 +49,13 @@ public class Peer {
     private IHandler peerDiscoveryHandler;
     private IFileQuery fileQueryProcessor;
     private ICacheQuery cacheQueryProcessor;
-    /*
-    This value is hardcoded
-     */
-    private final String FILE_LIST = "/config/File Names.txt";
-
-    public ArrayList<String> getHostedFileNames() {
-        return hostedFileNames;
-    }
-
-    public HashMap<String, DummyFile> getHostedFiles() {
-        return hostedFiles;
-    }
-
     private ArrayList<String> hostedFileNames;
     private HashMap<String, DummyFile> hostedFiles;
     private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
-
-    public Peer(String BSHost,int BSPort,String ownHost,int ownPort,String userName) throws IOException, RegisterException {
-        TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost,BSPort);
+    public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, RegisterException {
+        TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);
         try {
             this.ownHost = ownHost;
             this.ownPort = ownPort;
@@ -74,13 +64,13 @@ public class Peer {
             this.udpSender = new UdpSender(1000, 100, socket);
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
-            this.scheduler = new Scheduler(udpReceiver,udpSender);
-            List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost,ownPort,userName);
-            this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable,ownHost,ownPort,scheduler,peers);
+            this.scheduler = new Scheduler(udpReceiver, udpSender);
+            List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
+            this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
             this.fileQueryProcessor = new DummyFileQueryProcessor();
             this.cacheQueryProcessor = new DummyCacheQueryProcessor();
-            this.queryHandler = new QueryHandler(routingTable,scheduler,cacheQueryProcessor,fileQueryProcessor,ownHost,ownPort);
-            this.heartbeatHandler = new HeartbeatHandler(ownHost,ownPort,scheduler,routingTable);
+            this.queryHandler = new QueryHandler(routingTable, scheduler, cacheQueryProcessor, fileQueryProcessor, ownHost, ownPort);
+            this.heartbeatHandler = new HeartbeatHandler(ownHost, ownPort, scheduler, routingTable);
             this.scheduler.setHeartbeatHandler(heartbeatHandler);
             this.scheduler.setQueryHandler(queryHandler);
             this.scheduler.setPeerDiscoveryHandler(peerDiscoveryHandler);
@@ -88,6 +78,14 @@ public class Peer {
         } catch (SocketException e) {
             e.printStackTrace();
         }
+    }
+
+    public ArrayList<String> getHostedFileNames() {
+        return hostedFileNames;
+    }
+
+    public HashMap<String, DummyFile> getHostedFiles() {
+        return hostedFiles;
     }
 
     public void startPeer() {
@@ -100,10 +98,10 @@ public class Peer {
         taskExecutor.submit(this.udpReceiver);
         taskExecutor.submit(this.udpSender);
         taskExecutor.submit((Runnable) this.peerDiscoveryHandler);
-        taskExecutor.submit((Runnable)this.heartbeatHandler);
+        taskExecutor.submit((Runnable) this.heartbeatHandler);
         taskExecutor.submit(scheduler);
         System.out.println("DisFish Peer Started at: " + new Date().toString());
-        System.out.println("Local Address: " + ownHost+":"+ownPort);
+        System.out.println("Local Address: " + ownHost + ":" + ownPort);
         this.generateFiles();
         System.out.println("\n************** List of hosted files **************\n");
         for (String filename : this.hostedFileNames

@@ -54,7 +54,7 @@ public class FileGenerator {
     public static DummyFile generateFile(String filename) throws NoSuchAlgorithmException {
         byte[] bigint = FileGenerator.generateLargeNumber();
         int size = bigint.length;
-        int sizeMB = size / (1024*1024);
+        int sizeMB = size / (1024 * 1024);
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < size; i++) {

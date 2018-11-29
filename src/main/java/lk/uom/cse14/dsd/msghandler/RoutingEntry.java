@@ -3,7 +3,7 @@ package lk.uom.cse14.dsd.msghandler;
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.ONLINE;
 import static lk.uom.cse14.dsd.msghandler.RoutingEntry.Status.UNKNOWN;
 
-public class RoutingEntry implements Cloneable{
+public class RoutingEntry implements Cloneable {
     private String peerIP;
     private int peerPort;
     private Status status;
@@ -41,24 +41,24 @@ public class RoutingEntry implements Cloneable{
         this.retryCount = retryCount;
     }
 
-    public enum Status {
-        ONLINE, OFFLINE, UNKNOWN
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Peer : "+this.peerIP+":"+peerPort+(this.status == ONLINE?"Online":"Offline")+" Retry Count"+retryCount+"\n");
+        builder.append("Peer : " + this.peerIP + ":" + peerPort + (this.status == ONLINE ? "Online" : "Offline") + " Retry Count" + retryCount + "\n");
         return super.toString();
     }
 
     @Override
-    public RoutingEntry clone(){
+    public RoutingEntry clone() {
         RoutingEntry entry = new RoutingEntry();
         entry.setPeerIP(this.peerIP);
         entry.setPeerPort(this.peerPort);
         entry.setStatus(UNKNOWN);
         entry.setRetryCount(0);
         return entry;
+    }
+
+    public enum Status {
+        ONLINE, OFFLINE, UNKNOWN
     }
 }

@@ -6,7 +6,7 @@ public class QueryResultSet {
     private RoutingEntry routingEntry;
     private ArrayList<String> fileNames;
 
-    public QueryResultSet(){
+    public QueryResultSet() {
         this.fileNames = new ArrayList<>();
     }
 
