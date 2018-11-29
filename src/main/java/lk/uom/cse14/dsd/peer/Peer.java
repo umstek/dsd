@@ -1,6 +1,5 @@
 package lk.uom.cse14.dsd.peer;
 
-import lk.uom.cse14.dsd.bscom.AlreadyRegisteredException;
 import lk.uom.cse14.dsd.bscom.PeerInfo;
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
@@ -67,13 +66,7 @@ public class Peer {
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
             this.scheduler = new Scheduler(udpReceiver, udpSender);
-            List<PeerInfo> peers;
-            try {
-                 peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
-            } catch (AlreadyRegisteredException e) {
-                tcpRegistryCommunicator.unregister();
-                peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
-            }
+            List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
             this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
             this.fileQueryProcessor = new DummyFileQueryProcessor();
             this.cacheQueryProcessor = new DummyCacheQueryProcessor();
