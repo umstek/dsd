@@ -1,7 +1,7 @@
 package lk.uom.cse14.dsd.msghandler;
 
-import lk.uom.cse14.dsd.comm.message.QueryRequest;
-import lk.uom.cse14.dsd.comm.message.Request;
+import lk.uom.cse14.dsd.comm.request.QueryRequest;
+import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.QueryResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.query.ICacheQuery;

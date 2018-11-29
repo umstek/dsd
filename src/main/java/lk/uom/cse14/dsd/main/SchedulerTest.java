@@ -1,8 +1,8 @@
 //package lk.uom.cse14.dsd.main;
 //
 //import lk.uom.cse14.dsd.comm.MessageType;
-//import lk.uom.cse14.dsd.comm.message.HeartbeatRequest;
-//import lk.uom.cse14.dsd.comm.message.Request;
+//import lk.uom.cse14.dsd.comm.request.HeartbeatRequest;
+//import lk.uom.cse14.dsd.comm.request.Request;
 //import lk.uom.cse14.dsd.peer.Peer;
 //import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 //

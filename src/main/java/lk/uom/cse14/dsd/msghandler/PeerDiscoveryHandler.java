@@ -2,8 +2,8 @@ package lk.uom.cse14.dsd.msghandler;
 
 import lk.uom.cse14.dsd.bscom.PeerInfo;
 import lk.uom.cse14.dsd.comm.MessageType;
-import lk.uom.cse14.dsd.comm.message.DiscoveryRequest;
-import lk.uom.cse14.dsd.comm.message.Request;
+import lk.uom.cse14.dsd.comm.request.DiscoveryRequest;
+import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.DiscoveryResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
@@ -75,7 +75,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     DiscoveryRequest request = new DiscoveryRequest(this.ownHost, this.ownPort, entry.getPeerIP(), entry.getPeerPort());
                     request.setType(MessageType.DISCOVERY);
                     request.setRequestedPeerCount(2);
-                    logger.info("Sending discovery message to:" + request.getDestination() + ":" + request.getDestinationPort());
+                    logger.info("Sending discovery request to:" + request.getDestination() + ":" + request.getDestinationPort());
                     scheduler.schedule(request);
                     try {
                         Thread.sleep(1000);
@@ -111,7 +111,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                         this.routingTable.add(discoveredEntry);
                     }
                 }
-                logger.info("Got Response for peer discovery message.");
+                logger.info("Got Response for peer discovery request.");
                 logger.info("Response:" + response.toString());
                 logger.info("Routing Table Status: ");
                 logger.info(routingTable.toString());

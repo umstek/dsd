@@ -1,6 +1,7 @@
 package lk.uom.cse14.dsd.comm.response;
 
 import lk.uom.cse14.dsd.comm.Message;
+import lk.uom.cse14.dsd.comm.MessageKind;
 
 public abstract class Response extends Message {
     public static final int SUCCESS = 1;
@@ -9,6 +10,7 @@ public abstract class Response extends Message {
 
     public Response(String source, int sourePort, String destination, int destinationPort) {
         super(source, sourePort, destination, destinationPort);
+        this.setDirection(MessageKind.RESPONSE);
     }
 
     public int getStatus() {

@@ -29,8 +29,8 @@ import java.util.concurrent.Executors;
 
 /*
  * Peer class represents an actual peer. It contains UdpSender and UdpReceiver objects to manage
- * message passing between peer nodes.
- * todo: implement message scheduler and manage high level message passing
+ * request passing between peer nodes.
+ * todo: implement request scheduler and manage high level request passing
  * todo: dynamic scheduling of messages, peer discovery and queries
  * todo: handle exceptions properly
  * */
