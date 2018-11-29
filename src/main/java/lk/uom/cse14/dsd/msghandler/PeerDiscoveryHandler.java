@@ -33,7 +33,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
     public void init(List<PeerInfo> peersList) {
         ArrayList<PeerInfo> peers = new ArrayList<>();
         for(PeerInfo peer:peersList){
-            if(!peer.getHost().equals(this.ownHost) && peer.getPort() != this.ownPort){
+            if(!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort){
                 peers.add(peer);
             }
         }
