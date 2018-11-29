@@ -31,7 +31,14 @@ public class Message implements Serializable {
         this.destination = destination;
         this.destinationPort = destinationPort;
         uuid = System.nanoTime();
+    }
 
+    public Message(String source, int sourcePort, String destination, int destinationPort, long uuid) {
+        this.source = source;
+        this.sourcePort = sourcePort;
+        this.destination = destination;
+        this.destinationPort = destinationPort;
+        this.uuid = uuid;
     }
 
     public void redirectRequest(String source, int sourcePort, String destination, int destinationPort) {

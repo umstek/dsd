@@ -22,22 +22,20 @@ public class MessageHandler implements Runnable {
         while (active) {
             try {
                 boolean flag = false;
-                synchronized (Scheduler.class){
-                    if (messageTracker.getRetryCount() < 5) {
-                        if (messageTracker.getStatus() == Status.SENT) {
-                            udpSender.sendMessage(messageTracker.getMessage());
-                            messageTracker.incrementRetryCount();
-                            log.info("Message Resent to: {}", messageTracker.getMessage().getDestination());
-                            flag = true;
-                        } else if (messageTracker.getStatus() == Status.RESPONSED) {
-                            messageTracker.setStatus(Status.DEAD);
-                            active = false;
-                        }
-                    } else {
+                if (messageTracker.getRetryCount() < 5) {
+                    if (messageTracker.getStatus() == Status.SENT) {
+                        udpSender.sendMessage(messageTracker.getMessage());
+                        messageTracker.incrementRetryCount();
+                        log.info("Message Resent to: {}", messageTracker.getMessage().getDestination());
+                        flag = true;
+                    } else if (messageTracker.getStatus() == Status.RESPONSED) {
                         messageTracker.setStatus(Status.DEAD);
-                        log.info("Retry count exceeded. Status set to DEAD");
                         active = false;
                     }
+                } else {
+                    messageTracker.setStatus(Status.DEAD);
+                    log.info("Retry count exceeded. Status set to DEAD");
+                    active = false;
                 }
                 if(flag){
                     Thread.sleep(10000);
