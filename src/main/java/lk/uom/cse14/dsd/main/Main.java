@@ -3,7 +3,9 @@ package lk.uom.cse14.dsd.main;
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
+//import org.apache.log4j.PropertyConfigurator;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
@@ -24,6 +26,8 @@ public class Main {
 //            System.out.println("Registering error");
 //            e.printStackTrace();
 //        }
+        //PropertyConfigurator.configure("log4j.properties");
+        System.out.println(new File("").getAbsolutePath());
         String ownHostFinal = null;
         try {
             List<String> ownHosts = NetworkInterfaceUtils.findOwnHosts(false);
@@ -41,7 +45,7 @@ public class Main {
         }
         Peer peer = null;
         try {
-            peer = new Peer("192.168.8.103", 5000, ownHostFinal, 3001, "001");
+            peer = new Peer("192.168.8.103", 5000, ownHostFinal, 3001, "002");
             peer.startPeer();
         } catch (IOException e) {
             e.printStackTrace();
