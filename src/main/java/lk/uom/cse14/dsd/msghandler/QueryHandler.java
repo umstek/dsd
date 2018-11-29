@@ -88,13 +88,7 @@ public class QueryHandler implements IHandler {
         if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
             result = cacheQueryProcessor.query(queryRequest.getQuery());
         }
-        if (result != null && this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request originated from this Host/Port
-                this.ownPort == queryRequest.getGetRequesterPort()) {
-//            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-//            if(qt != null){
-//                qt.setQueryResult(result);
-//            }
-        } else if (result != null && (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
+        if (result != null && (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
                 this.ownPort != queryRequest.getGetRequesterPort())) {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
                     queryRequest.getSourcePort());
