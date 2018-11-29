@@ -96,27 +96,29 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
     }
 
     @Override
-    public synchronized void handle(Request request, Response response) {
-        if(response.getStatus() == Response.SUCCESS &&
-                response instanceof DiscoveryResponse){
-            DiscoveryResponse dResponse = (DiscoveryResponse)response;
-            for (RoutingEntry discoveredEntry:dResponse.getDiscoveredPeers()) {
-                boolean entryInRoutingTable = false;
-                for (RoutingEntry routingEntry:routingTable) {
-                    if(routingEntry.getPeerIP().equals(discoveredEntry.getPeerIP()) &&
-                            routingEntry.getPeerPort() == discoveredEntry.getPeerPort()){
-                        entryInRoutingTable = true;
+    public void handle(Request request, Response response) {
+        synchronized (PeerDiscoveryHandler.class){
+            if(response.getStatus() == Response.SUCCESS &&
+                    response instanceof DiscoveryResponse){
+                DiscoveryResponse dResponse = (DiscoveryResponse)response;
+                for (RoutingEntry discoveredEntry:dResponse.getDiscoveredPeers()) {
+                    boolean entryInRoutingTable = false;
+                    for (RoutingEntry routingEntry:routingTable) {
+                        if(routingEntry.getPeerIP().equals(discoveredEntry.getPeerIP()) &&
+                                routingEntry.getPeerPort() == discoveredEntry.getPeerPort()){
+                            entryInRoutingTable = true;
 
+                        }
+                    }
+                    if(!entryInRoutingTable){
+                        this.routingTable.add(discoveredEntry);
                     }
                 }
-                if(!entryInRoutingTable){
-                    this.routingTable.add(discoveredEntry);
-                }
+                logger.info("Got Response for peer discovery message.");
+                logger.info("Response:"+response.toString());
+                logger.info("Routing Table Status: ");
+                logger.info(routingTable.toString());
             }
-            logger.info("Got Response for peer discovery message.");
-            logger.info("Response:"+response.toString());
-            logger.info("Routing Table Status: ");
-            logger.info(routingTable.toString());
         }
     }
 
@@ -127,7 +129,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
         response.setStatus(Response.SUCCESS);
         response.setType(MessageType.DISCOVERY);
         ArrayList<RoutingEntry> discoveredPeersList = new ArrayList<>();
-        synchronized (routingTable){
+        synchronized (PeerDiscoveryHandler.class){
             for(int i = 0;i<routingTable.size();i++){
                 if(discoveredPeersList.size()>=((DiscoveryRequest)request).getRequestedPeerCount()){
                     break;

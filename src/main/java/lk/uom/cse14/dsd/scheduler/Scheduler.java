@@ -69,7 +69,7 @@ public class Scheduler implements Runnable {
                     if(isItMyMessage(receivedMessage)) {
                         MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
                         Message myMessage = null;
-                        synchronized (messageTracker) {
+                        synchronized (MessageTracker.class) {
                             myMessage = messageTracker.getMessage();
                             messageTracker.setStatus(Status.RESPONSED);
                         }
@@ -137,7 +137,7 @@ public class Scheduler implements Runnable {
     public void removeDeadTrackers() {
         for (MessageTracker m: messageTrackerMap.values()) {
             if(m.getStatus() == Status.DEAD) {
-                messageTrackerMap.remove(m);
+                //messageTrackerMap.remove(m);
             }
         }
     }

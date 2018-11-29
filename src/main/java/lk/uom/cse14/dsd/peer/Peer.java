@@ -67,6 +67,8 @@ public class Peer {
     public Peer(String BSHost,int BSPort,String ownHost,int ownPort,String userName) throws IOException, RegisterException {
         TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost,BSPort);
         try {
+            this.ownHost = ownHost;
+            this.ownPort = ownPort;
             this.socket = new DatagramSocket(ownPort);
             this.taskExecutor = Executors.newFixedThreadPool(10);
             this.udpSender = new UdpSender(1000, 100, socket);
@@ -79,8 +81,10 @@ public class Peer {
             this.cacheQueryProcessor = new DummyCacheQueryProcessor();
             this.queryHandler = new QueryHandler(routingTable,scheduler,cacheQueryProcessor,fileQueryProcessor,ownHost,ownPort);
             this.heartbeatHandler = new HeartbeatHandler(ownHost,ownPort,scheduler,routingTable);
-            this.ownHost = ownHost;
-            this.ownPort = ownPort;
+            this.scheduler.setHeartbeatHandler(heartbeatHandler);
+            this.scheduler.setQueryHandler(queryHandler);
+            this.scheduler.setPeerDiscoveryHandler(peerDiscoveryHandler);
+
         } catch (SocketException e) {
             e.printStackTrace();
         }
