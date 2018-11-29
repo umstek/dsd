@@ -47,16 +47,16 @@ public class Scheduler implements Runnable {
         log.info("Inside Schedule");
         if (message instanceof Response) {
             udpSender.sendMessage(message);
-            log.info("Response type : {}", message.getType() );
-            log.info("Response sent to: {}", message.getDestination() );
+            log.info("Response type : {}", message.getType());
+            log.info("Response sent to: {}", message.getDestination());
             return;
         }
-        log.info("Request type : {}", message.getType() );
+        log.info("Request type : {}", message.getType());
         MessageTracker messageTracker = new MessageTracker(message);
         messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
         udpSender.sendMessage(message);
         messageTracker.setStatus(Status.SENT);
-        log.info("Request sent to: {}", message.getDestination() );
+        log.info("Request sent to: {}", message.getDestination());
         MessageHandler messageHandler = new MessageHandler(messageTracker, udpSender);
         this.executorService.submit(messageHandler);
     }
@@ -91,7 +91,7 @@ public class Scheduler implements Runnable {
                     }
                 }
                 removeDeadTrackers();
-                if(flag){
+                if (flag) {
                     Thread.sleep(1000);
                 }
             } catch (InterruptedException e) {
@@ -143,9 +143,9 @@ public class Scheduler implements Runnable {
     }
 
     public void removeDeadTrackers() {
-        for (MessageTracker m : messageTrackerMap.values()) {
-            if (m.getStatus() == Status.DEAD) {
-                messageTrackerMap.remove(m);
+        for (Long k : messageTrackerMap.keySet()) {
+            if (messageTrackerMap.get(k).getStatus() == Status.DEAD) {
+                messageTrackerMap.remove(k);
             }
         }
     }

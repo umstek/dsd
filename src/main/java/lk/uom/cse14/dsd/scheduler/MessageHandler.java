@@ -35,7 +35,7 @@ public class MessageHandler implements Runnable {
                     }
                 } else {
                     messageTracker.setStatus(Status.DEAD);
-                    log.info("Retry count exceeded. Status set to DEAD");
+                    log.info("Retry count exceeded. Status set to DEAD, uuid: {}", messageTracker.getUuid());
                     active = false;
                 }
             } catch (Exception e) {
