@@ -80,10 +80,10 @@ public class QueryHandler implements IHandler {
         if (queryRequest.getHopCount() > maxHopCount) {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
             response.setStatus(QueryResponse.FAIL);
+            response.setQueryResultSet(new QueryResultSet());
             scheduler.schedule(response);
             return;
         }
-//        QueryResultSet result = fileQueryProcessor.query(queryRequest.getQuery()); // check query in local files
         QueryResultSet result = null;
         if(!this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort != queryRequest.getGetRequesterPort()){
             result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
