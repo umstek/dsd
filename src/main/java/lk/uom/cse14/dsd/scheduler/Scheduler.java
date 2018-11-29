@@ -73,7 +73,7 @@ public class Scheduler implements Runnable {
                 } else {
                     MessageType receivedMessageType = receivedMessage.getType();
                     if (isItMyMessage(receivedMessage)) {
-                        log.info("Response to my message");
+                        log.info("Response to my message, uuid: {}", receivedMessage.getUuid());
                         MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
                         Message myMessage = null;
                         //synchronized (MessageTracker.class) {
@@ -111,16 +111,16 @@ public class Scheduler implements Runnable {
     public void handleRequestMessage(Request request, MessageType messageType) {
         switch (messageType) {
             case HEARTBEAT:
-                log.info("HEARTBEAT handler");
+                log.info("HEARTBEAT Request");
                 heartbeatHandler.handle(request);
                 break;
 
             case QUERY:
-                log.info("QUERY handler");
+                log.info("QUERY Request");
                 queryHandler.handle(request);
 
             case DISCOVERY:
-                log.info("DISCOVERY handler");
+                log.info("DISCOVERY Request");
                 peerDiscoveryHandler.handle(request);
         }
     }
@@ -128,16 +128,16 @@ public class Scheduler implements Runnable {
     public void handleResponseMessage(Request request, Response response, MessageType messageType) {
         switch (messageType) {
             case HEARTBEAT:
-                log.info("HEARTBEAT request");
+                log.info("HEARTBEAT Response");
                 heartbeatHandler.handle(request, response);
                 break;
 
             case QUERY:
-                log.info("QUERY request");
+                log.info("QUERY Response");
                 queryHandler.handle(request, response);
 
             case DISCOVERY:
-                log.info("QUERY request");
+                log.info("QUERY Response");
                 peerDiscoveryHandler.handle(request, response);
         }
     }
