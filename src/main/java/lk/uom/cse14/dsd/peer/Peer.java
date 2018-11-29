@@ -41,7 +41,7 @@ public class Peer {
     This value is hardcoded
      */
     private final Logger log = LoggerFactory.getLogger(Peer.class);
-    private final String FILE_LIST = "/config/File Names.txt";
+    private final String FILE_LIST = "/File Names.txt";
     private DatagramSocket socket;
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;

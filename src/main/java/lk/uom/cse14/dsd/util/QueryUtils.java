@@ -10,8 +10,8 @@ import java.util.ArrayList;
  */
 public class QueryUtils {
 
-    private static final String QUERY_LIST = "/config/Queries.txt";
-    private static final String FILE_LIST = "/config/File Names.txt";
+    private static final String QUERY_LIST = "/Queries.txt";
+    private static final String FILE_LIST = "/File Names.txt";
     private static ArrayList<String> hostedFiles;
     private static ArrayList<String> queries;
 

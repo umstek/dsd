@@ -32,6 +32,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
 
     public void init(List<PeerInfo> peersList) {
         ArrayList<PeerInfo> peers = new ArrayList<>();
+        logger.info("Peers found from BS server SIZE:" + peers.size());
         for(PeerInfo peer:peersList){
             if(!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort){
                 peers.add(peer);
@@ -46,8 +47,6 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                 routingEntry.setRetryCount(0);
                 routingTable.add(routingEntry);
             }
-
-
         } else {
             int random1 = ((int) (Math.random() * 100)) % peers.size();
             int random2 = ((int) (Math.random() * 100)) % peers.size();
