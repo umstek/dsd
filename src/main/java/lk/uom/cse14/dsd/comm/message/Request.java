@@ -11,7 +11,7 @@ import java.io.Serializable;
  * host and port fields are used to define the destination of the message
  * origin field is used to define the source of the message
  * */
-public abstract class Request extends Message implements Serializable {
+public abstract class Request extends Message {
 
     public Request(String source, int sourcePort, String destination, int destinationPort) {
         super(source, sourcePort, destination, destinationPort);
