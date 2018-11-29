@@ -27,7 +27,7 @@ public class MessageHandler implements Runnable {
                         udpSender.sendMessage(messageTracker.getMessage());
                         messageTracker.incrementRetryCount();
                         log.info("Message Resent to: {}", messageTracker.getMessage().getDestination());
-                        flag = true;
+                        Thread.sleep(5000);
                     } else if (messageTracker.getStatus() == Status.RESPONSED) {
                         messageTracker.setStatus(Status.DEAD);
                         active = false;
@@ -36,9 +36,6 @@ public class MessageHandler implements Runnable {
                     messageTracker.setStatus(Status.DEAD);
                     log.info("Retry count exceeded. Status set to DEAD");
                     active = false;
-                }
-                if(flag){
-                    Thread.sleep(10000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

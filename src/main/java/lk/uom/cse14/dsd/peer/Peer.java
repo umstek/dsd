@@ -67,14 +67,14 @@ public class Peer {
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
             this.scheduler = new Scheduler(udpReceiver, udpSender);
+            List<PeerInfo> peers;
             try {
-                List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
-                this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
+                 peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
             } catch (AlreadyRegisteredException e) {
                 tcpRegistryCommunicator.unregister();
-                List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
-                this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
+                peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
             }
+            this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
             this.fileQueryProcessor = new DummyFileQueryProcessor();
             this.cacheQueryProcessor = new DummyCacheQueryProcessor();
             this.queryHandler = new QueryHandler(routingTable, scheduler, cacheQueryProcessor, fileQueryProcessor, ownHost, ownPort);

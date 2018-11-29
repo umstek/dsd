@@ -28,7 +28,7 @@ public class Scheduler implements Runnable {
     public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
         this.udpReceiver = udpReceiver;
         this.udpSender = udpSender;
-        this.executorService = Executors.newFixedThreadPool(10);
+        this.executorService = Executors.newFixedThreadPool(70);
     }
 
     public void setQueryHandler(IHandler queryHandler) {
@@ -145,7 +145,7 @@ public class Scheduler implements Runnable {
     public void removeDeadTrackers() {
         for (MessageTracker m : messageTrackerMap.values()) {
             if (m.getStatus() == Status.DEAD) {
-                //messageTrackerMap.remove(m);
+                messageTrackerMap.remove(m);
             }
         }
     }
