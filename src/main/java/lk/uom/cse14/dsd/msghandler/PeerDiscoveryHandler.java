@@ -146,8 +146,11 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                 if (discoveredPeersList.size() >= ((DiscoveryRequest) request).getRequestedPeerCount()) {
                     break;
                 }
-                if (routingTable.get(i).getStatus() == RoutingEntry.Status.ONLINE) {
-                    discoveredPeersList.add(routingTable.get(i).clone());
+                RoutingEntry checkingPeer = routingTable.get(i);
+                if (checkingPeer.getStatus() == RoutingEntry.Status.ONLINE
+                        && (!checkingPeer.getPeerIP().equals(request.getSource()) &&
+                        checkingPeer.getPeerPort() != request.getSourcePort()) ) {
+                    discoveredPeersList.add(checkingPeer.clone());
                 }
             }
         }
