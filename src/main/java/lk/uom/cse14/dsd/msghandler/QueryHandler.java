@@ -56,15 +56,16 @@ public class QueryHandler implements IHandler {
                 this.ownPort == queryRequest.getGetRequesterPort()) {
             // UI.show result of notify file downloads handler
             QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-            QueryResultSet resultSetDummy = new QueryResultSet();
-            if(queryResponse.getQueryResultSet() == null){
-                queryResponse.setQueryResultSet(resultSetDummy);
+            if(queryResponse != null){
+                QueryResultSet resultSetDummy = new QueryResultSet();
+                if(queryResponse.getQueryResultSet() == null){
+                    queryResponse.setQueryResultSet(resultSetDummy);
+                }
+                if(qt != null){
+                    qt.setQueryResult(queryResponse.getQueryResultSet());
+                }
             }
-            if(qt != null && queryResponse != null){
-                qt.setQueryResult(queryResponse.getQueryResultSet());
-            }else if(qt != null && queryResponse == null ){
-                qt.setQueryResult(resultSetDummy);
-            }
+
         } else { // originated from somewhere else. should redirect to the requester
             QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
             response1.setUuid(request.getUuid());
