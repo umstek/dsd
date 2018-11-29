@@ -5,8 +5,7 @@ import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.HeartbeatResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 
@@ -18,7 +17,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
     private String ownHost;
     private int ownPort;
     private ArrayList<RoutingEntry> routingEntries;
-    private final Logger log = LoggerFactory.getLogger(HeartbeatHandler.class);
+    private final Logger log = Logger.getLogger(HeartbeatHandler.class);
 
 
     public HeartbeatHandler(String ownHost, int ownPort, Scheduler scheduler, ArrayList<RoutingEntry> routingEntries) {
@@ -42,7 +41,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                 for (RoutingEntry routingEntry : routingEntries) {
                     if (routingEntry.getPeerIP().equals(request.getDestination())
                             && routingEntry.getPeerPort() == request.getDestinationPort()) {
-                        log.info("RoutingEntry for {},{} OFFLINE",routingEntry.getPeerIP(),routingEntry.getPeerPort());
+                        log.info("RoutingEntry for "+routingEntry.getPeerIP()+","+routingEntry.getPeerPort()+" OFFLINE");
                         routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
                         routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
                         if(routingEntry.getRetryCount()>4){
@@ -57,7 +56,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                 for (RoutingEntry routingEntry : routingEntries) {
                     if (routingEntry.getPeerIP().equals(response.getSource())
                             && routingEntry.getPeerPort() == response.getSourcePort()) {
-                        log.info("RoutingEntry for {},{} ONLINE",routingEntry.getPeerIP(),routingEntry.getPeerPort());
+                        log.info("RoutingEntry for {},{} ONLINE");
                         routingEntry.setStatus(RoutingEntry.Status.ONLINE);
                         routingEntry.setRetryCount(0);
                         break;

@@ -9,7 +9,7 @@ import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.ui.QueryTaskListener;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class QueryHandler implements IHandler {
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(QueryHandler.class);
+    private final Logger logger = Logger.getLogger(QueryHandler.class);
     private ArrayList<RoutingEntry> routingTable;
     private Scheduler scheduler;
     private ICacheQuery cacheQueryProcessor;

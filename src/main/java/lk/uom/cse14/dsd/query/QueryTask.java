@@ -43,8 +43,6 @@ public class QueryTask implements Runnable {
         this.query = query;
     }
 
-
-
     public boolean isSkipCache() {
         return skipCache;
     }

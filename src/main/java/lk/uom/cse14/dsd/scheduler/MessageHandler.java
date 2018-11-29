@@ -3,12 +3,11 @@ package lk.uom.cse14.dsd.scheduler;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.msghandler.IHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 public class MessageHandler implements Runnable {
 
-    private final Logger log = LoggerFactory.getLogger(MessageHandler.class);
+    private final Logger log = Logger.getLogger(MessageHandler.class);
     private MessageTracker messageTracker;
     private boolean active;
     private UdpSender udpSender;
@@ -31,8 +30,8 @@ public class MessageHandler implements Runnable {
                     if (messageTracker.getStatus() == Status.SENT) {
                         udpSender.sendMessage(messageTracker.getMessage());
                         messageTracker.incrementRetryCount();
-                        log.info("{} Message Resent to: {}", messageTracker.getMessage().getType(), messageTracker.getMessage().getDestination());
-                        log.info("Handler sleeping uuid: {}", messageTracker.getUuid());
+                        log.info("{} Message Resent to: {}");
+                        log.info("Handler sleeping uuid: {}");
                         Thread.sleep(1000);
                     } else if (messageTracker.getStatus() == Status.RESPONSED) {
                         messageTracker.setStatus(Status.DEAD);
@@ -41,7 +40,7 @@ public class MessageHandler implements Runnable {
                 } else {
                     messageTracker.setStatus(Status.DEAD);
                     this.handler.handle((Request) this.messageTracker.getMessage(),null);
-                    log.info("Retry count exceeded. Status set to DEAD, uuid: {}", messageTracker.getUuid());
+                    log.info("Retry count exceeded. Status set to DEAD, uuid: {}");
                     active = false;
                 }
             } catch (Exception e) {

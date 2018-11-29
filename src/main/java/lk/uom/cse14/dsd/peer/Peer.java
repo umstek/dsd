@@ -15,8 +15,7 @@ import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.QueryUtils;
 import lk.uom.cse14.dsd.util.TextFileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -40,7 +39,7 @@ public class Peer {
     /*
     This value is hardcoded
      */
-    private final Logger log = LoggerFactory.getLogger(Peer.class);
+    private final Logger log = Logger.getLogger(Peer.class);
     private final String FILE_LIST = "/File Names.txt";
     private DatagramSocket socket;
     private UdpSender udpSender;
@@ -108,8 +107,8 @@ public class Peer {
         taskExecutor.submit(scheduler);
 //        System.out.println("DisFish Peer Started at: " + new Date().toString());
 //        System.out.println("Local Address: " + ownHost + ":" + ownPort);
-        log.info("DisFish Peer Started at: {}", new Date().toString());
-        log.info("Local Address: {}, {}", ownHost, ownPort);
+        log.info("DisFish Peer Started at: {}");
+        log.info("Local Address: {}, {}");
         this.generateFiles();
 //        System.out.println("\n************** List of hosted files **************\n");
         log.info("************** List of hosted files **************");

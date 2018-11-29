@@ -7,8 +7,7 @@ import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.msghandler.IHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Scheduler implements Runnable {
-    private final Logger log = LoggerFactory.getLogger(Scheduler.class);
+    private final Logger log = Logger.getLogger(Scheduler.class);
     ExecutorService executorService;
     private IHandler queryHandler;
     private IHandler heartbeatHandler;
@@ -47,16 +46,16 @@ public class Scheduler implements Runnable {
         log.info("Inside Schedule");
         if (message instanceof Response) {
             udpSender.sendMessage(message);
-            log.info("Response type : {}", message.getType());
-            log.info("Response sent to: {}", message.getDestination());
+            log.info("Response type : {}");
+            log.info("Response sent to: {}");
             return;
         }
-        log.info("Request type : {}", message.getType());
+        log.info("Request type : {}");
         MessageTracker messageTracker = new MessageTracker(message);
         messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
         udpSender.sendMessage(message);
         messageTracker.setStatus(Status.SENT);
-        log.info("Request sent to: {}", message.getDestination());
+        log.info("Request sent to: {}");
         switch (message.getType()){
             case HEARTBEAT:
                 log.info("HEARTBEAT Request");
@@ -92,16 +91,16 @@ public class Scheduler implements Runnable {
                         log.info("Empty udpReceiver");
                         flag = true;
                     } else {
-                        log.info("Message Found: {}", receivedMessage.getUuid());
+                        log.info("Message Found: {}");
                         MessageType receivedMessageType = receivedMessage.getType();
                         if (isItMyMessage(receivedMessage)) {
-                            log.info("Response to my message, uuid: {}", receivedMessage.getUuid());
+                            log.info("Response to my message, uuid: {}");
                             MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
                             Message myMessage = null;
                             //synchronized (MessageTracker.class) {
                             myMessage = messageTracker.getMessage();
                             messageTracker.setStatus(Status.RESPONSED);
-                            log.info("Status changed to Request: {}", myMessage.getUuid());
+                            log.info("Status changed to Request: {}");
                             //}
                             if (myMessage != null) {
                                 Request myRequest = (Request) myMessage;
@@ -185,7 +184,7 @@ public class Scheduler implements Runnable {
     public void removeDeadTrackers() {
         for (Long k : messageTrackerMap.keySet()) {
             if (messageTrackerMap.get(k).getStatus() == Status.DEAD) {
-                log.info("Removing Dead Tracker: {}", k);
+                log.info("Removing Dead Tracker: {}");
                 messageTrackerMap.remove(k);
             }
         }
