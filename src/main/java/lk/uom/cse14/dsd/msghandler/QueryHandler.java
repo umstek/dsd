@@ -78,6 +78,7 @@ public class QueryHandler implements IHandler {
                     queryRequest.getSourcePort());
             response.setStatus(QueryResponse.SUCCESS);
             response.setQueryResultSet(result);
+            response.setUuid(request.getUuid());
             scheduler.schedule(response);
         } else if (result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
             RoutingEntry destinationEntry = null;

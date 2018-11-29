@@ -105,4 +105,8 @@ public class Message implements Serializable {
     public long getUuid() {
         return uuid;
     }
+
+    public void setUuid(long uuid) {
+        this.uuid = uuid;
+    }
 }

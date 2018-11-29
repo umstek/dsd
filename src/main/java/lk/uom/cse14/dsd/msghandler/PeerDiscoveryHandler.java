@@ -125,6 +125,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                 request.getSource(), request.getSourcePort());
         response.setStatus(Response.SUCCESS);
         response.setType(MessageType.DISCOVERY);
+        response.setUuid(request.getUuid());
         ArrayList<RoutingEntry> discoveredPeersList = new ArrayList<>();
         synchronized (PeerDiscoveryHandler.class) {
             for (int i = 0; i < routingTable.size(); i++) {
