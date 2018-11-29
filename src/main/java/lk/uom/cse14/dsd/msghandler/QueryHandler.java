@@ -100,7 +100,7 @@ public class QueryHandler implements IHandler {
                 scheduler.schedule(request);
             }
         } else {
-            logger.info("Unsupported Request: " + request.toString());
+            logger.info("Unsupported Request");
         }
     }
 

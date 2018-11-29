@@ -41,7 +41,7 @@ public class Main {
         }
         Peer peer = null;
         try {
-            peer = new Peer("10.10.10.35", 5000, ownHostFinal, 3000, "003");
+            peer = new Peer("192.168.8.153", 5000, ownHostFinal, 3001, "001");
             peer.startPeer();
         } catch (IOException e) {
             e.printStackTrace();

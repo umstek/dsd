@@ -112,9 +112,9 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     }
                 }
                 logger.info("Got Response for peer discovery request.");
-                logger.info("Response:" + response.toString());
+                //logger.info("Response:" + response.toString());
                 logger.info("Routing Table Status: ");
-                logger.info(routingTable.toString());
+                //logger.info(routingTable.toString());
             }
         //}
     }
@@ -138,8 +138,8 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
             }
         //}
         logger.info("Sending Response for Request");
-        logger.info(request.toString());
-        logger.info(response.toString());
+        //logger.info(request.toString());
+        //logger.info(response.toString());
         response.setDiscoveredPeers(discoveredPeersList);
         scheduler.schedule(response);
 
