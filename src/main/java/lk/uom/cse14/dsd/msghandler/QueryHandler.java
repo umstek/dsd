@@ -50,7 +50,7 @@ public class QueryHandler implements IHandler {
             if(response != null){
                 queryResponse  = (QueryResponse) response;
             }
-            if (queryResponse != null) { // if successful response, update cache
+            if (queryResponse != null && queryResponse.getStatus() != Response.FAIL) { // if successful response, update cache
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
             }
             if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
