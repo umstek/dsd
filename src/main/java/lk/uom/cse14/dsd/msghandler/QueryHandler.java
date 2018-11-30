@@ -52,6 +52,14 @@ public class QueryHandler implements IHandler {
             if (queryResponse != null && queryResponse.getStatus() != Response.FAIL) { // if successful response, update cache
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
             }
+
+            if(queryResponse != null && queryResponse.getStatus() == Response.FAIL){
+                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                QueryResultSet resultSetDummy = new QueryResultSet();
+                if(qt != null){
+                    qt.setQueryResult(resultSetDummy);
+                }
+            }
             if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                     this.ownPort == queryRequest.getGetRequesterPort()) {
                 // UI.show result of notify file downloads handler

@@ -32,7 +32,7 @@ public class MessageHandler implements Runnable {
                         messageTracker.incrementRetryCount();
                         log.info("{} Message Resent to: {}");
                         log.info("Handler sleeping uuid: {}");
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     } else if (messageTracker.getStatus() == Status.RESPONSED) {
                         messageTracker.setStatus(Status.DEAD);
                         active = false;
