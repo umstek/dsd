@@ -28,6 +28,7 @@ public class QueryHandler implements IHandler {
     private HashMap<String, QueryTask> queryTasks;
     private int ownPort;
     private int maxHopCount = 15;
+    private HashMap<Long, Request> oldRequestMap;
 
     public QueryHandler(ArrayList<RoutingEntry> routingTable, Scheduler scheduler, ICacheQuery cacheQueryProcessor,
                         IFileQuery fileQueryProcessor, String ownHost, int ownPort) {
@@ -39,6 +40,7 @@ public class QueryHandler implements IHandler {
         this.ownPort = ownPort;
         this.executorService = Executors.newFixedThreadPool(10);
         this.queryTasks = new HashMap<>();
+        this.oldRequestMap = new HashMap<>();
     }
 
     @Override
@@ -62,10 +64,15 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(new QueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                    response1.setUuid(request.getUuid());
-                    response1.setStatus(Response.FAIL);
-                    scheduler.schedule(response1);
+                    Request oldRequest = oldRequestMap.get(request.getUuid());
+                    if (oldRequest != null) {
+                        QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
+                        response1.setUuid(oldRequest.getUuid());
+                        response1.setStatus(Response.SUCCESS);
+                        response1.setHopCount(oldRequest.getHopCount());
+                        scheduler.schedule(response1);
+                    }
+
                 }
             } else {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
@@ -76,12 +83,14 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    response.redirectRequest(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                    response.setUuid(request.getUuid());
-                    if (qt != null) {
-                        qt.setQueryResult(queryResponse.getQueryResultSet());
+                    Request oldRequest = oldRequestMap.get(request.getUuid());
+                    if (oldRequest != null) {
+                        QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
+                        response1.setUuid(oldRequest.getUuid());
+                        response1.setHopCount(oldRequest.getHopCount());
+                        scheduler.schedule(response1);
                     }
+
                 }
 
             }
@@ -100,6 +109,7 @@ public class QueryHandler implements IHandler {
                 response.setStatus(QueryResponse.FAIL);
                 response.setQueryResultSet(new QueryResultSet());
                 response.setUuid(request.getUuid());
+                response.setHopCount(request.getHopCount());
                 scheduler.schedule(response);
                 return;
             }
@@ -132,6 +142,7 @@ public class QueryHandler implements IHandler {
                         QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
                         response.setStatus(QueryResponse.FAIL);
                         response.setUuid(request.getUuid());
+                        response.setHopCount(request.getHopCount());
                         scheduler.schedule(response);
                     } else { // neighbour is found AND can redirect query to the neighbour
                         QueryRequest request1 = new QueryRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort(),
@@ -139,9 +150,10 @@ public class QueryHandler implements IHandler {
                         request1.setRequesterHost(((QueryRequest) request).getRequesterHost());
                         request1.setGetRequesterPort(((QueryRequest) request).getGetRequesterPort());
                         request1.setRequestID(((QueryRequest) request).getRequestID());
-                        request1.setUuid(request.getUuid());
+                        //request1.setUuid(request.getUuid());
                         request1.setHopCount(request.getHopCount() + 1);
                         request1.setType(MessageType.QUERY);
+                        oldRequestMap.put(request1.getUuid(), request);
                         scheduler.schedule(request1);
                     }
                 }
@@ -178,4 +190,6 @@ public class QueryHandler implements IHandler {
         executorService.submit(queryTask);
         handle(request);
     }
+
+
 }

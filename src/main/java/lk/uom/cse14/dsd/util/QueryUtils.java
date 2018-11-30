@@ -68,13 +68,21 @@ public class QueryUtils {
         Set<String> matches = new HashSet<>();
 
         for (String filename : files) {
+            //full match
+            if (query.equalsIgnoreCase(filename)) {
+                matches.add(filename);
+                break;
+            }
+
+            int score = 0;
+            //partial match
             String[] words = filename.split(" ");
             String[] queryTerms = query.split(" ");
             for (String queryTerm : queryTerms) {
                 for (String word : words) {
                     if (queryTerm.equalsIgnoreCase(word)) {
                         matches.add(filename);
-                        break;
+                        score++;
                     }
                 }
             }
