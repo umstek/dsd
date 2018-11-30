@@ -119,7 +119,9 @@ public class QueryHandler implements IHandler {
                             RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
                             if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
                                     !(tempEntry.getPeerIP().equals(request.getSource()) &&
-                                            tempEntry.getPeerPort() == request.getSourcePort())) {
+                                            tempEntry.getPeerPort() == request.getSourcePort()) &&
+                                    !(tempEntry.getPeerIP().equals(((QueryRequest) request).getRequesterHost()) &&
+                                            tempEntry.getPeerPort() == ((QueryRequest) request).getGetRequesterPort())) {
                                 destinationEntry = tempEntry;
                                 break;
                             }
