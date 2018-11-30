@@ -153,6 +153,7 @@ public class QueryHandler implements IHandler {
                         //request1.setUuid(request.getUuid());
                         request1.setHopCount(request.getHopCount()+1);
                         request1.setType(MessageType.QUERY);
+                        oldRequestMap.put(request1.getUuid(),request);
                         scheduler.schedule(request1);
                     }
                 }
