@@ -44,99 +44,108 @@ public class QueryHandler implements IHandler {
 
     @Override
     public void handle(Request request, Response response) {
-        QueryRequest queryRequest = (QueryRequest) request;
-        QueryResponse queryResponse = null;
-        if(response != null){
-            queryResponse  = (QueryResponse) response;
-        }
-        if (queryResponse != null) { // if successful response, update cache
-            cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
-        }
-        if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
-                this.ownPort == queryRequest.getGetRequesterPort()) {
-            // UI.show result of notify file downloads handler
-            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-            if(queryResponse != null){
-                if(qt != null){
-                    qt.setQueryResult(queryResponse.getQueryResultSet());
-                }
-            }else{
-                QueryResultSet resultSetDummy = new QueryResultSet();
-                if(qt != null){
-                    qt.setQueryResult(resultSetDummy);
-                }
+        try{
+            QueryRequest queryRequest = (QueryRequest) request;
+            QueryResponse queryResponse = null;
+            if(response != null){
+                queryResponse  = (QueryResponse) response;
             }
+            if (queryResponse != null) { // if successful response, update cache
+                cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
+            }
+            if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
+                    this.ownPort == queryRequest.getGetRequesterPort()) {
+                // UI.show result of notify file downloads handler
+                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                if(queryResponse != null){
+                    if(qt != null){
+                        qt.setQueryResult(queryResponse.getQueryResultSet());
+                    }
+                }else{
+                    QueryResultSet resultSetDummy = new QueryResultSet();
+                    if(qt != null){
+                        qt.setQueryResult(resultSetDummy);
+                    }
+                }
 
-        } else { // originated from somewhere else. should redirect to the requester
-            QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-            response1.setUuid(request.getUuid());
-            response1.setStatus(Response.FAIL);
-            scheduler.schedule(queryResponse);
+            } else { // originated from somewhere else. should redirect to the requester
+                QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
+                response1.setUuid(request.getUuid());
+                response1.setStatus(Response.FAIL);
+                scheduler.schedule(queryResponse);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     @Override
     public void handle(Request request) {
-        QueryRequest queryRequest = (QueryRequest) request;
-        if (queryRequest.getHopCount() > maxHopCount) {
-            QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
-            response.setStatus(QueryResponse.FAIL);
-            response.setQueryResultSet(new QueryResultSet());
-            response.setUuid(request.getUuid());
-            scheduler.schedule(response);
-            return;
-        }
-        QueryResultSet result = null;
-        if(!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())){
-            result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
-        }
-        if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
-            result = cacheQueryProcessor.query(queryRequest.getQuery());
-        }
-        if (result != null &&
-                this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request coming to this host/port
-                this.ownPort == queryRequest.getGetRequesterPort())
-        {
-            QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-            if(qt != null){
-                qt.setQueryResult(result);
-            }
-        } else if (result != null &&
-                (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
-                this.ownPort != queryRequest.getGetRequesterPort()))
-        {
-            QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
-                    queryRequest.getSourcePort());
-            response.setStatus(QueryResponse.SUCCESS);
-            response.setQueryResultSet(result);
-            response.setUuid(request.getUuid());
-            scheduler.schedule(response);
-        } else if(result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
-            RoutingEntry destinationEntry = null;
-            int count = 0;
-            while (count < 50) {  // find a random neighbour who is online
-                if(!routingTable.isEmpty()){
-                    RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
-                    if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
-                            !(tempEntry.getPeerIP().equals(request.getSource()) &&
-                                    tempEntry.getPeerPort() == request.getSourcePort())) {
-                        destinationEntry = tempEntry;
-                        break;
-                    }
-                }
-                count++;
-            }
-            if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
+        try{
+            QueryRequest queryRequest = (QueryRequest) request;
+            if (queryRequest.getHopCount() > maxHopCount) {
                 QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
                 response.setStatus(QueryResponse.FAIL);
+                response.setQueryResultSet(new QueryResultSet());
                 response.setUuid(request.getUuid());
                 scheduler.schedule(response);
-            } else { // neighbour is found AND can redirect query to the neighbour
-                request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
-                scheduler.schedule(request);
+                return;
             }
-        } else {
-            logger.info("Unsupported Request");
+            QueryResultSet result = null;
+            if(!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())){
+                result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
+            }
+            if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
+                result = cacheQueryProcessor.query(queryRequest.getQuery());
+            }
+            if (result != null &&
+                    this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request coming to this host/port
+                    this.ownPort == queryRequest.getGetRequesterPort())
+            {
+                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                if(qt != null){
+                    qt.setQueryResult(result);
+                }
+            } else if (result != null &&
+                    (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
+                            this.ownPort != queryRequest.getGetRequesterPort()))
+            {
+                QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
+                        queryRequest.getSourcePort());
+                response.setStatus(QueryResponse.SUCCESS);
+                response.setQueryResultSet(result);
+                response.setUuid(request.getUuid());
+                scheduler.schedule(response);
+            } else if(result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
+                RoutingEntry destinationEntry = null;
+                int count = 0;
+                while (count < 50) {  // find a random neighbour who is online
+                    if(!routingTable.isEmpty()){
+                        RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
+                        if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
+                                !(tempEntry.getPeerIP().equals(request.getSource()) &&
+                                        tempEntry.getPeerPort() == request.getSourcePort())) {
+                            destinationEntry = tempEntry;
+                            break;
+                        }
+                    }
+                    count++;
+                }
+                if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
+                    QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
+                    response.setStatus(QueryResponse.FAIL);
+                    response.setUuid(request.getUuid());
+                    scheduler.schedule(response);
+                } else { // neighbour is found AND can redirect query to the neighbour
+                    request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
+                    scheduler.schedule(request);
+                }
+            } else {
+                logger.info("Unsupported Request");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
