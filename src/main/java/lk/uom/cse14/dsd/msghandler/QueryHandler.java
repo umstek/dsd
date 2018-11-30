@@ -28,6 +28,7 @@ public class QueryHandler implements IHandler {
     private HashMap<String, QueryTask> queryTasks;
     private int ownPort;
     private int maxHopCount = 15;
+    private HashMap<Long,Request> oldRequestMap;
 
     public QueryHandler(ArrayList<RoutingEntry> routingTable, Scheduler scheduler, ICacheQuery cacheQueryProcessor,
                         IFileQuery fileQueryProcessor, String ownHost, int ownPort) {
@@ -39,6 +40,7 @@ public class QueryHandler implements IHandler {
         this.ownPort = ownPort;
         this.executorService = Executors.newFixedThreadPool(10);
         this.queryTasks = new HashMap<>();
+        this.oldRequestMap = new HashMap<>();
     }
 
     @Override
@@ -77,10 +79,14 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                    response1.setUuid(request.getUuid());
-                    response1.setHopCount(request.getHopCount());
-                    scheduler.schedule(response);
+                    Request oldRequest = oldRequestMap.get(response.getUuid());
+                    if(oldRequest != null){
+                        QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
+                        response1.setUuid(oldRequest.getUuid());
+                        response1.setHopCount(oldRequest.getHopCount());
+                        scheduler.schedule(response1);
+                    }
+
                 }
 
             }
