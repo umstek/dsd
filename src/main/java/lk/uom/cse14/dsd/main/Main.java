@@ -2,16 +2,15 @@ package lk.uom.cse14.dsd.main;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.peer.Peer;
-import lk.uom.cse14.dsd.query.QueryTask;
-import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
 import org.apache.log4j.PropertyConfigurator;
-//import org.apache.log4j.PropertyConfigurator;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.List;
+
+//import org.apache.log4j.PropertyConfigurator;
 
 public class Main {
     public static void main(String[] args) {
@@ -69,4 +68,9 @@ public class Main {
 
 
     }
+
+    public static void sendDownloadRequest() {
+
+    }
+
 }

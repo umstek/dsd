@@ -43,22 +43,22 @@ public class QueryHandler implements IHandler {
 
     @Override
     public void handle(Request request, Response response) {
-        try{
+        try {
             QueryRequest queryRequest = (QueryRequest) request;
             QueryResponse queryResponse = null;
-            if(response != null){
-                queryResponse  = (QueryResponse) response;
+            if (response != null) {
+                queryResponse = (QueryResponse) response;
             }
             if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS) { // if successful response, update cache
-                cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
+                cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
             }
 
-            if(queryResponse == null){
+            if (queryResponse == null) {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                         this.ownPort == queryRequest.getGetRequesterPort()) {
                     // UI.show result of notify file downloads handler
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    if(qt != null){
+                    if (qt != null) {
                         qt.setQueryResult(new QueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
@@ -67,25 +67,25 @@ public class QueryHandler implements IHandler {
                     response1.setStatus(Response.FAIL);
                     scheduler.schedule(response1);
                 }
-            }else {
+            } else {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                         this.ownPort == queryRequest.getGetRequesterPort()) {
                     // UI.show result of notify file downloads handler
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    if(qt != null){
+                    if (qt != null) {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    response.redirectRequest(ownHost,ownPort,request.getSource(),request.getSourcePort());
+                    response.redirectRequest(ownHost, ownPort, request.getSource(), request.getSourcePort());
                     response.setUuid(request.getUuid());
-                    if(qt != null){
+                    if (qt != null) {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 }
 
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -93,7 +93,7 @@ public class QueryHandler implements IHandler {
 
     @Override
     public void handle(Request request) {
-        try{
+        try {
             QueryRequest queryRequest = (QueryRequest) request;
             if (queryRequest.getHopCount() > maxHopCount) {
                 QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
@@ -104,18 +104,18 @@ public class QueryHandler implements IHandler {
                 return;
             }
             QueryResultSet result = null;
-            if(!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())){
+            if (!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())) {
                 result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
             }
             if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
                 result = cacheQueryProcessor.query(queryRequest.getQuery());
             }
-            if(result == null){
+            if (result == null) {
                 RoutingEntry destinationEntry = null;
                 int count = 0;
-                synchronized (RoutingEntry.class){
+                synchronized (RoutingEntry.class) {
                     while (count < 50) {  // find a random neighbour who is online
-                        if(!routingTable.isEmpty()){
+                        if (!routingTable.isEmpty()) {
                             RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
                             if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
                                     !(tempEntry.getPeerIP().equals(request.getSource()) &&
@@ -140,16 +140,16 @@ public class QueryHandler implements IHandler {
                         request1.setGetRequesterPort(((QueryRequest) request).getGetRequesterPort());
                         request1.setRequestID(((QueryRequest) request).getRequestID());
                         request1.setUuid(request.getUuid());
-                        request1.setHopCount(request.getHopCount()+1);
+                        request1.setHopCount(request.getHopCount() + 1);
                         request1.setType(MessageType.QUERY);
                         scheduler.schedule(request1);
                     }
                 }
-            }else{
+            } else {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) &&
                         this.ownPort == queryRequest.getGetRequesterPort()) {
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    if(qt != null){
+                    if (qt != null) {
                         qt.setQueryResult(result);
                     }
                 } else {
@@ -161,7 +161,7 @@ public class QueryHandler implements IHandler {
                     scheduler.schedule(response);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -178,6 +178,4 @@ public class QueryHandler implements IHandler {
         executorService.submit(queryTask);
         handle(request);
     }
-
-
 }

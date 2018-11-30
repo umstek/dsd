@@ -176,6 +176,13 @@ public class Scheduler implements Runnable {
                     log.info("DISCOVERY Request");
                     peerDiscoveryHandler.handle(request);
                     break;
+
+                case DOWNLOAD:
+                    log.info("DOWNLOAD Request");
+                    downloadHandler.handle(request);
+                    break;
+
+
             }
         }
     }
@@ -195,6 +202,11 @@ public class Scheduler implements Runnable {
             case DISCOVERY:
                 log.info("DISCOVERY Response");
                 peerDiscoveryHandler.handle(request, response);
+                break;
+
+            case DOWNLOAD:
+                log.info("DOWNLOAD Request");
+                downloadHandler.handle(request, response);
                 break;
         }
     }
