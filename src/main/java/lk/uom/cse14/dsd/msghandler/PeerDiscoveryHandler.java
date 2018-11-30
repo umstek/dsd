@@ -32,42 +32,45 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
     }
 
     public void init(List<PeerInfo> peersList) {
-        ArrayList<PeerInfo> peers = new ArrayList<>();
-        logger.info("Peers found from BS server SIZE:" + peers.size());
-        for(PeerInfo peer:peersList){
-            if(!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort){
-                peers.add(peer);
+        synchronized (RoutingEntry.class){
+            ArrayList<PeerInfo> peers = new ArrayList<>();
+            logger.info("Peers found from BS server SIZE:" + peers.size());
+            for(PeerInfo peer:peersList){
+                if(!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort){
+                    peers.add(peer);
+                }
             }
-        }
-        if (peers.size() < 3) {
-            for (PeerInfo info : peers) {
-                RoutingEntry routingEntry = new RoutingEntry();
-                routingEntry.setPeerIP(info.getHost());
-                routingEntry.setPeerPort(info.getPort());
-                routingEntry.setStatus(RoutingEntry.Status.UNKNOWN);
-                routingEntry.setRetryCount(0);
-                routingTable.add(routingEntry);
+            routingTable.clear();
+            if (peers.size() < 3) {
+                for (PeerInfo info : peers) {
+                    RoutingEntry routingEntry = new RoutingEntry();
+                    routingEntry.setPeerIP(info.getHost());
+                    routingEntry.setPeerPort(info.getPort());
+                    routingEntry.setStatus(RoutingEntry.Status.UNKNOWN);
+                    routingEntry.setRetryCount(0);
+                    routingTable.add(routingEntry);
+                }
+            } else {
+                int random1 = ((int) (Math.random() * 100)) % peers.size();
+                int random2 = ((int) (Math.random() * 100)) % peers.size();
+                while (random1 == random2) {
+                    random2 = ((int) (Math.random() * 100)) % peers.size();
+                }
+                PeerInfo info1 = peers.get(random1);
+                RoutingEntry routingEntry1 = new RoutingEntry();
+                routingEntry1.setPeerIP(info1.getHost());
+                routingEntry1.setPeerPort(info1.getPort());
+                routingEntry1.setStatus(RoutingEntry.Status.UNKNOWN);
+                routingEntry1.setRetryCount(0);
+                routingTable.add(routingEntry1);
+                PeerInfo info2 = peers.get(random2);
+                RoutingEntry routingEntry2 = new RoutingEntry();
+                routingEntry2.setPeerIP(info2.getHost());
+                routingEntry2.setPeerPort(info2.getPort());
+                routingEntry2.setStatus(RoutingEntry.Status.UNKNOWN);
+                routingEntry2.setRetryCount(0);
+                routingTable.add(routingEntry2);
             }
-        } else {
-            int random1 = ((int) (Math.random() * 100)) % peers.size();
-            int random2 = ((int) (Math.random() * 100)) % peers.size();
-            while (random1 == random2) {
-                random2 = ((int) (Math.random() * 100)) % peers.size();
-            }
-            PeerInfo info1 = peers.get(random1);
-            RoutingEntry routingEntry1 = new RoutingEntry();
-            routingEntry1.setPeerIP(info1.getHost());
-            routingEntry1.setPeerPort(info1.getPort());
-            routingEntry1.setStatus(RoutingEntry.Status.UNKNOWN);
-            routingEntry1.setRetryCount(0);
-            routingTable.add(routingEntry1);
-            PeerInfo info2 = peers.get(random2);
-            RoutingEntry routingEntry2 = new RoutingEntry();
-            routingEntry2.setPeerIP(info2.getHost());
-            routingEntry2.setPeerPort(info2.getPort());
-            routingEntry2.setStatus(RoutingEntry.Status.UNKNOWN);
-            routingEntry2.setRetryCount(0);
-            routingTable.add(routingEntry2);
         }
     }
 
