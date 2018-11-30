@@ -181,13 +181,14 @@ public class GUI {
         System.out.println("Starting on address " + address + " and port " + port);
 
         // Create a peer
-        Peer peer = null;
+        Peer peer0 = null;
         try {
-            peer = new Peer(bsAddr, bsPort, address, port, username);
-            peer.startPeer();
+            peer0 = new Peer(bsAddr, bsPort, address, port, username);
+            peer0.startPeer();
         } catch (IOException | RegisterException e) {
             e.printStackTrace();
         }
+        final Peer peer = peer0;
 
         // MAIN_LOOP
         String query;
@@ -234,6 +235,9 @@ public class GUI {
                         public void notifyQueryComplete(QueryTask queryTask) {
                             GUI.queryTask = queryTask;
                             GUI.searching = false;
+                            peer.download(queryTask.getQueryResult().getRoutingEntries(
+                                    (queryTask.getQueryResult().getFileNames()).get(0)).get(0),
+                                    (queryTask.getQueryResult().getFileNames()).get(0));
                         }
                     }, query, !useCache);
 

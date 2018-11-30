@@ -5,6 +5,7 @@ import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
+import lk.uom.cse14.dsd.comm.request.DownloadRequest;
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.*;
@@ -163,4 +164,11 @@ public class Peer {
         QueryTask queryTask = new QueryTask(queryTaskListener, queryStr, skipCache);
         ((QueryHandler) queryHandler).submitQuery(queryTask);
     }
+
+    public void download(RoutingEntry target,String file){
+        DownloadRequest request = new DownloadRequest(ownHost,ownPort,target.getPeerIP(),target.getPeerPort());
+        request.setFilename(file);
+        scheduler.schedule(request);
+    }
+
 }

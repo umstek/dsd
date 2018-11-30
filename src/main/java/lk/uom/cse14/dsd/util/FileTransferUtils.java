@@ -93,7 +93,7 @@ public class FileTransferUtils {
             for (int i = 0; i < files.size(); i++) {
 
                 System.out.println("Receiving file: " + files.get(i).getName());
-                File file = new File(Paths.get("").toAbsolutePath() + "/Downloads/" + files.get(i).getName());
+                File file = new File(Paths.get("").toAbsolutePath() + "/" + files.get(i).getName());
                 file.getParentFile().mkdirs();
                 file.createNewFile();
                 FileOutputStream fos = new FileOutputStream(file);
@@ -140,6 +140,7 @@ public class FileTransferUtils {
                     dos.write(buf, 0, n);
                     dos.flush();
                 }
+                dos.close();
 
             }
             dos.close();
@@ -165,7 +166,7 @@ public class FileTransferUtils {
         }
 
         byte[] fileBytes;
-        DummyFile dummyFile = (DummyFile) new ObjectInputStream(new FileInputStream(file)).readObject();
+        DummyFile dummyFile = (DummyFile) new ObjectInputStream(new FileInputStream((File)file)).readObject();
         fileBytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file
