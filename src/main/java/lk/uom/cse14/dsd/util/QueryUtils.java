@@ -12,8 +12,8 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    private static final String QUERY_LIST = "/Queries.txt";
-    private static final String FILE_LIST = "/File Names.txt";
+    public static final String QUERY_LIST = "/Queries.txt";
+    public static final String FILE_LIST = "/File Names.txt";
     private static ArrayList<String> hostedFiles;
     private static ArrayList<String> queries;
 

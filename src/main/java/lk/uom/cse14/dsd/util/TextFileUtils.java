@@ -1,11 +1,10 @@
 package lk.uom.cse14.dsd.util;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TextFileUtils {
 
@@ -31,5 +30,14 @@ public class TextFileUtils {
             br.close();
         }
         return content;
+    }
+
+    public static void updateFileContent(String newFile, String filename) throws IOException {
+        ArrayList<String> existingFiles = TextFileUtils.readFileContent(filename);
+        if (!Arrays.asList(existingFiles).contains(newFile)) {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get("").toAbsolutePath() + filename));
+            bw.newLine();
+            bw.write(newFile);
+        }
     }
 }

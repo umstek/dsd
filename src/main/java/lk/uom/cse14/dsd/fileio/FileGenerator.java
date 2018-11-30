@@ -1,5 +1,6 @@
 package lk.uom.cse14.dsd.fileio;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -84,8 +85,17 @@ public class FileGenerator {
     public static void generateFile(String filename) throws IOException, NoSuchAlgorithmException {
         byte[] bytes;
 
-        FileOutputStream fileos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
-        FileOutputStream hashos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
+        File file = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
+        File hash = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
+
+        file.getParentFile().mkdirs();
+        hash.getParentFile().mkdirs();
+
+        file.createNewFile();
+        hash.createNewFile();
+
+        FileOutputStream fileos = new FileOutputStream(file);
+        FileOutputStream hashos = new FileOutputStream(hash);
 
         ObjectOutputStream fileOut = new ObjectOutputStream(fileos);
         ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
@@ -100,8 +110,8 @@ public class FileGenerator {
         bytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file and writing it
-        byte[] hash = FileGenerator.generateHash(bytes);
-        hashOut.write(hash);
+        byte[] fileHash = FileGenerator.generateHash(bytes);
+        hashOut.write(fileHash);
         hashOut.close();
         hashos.close();
 
