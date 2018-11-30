@@ -5,6 +5,7 @@ import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.util.NetworkInterfaceUtils;
+import org.apache.log4j.PropertyConfigurator;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -92,6 +93,8 @@ public class GUI {
     }
 
     public static void main(String[] args) {
+        PropertyConfigurator.configure("log4j.properties");
+
         List<String> argsList = Arrays.asList(args);
         Scanner scanner = new Scanner(System.in);
         scanner.useDelimiter("\\n");
@@ -243,6 +246,8 @@ public class GUI {
                             e.printStackTrace();
                         }
                     }
+
+                    System.out.println();
 
                     if (GUI.queryTask != null) {
                         printResults();
