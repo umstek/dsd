@@ -64,11 +64,15 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(new QueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                    response1.setUuid(request.getUuid());
-                    response1.setStatus(Response.FAIL);
-                    response1.setHopCount(request.getHopCount());
-                    scheduler.schedule(response1);
+                    Request oldRequest = oldRequestMap.get(request.getUuid());
+                    if(oldRequest != null){
+                        QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
+                        response1.setUuid(oldRequest.getUuid());
+                        response1.setStatus(Response.SUCCESS);
+                        response1.setHopCount(oldRequest.getHopCount());
+                        scheduler.schedule(response1);
+                    }
+
                 }
             }else {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
@@ -79,7 +83,7 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    Request oldRequest = oldRequestMap.get(response.getUuid());
+                    Request oldRequest = oldRequestMap.get(request.getUuid());
                     if(oldRequest != null){
                         QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
                         response1.setUuid(oldRequest.getUuid());
