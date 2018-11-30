@@ -79,19 +79,24 @@ public class FileGenerator {
      * @throws NoSuchAlgorithmException if hashing algorithm is not available
      */
 
-    public static byte[] generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+    public static void generateFile(String filename) throws IOException, NoSuchAlgorithmException {
         byte[] bytes;
         ObjectOutput oOut;
-        FileOutputStream file = new FileOutputStream(Paths.get("").toAbsolutePath() + "Hosted Files" + filename);
-        ObjectOutputStream out = new ObjectOutputStream(file);
+
+        FileOutputStream fileos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
+        FileOutputStream hashos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
+
+        ObjectOutputStream fileOut = new ObjectOutputStream(fileos);
+        ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
 
         //writing object to file
-        out.writeObject(dummyFile);
-        out.close();
-        file.close();
+        fileOut.writeObject(dummyFile);
+        fileOut.close();
+        fileos.close();
 
         //calculating the byte array of the dummy file object
         oOut = new ObjectOutputStream(bos);
@@ -99,10 +104,16 @@ public class FileGenerator {
         oOut.flush();
         bytes = bos.toByteArray();
 
-        //calculating the hash of the dummy file
+        //calculating the hash of the dummy file and writing it
         byte[] hash = FileGenerator.generateHash(bytes);
+        hashOut.write(hash);
+        hashOut.close();
+        hashos.close();
 
-        return hash;
+        //generate FileWrapper object for sending
+//        FileWrapper fw = new FileWrapper(hash, dummyFile);
+//
+//        return fw;
     }
 
     /**
@@ -149,5 +160,32 @@ public class FileGenerator {
     public static String getHash(String data) {
         return bytesToHex(getHashByteArray(data));
     }
+
+//    public static class FileWrapper{
+//        byte[] hash;
+//        DummyFile dummyFile;
+//
+//        FileWrapper(byte[] hash, DummyFile dummyFile){
+//            this.hash = hash;
+//            this.dummyFile = dummyFile;
+//        }
+//
+//        public byte[] getHash() {
+//            return hash;
+//        }
+//
+//        public void setHash(byte[] hash) {
+//            this.hash = hash;
+//        }
+//
+//        public DummyFile getDummyFile() {
+//            return dummyFile;
+//        }
+//
+//        public void setDummyFile(DummyFile dummyFile) {
+//            this.dummyFile = dummyFile;
+//        }
+//
+//    }
 
 }
