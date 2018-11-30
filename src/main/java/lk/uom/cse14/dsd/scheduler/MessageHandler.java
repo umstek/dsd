@@ -37,7 +37,7 @@ public class MessageHandler implements Runnable {
                     }
                     messageTracker.setStatus(Status.SENT);
                     messageTracker.incrementRetryCount();
-                    Thread.sleep(25000);
+                    Thread.sleep(250000);
                 } else {
                     messageTracker.setStatus(Status.DEAD);
                     this.handler.handle((Request) this.messageTracker.getMessage(),null);

@@ -77,12 +77,9 @@ public class QueryHandler implements IHandler {
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
-                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                    response.redirectRequest(ownHost,ownPort,request.getSource(),request.getSourcePort());
-                    response.setUuid(request.getUuid());
-                    if(qt != null){
-                        qt.setQueryResult(queryResponse.getQueryResultSet());
-                    }
+                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
+                    response1.setUuid(request.getUuid());
+                    response1.setHopCount(request.getHopCount());
                     scheduler.schedule(response);
                 }
 
