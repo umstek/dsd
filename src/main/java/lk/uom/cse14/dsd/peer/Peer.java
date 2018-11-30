@@ -36,6 +36,7 @@ public class Peer {
      */
     private final Logger log = Logger.getLogger(Peer.class);
     private final String FILE_LIST = "/File Names.txt";
+    private DownloadHandler downloadHandler;
     private DatagramSocket socket;
     private UdpSender udpSender;
     private UdpReceiver udpReceiver;
@@ -71,9 +72,11 @@ public class Peer {
             this.cacheQueryProcessor = new CacheQueryProcessor();
             this.queryHandler = new QueryHandler(routingTable, scheduler, cacheQueryProcessor, fileQueryProcessor, ownHost, ownPort);
             this.heartbeatHandler = new HeartbeatHandler(ownHost, ownPort, scheduler, routingTable);
+            this.downloadHandler = new DownloadHandler(scheduler, ownHost, ownPort);
             this.scheduler.setHeartbeatHandler(heartbeatHandler);
             this.scheduler.setQueryHandler(queryHandler);
             this.scheduler.setPeerDiscoveryHandler(peerDiscoveryHandler);
+            this.scheduler.setDownloadHandler(downloadHandler);
 
         } catch (SocketException e) {
             e.printStackTrace();
