@@ -65,7 +65,7 @@ public class QueryHandler implements IHandler {
                     QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
                     response1.setUuid(request.getUuid());
                     response1.setStatus(Response.FAIL);
-                    response.setHopCount(request.getHopCount());
+                    response1.setHopCount(request.getHopCount());
                     scheduler.schedule(response1);
                 }
             }else {
