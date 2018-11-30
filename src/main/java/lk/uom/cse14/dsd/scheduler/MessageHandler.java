@@ -29,7 +29,6 @@ public class MessageHandler implements Runnable {
                 if (messageTracker.getRetryCount() < 5) {
                     if (messageTracker.getStatus() == Status.SENT) {
                         udpSender.sendMessage(messageTracker.getMessage());
-                        messageTracker.incrementRetryCount();
                         log.info("{} Message Resent to: {}");
                         log.info("Handler sleeping uuid: {}");
                         Thread.sleep(5000);
@@ -37,6 +36,7 @@ public class MessageHandler implements Runnable {
                         messageTracker.setStatus(Status.DEAD);
                         active = false;
                     }
+                    messageTracker.incrementRetryCount();
                 } else {
                     messageTracker.setStatus(Status.DEAD);
                     this.handler.handle((Request) this.messageTracker.getMessage(),null);
