@@ -9,7 +9,6 @@ import lk.uom.cse14.dsd.query.ICacheQuery;
 import lk.uom.cse14.dsd.query.IFileQuery;
 import lk.uom.cse14.dsd.query.QueryTask;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
