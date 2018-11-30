@@ -1,6 +1,8 @@
 package lk.uom.cse14.dsd.fileio;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -81,15 +83,12 @@ public class FileGenerator {
 
     public static void generateFile(String filename) throws IOException, NoSuchAlgorithmException {
         byte[] bytes;
-        ObjectOutput oOut;
 
         FileOutputStream fileos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
         FileOutputStream hashos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
 
         ObjectOutputStream fileOut = new ObjectOutputStream(fileos);
         ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
 
@@ -98,11 +97,7 @@ public class FileGenerator {
         fileOut.close();
         fileos.close();
 
-        //calculating the byte array of the dummy file object
-        oOut = new ObjectOutputStream(bos);
-        oOut.writeObject(dummyFile);
-        oOut.flush();
-        bytes = bos.toByteArray();
+        bytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file and writing it
         byte[] hash = FileGenerator.generateHash(bytes);
