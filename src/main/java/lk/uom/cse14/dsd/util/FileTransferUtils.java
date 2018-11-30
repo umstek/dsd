@@ -1,6 +1,7 @@
 package lk.uom.cse14.dsd.util;
 
 
+import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
 
 import java.io.*;
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FileTransferUtils {
 
@@ -44,25 +46,16 @@ public class FileTransferUtils {
 //        clientSock.close();
 //    }
 
-    /**
-     * This method listens on the given port on the given host and download the files
-     * @param hostIP IP of the host
-     * @param hostPort Port the host is listening on
-     * @throws IOException
-     */
-    public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException {
-        Socket clientSock = new Socket(hostIP, hostPort);
-        FileTransferUtils.receive(clientSock);
-
+    public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+        boolean validated = false;
+        while (!validated) {
+            Socket clientSock = new Socket(hostIP, hostPort);
+            ArrayList<File> files = FileTransferUtils.receive(clientSock);
+            validated = FileTransferUtils.validateDownload(files);
+        }
+        System.out.println("File Downloaded successfully!");
     }
 
-    /**
-     * This method serves the given file on the given port
-     *
-     * @param serverPort the TCP port client is listening on
-     * @param filename   Name of the desired file
-     * @throws IOException if the
-     */
 
     public static void serveFile(int serverPort, String filename) throws IOException, NoSuchAlgorithmException {
 
@@ -87,25 +80,30 @@ public class FileTransferUtils {
         FileTransferUtils.send(filesToSend, sock);
     }
 
-    public static void receive(Socket socket) {
+    public static ArrayList<File> receive(Socket socket) {
+
+        ArrayList<String> fileNames = null;
+        ArrayList<File> files = null;
 
         try {
             DataInputStream dis = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
             int number = dis.readInt();
-            ArrayList<File> files = new ArrayList<>(number);
+            files = new ArrayList<>(number);
+            fileNames = new ArrayList<>(number);
 
             System.out.println("Number of Files to be received: " + number);
 
             for (int i = 0; i < number; i++) {
-                File file = new File(dis.readUTF());
+                String filename = dis.readUTF();
+                fileNames.add(filename);
+                File file = new File(filename);
                 files.add(file);
             }
 
             int n = 0;
             byte[] buf = new byte[4092];
 
-            //outer loop, executes one for each file
             for (int i = 0; i < files.size(); i++) {
 
                 System.out.println("Receiving file: " + files.get(i).getName());
@@ -121,7 +119,8 @@ public class FileTransferUtils {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-
+        } finally {
+            return files;
         }
     }
 
@@ -160,7 +159,35 @@ public class FileTransferUtils {
             e.printStackTrace();
         }
 
+    }
 
+    public static boolean validateDownload(ArrayList<File> files) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
+        File file;
+        File hash;
+
+        File file1 = files.get(0);
+
+        if (file1.getName().contains("SHA-256-checksum")) {
+            hash = file1;
+            file = files.get(1);
+        } else {
+            file = file1;
+            hash = files.get(1);
+        }
+
+        byte[] fileBytes;
+        DummyFile dummyFile = (DummyFile) new ObjectInputStream(new FileInputStream(file)).readObject();
+        fileBytes = dummyFile.toByteArray();
+
+        //calculating the hash of the dummy file
+        byte[] calculatedHash = FileGenerator.generateHash(fileBytes);
+
+        //reading the original hash
+        FileInputStream fin = new FileInputStream(hash);
+        byte[] originalHash = new byte[(int) hash.length()];
+        fin.read(originalHash);
+
+        return Arrays.equals(calculatedHash, originalHash);
     }
 
 
