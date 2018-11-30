@@ -82,6 +82,7 @@ public class QueryHandler implements IHandler {
             QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
             response.setStatus(QueryResponse.FAIL);
             response.setQueryResultSet(new QueryResultSet());
+            response.setUuid(request.getUuid());
             scheduler.schedule(response);
             return;
         }
@@ -128,6 +129,7 @@ public class QueryHandler implements IHandler {
             if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
                 QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
                 response.setStatus(QueryResponse.FAIL);
+                response.setUuid(request.getUuid());
                 scheduler.schedule(response);
             } else { // neighbour is found AND can redirect query to the neighbour
                 request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
