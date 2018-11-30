@@ -49,38 +49,41 @@ public class QueryHandler implements IHandler {
             if(response != null){
                 queryResponse  = (QueryResponse) response;
             }
-            if (queryResponse != null && queryResponse.getStatus() != Response.FAIL) { // if successful response, update cache
+            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS) { // if successful response, update cache
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
             }
 
-            if(queryResponse != null && queryResponse.getStatus() == Response.FAIL){
-                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                QueryResultSet resultSetDummy = new QueryResultSet();
-                if(qt != null){
-                    qt.setQueryResult(resultSetDummy);
+            if(queryResponse == null){
+                if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
+                        this.ownPort == queryRequest.getGetRequesterPort()) {
+                    // UI.show result of notify file downloads handler
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    if(qt != null){
+                        qt.setQueryResult(new QueryResultSet());
+                    }
+                } else { // originated from somewhere else. should redirect to the requester
+                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
+                    response1.setUuid(request.getUuid());
+                    response1.setStatus(Response.FAIL);
+                    scheduler.schedule(response1);
                 }
-                return;
-            }
-            if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
-                    this.ownPort == queryRequest.getGetRequesterPort()) {
-                // UI.show result of notify file downloads handler
-                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                if(queryResponse != null){
+            }else {
+                if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
+                        this.ownPort == queryRequest.getGetRequesterPort()) {
+                    // UI.show result of notify file downloads handler
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
                     if(qt != null){
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
-                }else{
-                    QueryResultSet resultSetDummy = new QueryResultSet();
+                } else { // originated from somewhere else. should redirect to the requester
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    response.redirectRequest(ownHost,ownPort,request.getSource(),request.getSourcePort());
+                    response.setUuid(request.getUuid());
                     if(qt != null){
-                        qt.setQueryResult(resultSetDummy);
+                        qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 }
 
-            } else { // originated from somewhere else. should redirect to the requester
-                QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                response1.setUuid(request.getUuid());
-                response1.setStatus(Response.FAIL);
-                scheduler.schedule(response1);
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -107,25 +110,7 @@ public class QueryHandler implements IHandler {
             if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
                 result = cacheQueryProcessor.query(queryRequest.getQuery());
             }
-            if (result != null &&
-                    this.ownHost.equals(queryRequest.getRequesterHost()) && // Result found. Request coming to this host/port
-                    this.ownPort == queryRequest.getGetRequesterPort())
-            {
-                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                if(qt != null){
-                    qt.setQueryResult(result);
-                }
-            } else if (result != null &&
-                    (!this.ownHost.equals(queryRequest.getRequesterHost()) || // Result found, but originated from another Host/Port
-                            this.ownPort != queryRequest.getGetRequesterPort()))
-            {
-                QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
-                        queryRequest.getSourcePort());
-                response.setStatus(QueryResponse.SUCCESS);
-                response.setQueryResultSet(result);
-                response.setUuid(request.getUuid());
-                scheduler.schedule(response);
-            } else if(result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
+            if(result == null){
                 RoutingEntry destinationEntry = null;
                 int count = 0;
                 synchronized (RoutingEntry.class){
@@ -134,7 +119,9 @@ public class QueryHandler implements IHandler {
                             RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
                             if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
                                     !(tempEntry.getPeerIP().equals(request.getSource()) &&
-                                            tempEntry.getPeerPort() == request.getSourcePort())) {
+                                            tempEntry.getPeerPort() == request.getSourcePort()) &&
+                                    !(tempEntry.getPeerIP().equals(((QueryRequest) request).getRequesterHost()) &&
+                                            tempEntry.getPeerPort() == ((QueryRequest) request).getGetRequesterPort())) {
                                 destinationEntry = tempEntry;
                                 break;
                             }
@@ -147,12 +134,32 @@ public class QueryHandler implements IHandler {
                         response.setUuid(request.getUuid());
                         scheduler.schedule(response);
                     } else { // neighbour is found AND can redirect query to the neighbour
-                        request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
-                        scheduler.schedule(request);
+                        QueryRequest request1 = new QueryRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort(),
+                                ((QueryRequest) request).getQuery());
+                        request1.setRequesterHost(((QueryRequest) request).getRequesterHost());
+                        request1.setGetRequesterPort(((QueryRequest) request).getGetRequesterPort());
+                        request1.setRequestID(((QueryRequest) request).getRequestID());
+                        request1.setUuid(request.getUuid());
+                        request1.setHopCount(request.getHopCount()+1);
+                        request1.setType(MessageType.QUERY);
+                        scheduler.schedule(request1);
                     }
                 }
-            } else {
-                logger.info("Unsupported Request");
+            }else{
+                if (this.ownHost.equals(queryRequest.getRequesterHost()) &&
+                        this.ownPort == queryRequest.getGetRequesterPort()) {
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    if(qt != null){
+                        qt.setQueryResult(result);
+                    }
+                } else {
+                    QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
+                            queryRequest.getSourcePort());
+                    response.setStatus(QueryResponse.SUCCESS);
+                    response.setQueryResultSet(result);
+                    response.setUuid(request.getUuid());
+                    scheduler.schedule(response);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();

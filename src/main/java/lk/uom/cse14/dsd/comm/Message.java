@@ -109,4 +109,8 @@ public class Message implements Serializable {
     public void setUuid(long uuid) {
         this.uuid = uuid;
     }
+
+    public void setHopCount(int hopCount) {
+        this.hopCount = hopCount;
+    }
 }
