@@ -65,6 +65,7 @@ public class QueryHandler implements IHandler {
                     QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
                     response1.setUuid(request.getUuid());
                     response1.setStatus(Response.FAIL);
+                    response.setHopCount(request.getHopCount());
                     scheduler.schedule(response1);
                 }
             }else {
@@ -82,6 +83,7 @@ public class QueryHandler implements IHandler {
                     if(qt != null){
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
+                    scheduler.schedule(response);
                 }
 
             }
@@ -100,6 +102,7 @@ public class QueryHandler implements IHandler {
                 response.setStatus(QueryResponse.FAIL);
                 response.setQueryResultSet(new QueryResultSet());
                 response.setUuid(request.getUuid());
+                response.setHopCount(request.getHopCount());
                 scheduler.schedule(response);
                 return;
             }
@@ -132,6 +135,7 @@ public class QueryHandler implements IHandler {
                         QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
                         response.setStatus(QueryResponse.FAIL);
                         response.setUuid(request.getUuid());
+                        response.setHopCount(request.getHopCount());
                         scheduler.schedule(response);
                     } else { // neighbour is found AND can redirect query to the neighbour
                         QueryRequest request1 = new QueryRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort(),
@@ -139,7 +143,7 @@ public class QueryHandler implements IHandler {
                         request1.setRequesterHost(((QueryRequest) request).getRequesterHost());
                         request1.setGetRequesterPort(((QueryRequest) request).getGetRequesterPort());
                         request1.setRequestID(((QueryRequest) request).getRequestID());
-                        request1.setUuid(request.getUuid());
+                        //request1.setUuid(request.getUuid());
                         request1.setHopCount(request.getHopCount()+1);
                         request1.setType(MessageType.QUERY);
                         scheduler.schedule(request1);
