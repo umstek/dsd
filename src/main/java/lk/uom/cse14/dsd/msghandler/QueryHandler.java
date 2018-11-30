@@ -49,7 +49,7 @@ public class QueryHandler implements IHandler {
             if(response != null){
                 queryResponse  = (QueryResponse) response;
             }
-            if (queryResponse != null && queryResponse.getStatus() != Response.FAIL) { // if successful response, update cache
+            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS) { // if successful response, update cache
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
             }
 
@@ -147,8 +147,14 @@ public class QueryHandler implements IHandler {
                         response.setUuid(request.getUuid());
                         scheduler.schedule(response);
                     } else { // neighbour is found AND can redirect query to the neighbour
-                        request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
-                        scheduler.schedule(request);
+                        QueryRequest request1 = new QueryRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort(),
+                                ((QueryRequest) request).getQuery());
+                        request1.setRequesterHost(((QueryRequest) request).getRequesterHost());
+                        request1.setGetRequesterPort(((QueryRequest) request).getGetRequesterPort());
+                        request1.setRequestID(((QueryRequest) request).getRequestID());
+                        request1.setUuid(request.getUuid());
+                        request1.setHopCount(request.getHopCount()+1);
+                        scheduler.schedule(request1);
                     }
                 }
             } else {
