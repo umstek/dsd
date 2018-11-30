@@ -128,26 +128,28 @@ public class QueryHandler implements IHandler {
             } else if(result == null) { // result not found in own files or cache. Try to redirect to a random neighbour
                 RoutingEntry destinationEntry = null;
                 int count = 0;
-                while (count < 50) {  // find a random neighbour who is online
-                    if(!routingTable.isEmpty()){
-                        RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
-                        if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
-                                !(tempEntry.getPeerIP().equals(request.getSource()) &&
-                                        tempEntry.getPeerPort() == request.getSourcePort())) {
-                            destinationEntry = tempEntry;
-                            break;
+                synchronized (RoutingEntry.class){
+                    while (count < 50) {  // find a random neighbour who is online
+                        if(!routingTable.isEmpty()){
+                            RoutingEntry tempEntry = routingTable.get((int) (Math.random() * 100) % routingTable.size());
+                            if (tempEntry.getStatus() == RoutingEntry.Status.ONLINE &&
+                                    !(tempEntry.getPeerIP().equals(request.getSource()) &&
+                                            tempEntry.getPeerPort() == request.getSourcePort())) {
+                                destinationEntry = tempEntry;
+                                break;
+                            }
                         }
+                        count++;
                     }
-                    count++;
-                }
-                if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
-                    QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
-                    response.setStatus(QueryResponse.FAIL);
-                    response.setUuid(request.getUuid());
-                    scheduler.schedule(response);
-                } else { // neighbour is found AND can redirect query to the neighbour
-                    request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
-                    scheduler.schedule(request);
+                    if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
+                        QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
+                        response.setStatus(QueryResponse.FAIL);
+                        response.setUuid(request.getUuid());
+                        scheduler.schedule(response);
+                    } else { // neighbour is found AND can redirect query to the neighbour
+                        request.redirectRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort());
+                        scheduler.schedule(request);
+                    }
                 }
             } else {
                 logger.info("Unsupported Request");
