@@ -59,6 +59,7 @@ public class QueryHandler implements IHandler {
                 if(qt != null){
                     qt.setQueryResult(resultSetDummy);
                 }
+                return;
             }
             if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                     this.ownPort == queryRequest.getGetRequesterPort()) {
