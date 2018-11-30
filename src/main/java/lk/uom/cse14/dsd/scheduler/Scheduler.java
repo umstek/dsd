@@ -51,30 +51,34 @@ public class Scheduler implements Runnable {
             return;
         }
         log.info("Request type : {}");
-        MessageTracker messageTracker = new MessageTracker(message);
-        messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
-        udpSender.sendMessage(message);
-        messageTracker.setStatus(Status.SENT);
-        log.info("Request sent to: {}");
-        switch (message.getType()){
-            case HEARTBEAT:
-                log.info("HEARTBEAT Request");
-                MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
-                this.executorService.submit(messageHandlerH);
-                break;
+        if(message != null){
+            MessageTracker messageTracker = new MessageTracker(message);
+            messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
+            udpSender.sendMessage(message);
+            messageTracker.setStatus(Status.SENT);
+            log.info("Request sent to: {}");
+            switch (message.getType()){
+                case HEARTBEAT:
+                    log.info("HEARTBEAT Request");
+                    MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
+                    this.executorService.submit(messageHandlerH);
+                    break;
 
-            case QUERY:
-                log.info("QUERY Request");
-                MessageHandler messageHandlerQ = new MessageHandler(messageTracker, udpSender,this.queryHandler);
-                this.executorService.submit(messageHandlerQ);
-                break;
+                case QUERY:
+                    log.info("QUERY Request");
+                    MessageHandler messageHandlerQ = new MessageHandler(messageTracker, udpSender,this.queryHandler);
+                    this.executorService.submit(messageHandlerQ);
+                    break;
 
-            case DISCOVERY:
-                log.info("DISCOVERY Request");
-                MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
-                this.executorService.submit(messageHandlerD);
-                break;
+                case DISCOVERY:
+                    log.info("DISCOVERY Request");
+                    MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
+                    this.executorService.submit(messageHandlerD);
+                    break;
 
+            }
+        }   else {
+            log.info("Tried to schedule a null message");
         }
 
     }
