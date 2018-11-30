@@ -80,7 +80,7 @@ public class QueryHandler implements IHandler {
                 QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
                 response1.setUuid(request.getUuid());
                 response1.setStatus(Response.FAIL);
-                scheduler.schedule(queryResponse);
+                scheduler.schedule(response1);
             }
         }catch (Exception e){
             e.printStackTrace();
