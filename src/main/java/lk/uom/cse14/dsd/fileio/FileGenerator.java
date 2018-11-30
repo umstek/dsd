@@ -74,7 +74,7 @@ public class FileGenerator {
     }
 
     /**
-     * This method will generate a file with size between 2-10 MB and return the hash of it
+     * This method will generate a file with size between 2-10 MB and its hash
      *
      * @param filename the name of the file
      * @return hash of the randomly generated file
@@ -83,7 +83,6 @@ public class FileGenerator {
      */
 
     public static void generateFile(String filename) throws IOException, NoSuchAlgorithmException {
-        byte[] bytes;
 
         File file = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
         File hash = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
@@ -107,6 +106,7 @@ public class FileGenerator {
         fileOut.close();
         fileos.close();
 
+        byte[] bytes;
         bytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file and writing it
