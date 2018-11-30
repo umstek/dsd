@@ -53,6 +53,7 @@ public class FileTransferUtils {
             ArrayList<File> files = FileTransferUtils.receive(clientSock);
             validated = FileTransferUtils.validateDownload(files);
         }
+        TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
         System.out.println("File Downloaded successfully!");
     }
 
@@ -107,7 +108,10 @@ public class FileTransferUtils {
             for (int i = 0; i < files.size(); i++) {
 
                 System.out.println("Receiving file: " + files.get(i).getName());
-                FileOutputStream fos = new FileOutputStream(Paths.get("").toAbsolutePath() + "/Downloads/" + files.get(i).getName());
+                File file = new File(Paths.get("").toAbsolutePath() + "/Downloads/" + files.get(i).getName());
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                FileOutputStream fos = new FileOutputStream(file);
 
                 while ((n = dis.read(buf)) != -1) {
                     fos.write(buf, 0, n);
