@@ -53,34 +53,37 @@ public class QueryHandler implements IHandler {
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(),queryRequest.getQuery());
             }
 
-            if(queryResponse != null && queryResponse.getStatus() == Response.FAIL){
-                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                QueryResultSet resultSetDummy = new QueryResultSet();
-                if(qt != null){
-                    qt.setQueryResult(resultSetDummy);
+            if(queryResponse == null){
+                if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
+                        this.ownPort == queryRequest.getGetRequesterPort()) {
+                    // UI.show result of notify file downloads handler
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    if(qt != null){
+                        qt.setQueryResult(new QueryResultSet());
+                    }
+                } else { // originated from somewhere else. should redirect to the requester
+                    QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
+                    response1.setUuid(request.getUuid());
+                    response1.setStatus(Response.FAIL);
+                    scheduler.schedule(response1);
                 }
-                return;
-            }
-            if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
-                    this.ownPort == queryRequest.getGetRequesterPort()) {
-                // UI.show result of notify file downloads handler
-                QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
-                if(queryResponse != null){
+            }else {
+                if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
+                        this.ownPort == queryRequest.getGetRequesterPort()) {
+                    // UI.show result of notify file downloads handler
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
                     if(qt != null){
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
-                }else{
-                    QueryResultSet resultSetDummy = new QueryResultSet();
+                } else { // originated from somewhere else. should redirect to the requester
+                    QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    response.redirectRequest(ownHost,ownPort,request.getSource(),request.getSourcePort());
+                    response.setUuid(request.getUuid());
                     if(qt != null){
-                        qt.setQueryResult(resultSetDummy);
+                        qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 }
 
-            } else { // originated from somewhere else. should redirect to the requester
-                QueryResponse response1 = new QueryResponse(ownHost, ownPort, request.getSource(), request.getSourcePort());
-                response1.setUuid(request.getUuid());
-                response1.setStatus(Response.FAIL);
-                scheduler.schedule(response1);
             }
         }catch (Exception e){
             e.printStackTrace();
