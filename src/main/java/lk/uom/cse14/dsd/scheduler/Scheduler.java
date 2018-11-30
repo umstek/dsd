@@ -55,12 +55,13 @@ public class Scheduler implements Runnable {
             MessageTracker messageTracker = new MessageTracker(message);
             messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
             udpSender.sendMessage(message);
-            messageTracker.setStatus(Status.SENT);
+            //messageTracker.setStatus(Status.SENT);
             log.info("Request sent to: {}");
             switch (message.getType()){
                 case HEARTBEAT:
                     log.info("HEARTBEAT Request");
                     MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
+                    log.info("Handler created");
                     this.executorService.submit(messageHandlerH);
                     break;
 

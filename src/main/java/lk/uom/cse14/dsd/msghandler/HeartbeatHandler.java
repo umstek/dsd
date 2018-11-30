@@ -37,6 +37,9 @@ public class HeartbeatHandler implements IHandler, Runnable {
     public void handle(Request request, Response response) {
         // N.B.: Destination of the original request and the source of its reply response are the same and vice versa.
         try{
+            if(!(request instanceof HeartbeatRequest) || (!(response instanceof HeartbeatResponse) && response != null)){
+                return;
+            }
             synchronized (RoutingEntry.class){
                 if (response == null) {
                     for (RoutingEntry routingEntry : routingEntries) {
@@ -79,6 +82,9 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void handle(Request request) {
         try{
+            if(!(request instanceof HeartbeatRequest)){
+                return;
+            }
             if (request == null) { // XXX
                 System.out.println("Heartbeat handler received a null request. ");
                 return;
