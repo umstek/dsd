@@ -36,34 +36,39 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void handle(Request request, Response response) {
         // N.B.: Destination of the original request and the source of its reply response are the same and vice versa.
-        synchronized (RoutingEntry.class){
-            if (response == null) {
-                for (RoutingEntry routingEntry : routingEntries) {
-                    if (routingEntry.getPeerIP().equals(request.getDestination())
-                            && routingEntry.getPeerPort() == request.getDestinationPort()) {
-                        log.info("RoutingEntry for "+routingEntry.getPeerIP()+","+routingEntry.getPeerPort()+" OFFLINE");
-                        routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
-                        routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
-                        if(routingEntry.getRetryCount()>4){
-                            routingEntries.remove(routingEntry);
+        try{
+            synchronized (RoutingEntry.class){
+                if (response == null) {
+                    for (RoutingEntry routingEntry : routingEntries) {
+                        if (routingEntry.getPeerIP().equals(request.getDestination())
+                                && routingEntry.getPeerPort() == request.getDestinationPort()) {
+                            log.info("RoutingEntry for "+routingEntry.getPeerIP()+","+routingEntry.getPeerPort()+" OFFLINE");
+                            routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
+                            routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
+                            if(routingEntry.getRetryCount()>4){
+                                routingEntries.remove(routingEntry);
+                            }
+                            break;
+                        }else{
+                            log.info("Non Existing RoutingEntry was tried to remove");
                         }
-                        break;
-                    }else{
-                        log.info("Non Existing RoutingEntry was tried to remove");
                     }
-                }
-            } else {
-                for (RoutingEntry routingEntry : routingEntries) {
-                    if (routingEntry.getPeerIP().equals(response.getSource())
-                            && routingEntry.getPeerPort() == response.getSourcePort()) {
-                        log.info("RoutingEntry for {},{} ONLINE");
-                        routingEntry.setStatus(RoutingEntry.Status.ONLINE);
-                        routingEntry.setRetryCount(0);
-                        break;
+                } else {
+                    for (RoutingEntry routingEntry : routingEntries) {
+                        if (routingEntry.getPeerIP().equals(response.getSource())
+                                && routingEntry.getPeerPort() == response.getSourcePort()) {
+                            log.info("RoutingEntry for {},{} ONLINE");
+                            routingEntry.setStatus(RoutingEntry.Status.ONLINE);
+                            routingEntry.setRetryCount(0);
+                            break;
+                        }
                     }
                 }
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     /**
@@ -73,47 +78,52 @@ public class HeartbeatHandler implements IHandler, Runnable {
      */
     @Override
     public void handle(Request request) {
-        if (request == null) { // XXX
-            System.out.println("Heartbeat handler received a null request. ");
-            return;
-        }
+        try{
+            if (request == null) { // XXX
+                System.out.println("Heartbeat handler received a null request. ");
+                return;
+            }
 
-        HeartbeatRequest heartbeatRequest = (HeartbeatRequest) request;
+            HeartbeatRequest heartbeatRequest = (HeartbeatRequest) request;
 
-        HeartbeatResponse heartbeatResponse = new HeartbeatResponse(
-                ownHost, ownPort, heartbeatRequest.getSource(), heartbeatRequest.getSourcePort()
-        );
-        heartbeatResponse.setUuid(heartbeatRequest.getUuid());
-        scheduler.schedule(heartbeatResponse);
+            HeartbeatResponse heartbeatResponse = new HeartbeatResponse(
+                    ownHost, ownPort, heartbeatRequest.getSource(), heartbeatRequest.getSourcePort()
+            );
+            heartbeatResponse.setUuid(heartbeatRequest.getUuid());
+            scheduler.schedule(heartbeatResponse);
 
-        /*
-         * It is possible that someone who we don't have in our routing table sent us the request.
-         * If that's the case, add a new record to the routing table.
-         * We don't do this if we have 7+ peers.
-         */
-        if (routingEntries.size() >= 7) {
-            return;
-        }
+            /*
+             * It is possible that someone who we don't have in our routing table sent us the request.
+             * If that's the case, add a new record to the routing table.
+             * We don't do this if we have 7+ peers.
+             */
+            if (routingEntries.size() >= 7) {
+                return;
+            }
 
-        synchronized (RoutingEntry.class) {
+            synchronized (RoutingEntry.class) {
 
-            boolean peerExists = false;
-            for (RoutingEntry routingEntry : routingEntries) {
-                if (routingEntry.getPeerIP().equals(heartbeatRequest.getSource())
-                        && routingEntry.getPeerPort() == heartbeatRequest.getSourcePort()) {
-                    peerExists = true;
+                boolean peerExists = false;
+                for (RoutingEntry routingEntry : routingEntries) {
+                    if (routingEntry.getPeerIP().equals(heartbeatRequest.getSource())
+                            && routingEntry.getPeerPort() == heartbeatRequest.getSourcePort()) {
+                        peerExists = true;
+                    }
+                }
+
+                if (!peerExists) {
+                    RoutingEntry routingEntry = new RoutingEntry(
+                            heartbeatRequest.getSource(),
+                            heartbeatRequest.getSourcePort(),
+                            RoutingEntry.Status.ONLINE,
+                            0);
+                    routingEntries.add(routingEntry);
                 }
             }
-
-            if (!peerExists) {
-                RoutingEntry routingEntry = new RoutingEntry(
-                        heartbeatRequest.getSource(),
-                        heartbeatRequest.getSourcePort(),
-                        RoutingEntry.Status.ONLINE,
-                        0);
-                routingEntries.add(routingEntry);
-            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     @Override
