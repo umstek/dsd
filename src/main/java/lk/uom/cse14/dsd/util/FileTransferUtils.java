@@ -14,38 +14,16 @@ import java.util.Arrays;
 
 public class FileTransferUtils {
 
-//    public static void downloadAll(String hostIP, int hostPort, String filename) throws IOException {
-//        FileTransferUtils.downloadHash(hostIP, hostPort, filename);
-//        FileTransferUtils.downloadFile(hostIP, hostPort, filename);
-//    }
-//
-//    public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException {
-//        FileTransferUtils.download(hostIP, hostPort, filename);
-//    }
-//
-//    public static void downloadHash(String hostIP, int hostPort, String filename) throws IOException {
-//        String hashFilename = "SHA-256-checksum-" + filename;
-//        FileTransferUtils.download(hostIP, hostPort,hashFilename);
-//    }
-
-//    public static void download(String hostIP, int hostPort, String filename) throws IOException {
-//        Socket clientSock = new Socket(hostIP, hostPort);
-//        InputStream is = clientSock.getInputStream();
-//
-//        FileOutputStream fos = new FileOutputStream(new File(filename));
-//        BufferedOutputStream bos = new BufferedOutputStream(fos);
-//
-//        int bytesRead;
-//        byte[] buffer = new byte[1024];
-//        while ((bytesRead = is.read(buffer)) != -1) {
-//            bos.write(buffer, 0, bytesRead);
-//        }
-//
-//        bos.flush();
-//        bos.close();
-//        clientSock.close();
-//    }
-
+    /**
+     * This method downloads the given file from the given host over TCP and updates the local file index
+     *
+     * @param hostIP   host IP
+     * @param hostPort host Port
+     * @param filename name of the file
+     * @throws IOException
+     * @throws ClassNotFoundException
+     * @throws NoSuchAlgorithmException
+     */
     public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         boolean validated = false;
         while (!validated) {
@@ -58,6 +36,13 @@ public class FileTransferUtils {
     }
 
 
+    /**
+     * This method serves the given file in the given port over TCP
+     * @param serverPort
+     * @param filename
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
     public static void serveFile(int serverPort, String filename) throws IOException, NoSuchAlgorithmException {
 
         File file = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
