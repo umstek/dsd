@@ -43,15 +43,15 @@ public class Scheduler implements Runnable {
     }
 
     public void schedule(Message message) {
-        log.info("Inside Schedule");
-        if (message instanceof Response) {
-            udpSender.sendMessage(message);
-            log.info("Response type : {}");
-            log.info("Response sent to: {}");
-            return;
-        }
-        log.info("Request type : {}");
         if(message != null){
+            log.info("Inside Schedule");
+            if (message instanceof Response) {
+                udpSender.sendMessage(message);
+                log.info("Response type : {}");
+                log.info("Response sent to: {}");
+                return;
+            }
+            log.info("Request type : {}");
             MessageTracker messageTracker = new MessageTracker(message);
             messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
             udpSender.sendMessage(message);
@@ -148,21 +148,23 @@ public class Scheduler implements Runnable {
     }
 
     public void handleRequestMessage(Request request, MessageType messageType) {
-        switch (messageType) {
-            case HEARTBEAT:
-                log.info("HEARTBEAT Request");
-                heartbeatHandler.handle(request);
-                break;
+        if(request != null){
+            switch (messageType) {
+                case HEARTBEAT:
+                    log.info("HEARTBEAT Request");
+                    heartbeatHandler.handle(request);
+                    break;
 
-            case QUERY:
-                log.info("QUERY Request");
-                queryHandler.handle(request);
-                break;
+                case QUERY:
+                    log.info("QUERY Request");
+                    queryHandler.handle(request);
+                    break;
 
-            case DISCOVERY:
-                log.info("DISCOVERY Request");
-                peerDiscoveryHandler.handle(request);
-                break;
+                case DISCOVERY:
+                    log.info("DISCOVERY Request");
+                    peerDiscoveryHandler.handle(request);
+                    break;
+            }
         }
     }
 
