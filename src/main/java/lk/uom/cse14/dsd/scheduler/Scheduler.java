@@ -23,6 +23,7 @@ public class Scheduler implements Runnable {
     private UdpReceiver udpReceiver;
     private UdpSender udpSender;
     private Map<Long, MessageTracker> messageTrackerMap = new ConcurrentHashMap<>();
+    private IHandler downloadHandler;
 
     public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
         this.udpReceiver = udpReceiver;
@@ -40,6 +41,10 @@ public class Scheduler implements Runnable {
 
     public void setPeerDiscoveryHandler(IHandler peerDiscoveryHandler) {
         this.peerDiscoveryHandler = peerDiscoveryHandler;
+    }
+
+    public void setDownloadHandler(IHandler downloadHandler) {
+        this.downloadHandler = downloadHandler;
     }
 
     public void schedule(Message message) {
@@ -75,6 +80,12 @@ public class Scheduler implements Runnable {
                     log.info("DISCOVERY Request");
                     MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
                     this.executorService.submit(messageHandlerD);
+                    break;
+
+                case DOWNLOAD:
+                    log.info("DOWNLOAD Request");
+                    MessageHandler messageHandlerDo = new MessageHandler(messageTracker, udpSender, this.downloadHandler);
+                    this.executorService.submit(messageHandlerDo);
                     break;
 
             }

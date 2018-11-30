@@ -7,12 +7,9 @@ import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.FileTransferUtils;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 public class DownloadHandler implements IHandler {
     private Scheduler scheduler;
-    private ExecutorService executorService;
+    //    private ExecutorService executorService;
     private String ownHost;
     private int ownPort;
 
@@ -20,7 +17,7 @@ public class DownloadHandler implements IHandler {
         this.scheduler = scheduler;
         this.ownHost = ownHost;
         this.ownPort = ownPort;
-        this.executorService = Executors.newFixedThreadPool(5);
+//        this.executorService = Executors.newFixedThreadPool(5);
     }
 
     @Override
@@ -47,6 +44,7 @@ public class DownloadHandler implements IHandler {
             String destIP = req.getHostIP();
             String filename = req.getFilename();
             DownloadResponse res = new DownloadResponse(ownHost, ownPort, destIP, destPort);
+            res.setUuid(req.getUuid());
             scheduler.schedule(res);
             FileTransferUtils.serveFile(ownPort, filename);
         } catch (Exception e) {
