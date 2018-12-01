@@ -55,7 +55,8 @@ public class FileTransferUtils {
 //        }
 
         byte[] hashBytes = FileGenerator.generateFile(filename);
-        String hash = new String(hashBytes);
+//        String hash = new String(hashBytes);
+        String hash = FileGenerator.bytesToHex(hashBytes);
 
         //construct the payload
 //        ArrayList<File> filesToSend = new ArrayList<>();
@@ -138,6 +139,7 @@ public class FileTransferUtils {
     public static void send(File file, String hash, Socket socket) {
 
         try {
+            System.out.println(hash);
             DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
 //            System.out.println("Number of files to send: " + file.size());
 
@@ -200,7 +202,8 @@ public class FileTransferUtils {
 //        }
 
         byte[] fileBytes;
-        DummyFile dummyFile = (DummyFile) new ObjectInputStream(new FileInputStream(file)).readObject();
+        DummyFile dummyFile = (DummyFile) new ObjectInputStream(
+                new FileInputStream(Paths.get("").toAbsolutePath() + "/Downloads/" + file)).readObject();
         fileBytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file
