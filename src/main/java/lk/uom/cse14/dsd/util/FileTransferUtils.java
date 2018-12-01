@@ -9,7 +9,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 public class FileTransferUtils {
 
@@ -210,18 +209,19 @@ public class FileTransferUtils {
         fileBytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file
-        byte[] calculatedHash = FileGenerator.generateHash(fileBytes);
+        byte[] calculatedHashBytes = FileGenerator.generateHash(fileBytes);
 
         //reading the original hash
 //        FileInputStream fin = new FileInputStream(hash);
 //        byte[] originalHash = new byte[(int) hash.length()];
 //        fin.read(originalHash);
-        byte[] originalHash = hash.getBytes();
+//        byte[] originalHash = hash.getBytes();
+        String calculatedHash = FileGenerator.bytesToHex(calculatedHashBytes);
 
         System.out.println(hash);
-        System.out.println(FileGenerator.bytesToHex(calculatedHash));
+        System.out.println(calculatedHash);
 
-        return Arrays.equals(calculatedHash, originalHash);
+        return hash.equalsIgnoreCase(calculatedHash);
     }
 
 
