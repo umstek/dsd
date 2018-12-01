@@ -28,6 +28,7 @@ public class FileTransferUtils {
         while (!validated) {
             Socket clientSock = new Socket(hostIP, hostPort);
             String hash = FileTransferUtils.receive(clientSock);
+            clientSock.close();
             validated = FileTransferUtils.validateDownload(new File(filename), hash);
         }
         TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
@@ -67,6 +68,7 @@ public class FileTransferUtils {
         Socket sock = serverSocket.accept();
 
         FileTransferUtils.send(file, hash, sock);
+        sock.close();
     }
 
     public static String receive(Socket socket) {
@@ -214,6 +216,9 @@ public class FileTransferUtils {
 //        byte[] originalHash = new byte[(int) hash.length()];
 //        fin.read(originalHash);
         byte[] originalHash = hash.getBytes();
+
+        System.out.println(FileGenerator.bytesToHex(originalHash));
+        System.out.println(FileGenerator.bytesToHex(calculatedHash));
 
         return Arrays.equals(calculatedHash, originalHash);
     }
