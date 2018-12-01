@@ -45,10 +45,10 @@ public class DownloadHandler implements IHandler {
             req.setHostIP(destIP);
             req.setHostPort(destPort);
             String filename = req.getFilename();
-            DownloadResponse res = new DownloadResponse(ownHost, ownPort, destIP, destPort);
+            DownloadResponse res = new DownloadResponse(ownHost, ownPort + 1, destIP, destPort);
             res.setUuid(req.getUuid());
             scheduler.schedule(res);
-            FileTransferUtils.serveFile(ownPort, filename);
+            FileTransferUtils.serveFile(ownPort + 1, filename);
         } catch (Exception e) {
             e.printStackTrace();
         }
