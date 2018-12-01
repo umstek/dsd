@@ -82,22 +82,22 @@ public class FileGenerator {
      * @throws NoSuchAlgorithmException if hashing algorithm is not available
      */
 
-    public static void generateFile(String filename) throws IOException, NoSuchAlgorithmException {
+    public static byte[] generateFile(String filename) throws IOException, NoSuchAlgorithmException {
 
         File file = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
-        File hash = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
+//        File hash = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
 
         file.getParentFile().mkdirs();
-        hash.getParentFile().mkdirs();
+//        hash.getParentFile().mkdirs();
 
         file.createNewFile();
-        hash.createNewFile();
+//        hash.createNewFile();
 
         FileOutputStream fileos = new FileOutputStream(file);
-        FileOutputStream hashos = new FileOutputStream(hash);
+//        FileOutputStream hashos = new FileOutputStream(hash);
 
         ObjectOutputStream fileOut = new ObjectOutputStream(fileos);
-        ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
+//        ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
 
@@ -111,14 +111,15 @@ public class FileGenerator {
 
         //calculating the hash of the dummy file and writing it
         byte[] fileHash = FileGenerator.generateHash(bytes);
-        hashOut.write(fileHash);
-        hashOut.close();
-        hashos.close();
+//        hashOut.write(fileHash);
+//        hashOut.close();
+//        hashos.close();
 
         //generate FileWrapper object for sending
 //        FileWrapper fw = new FileWrapper(hash, dummyFile);
 //
 //        return fw;
+        return fileHash;
     }
 
     /**
