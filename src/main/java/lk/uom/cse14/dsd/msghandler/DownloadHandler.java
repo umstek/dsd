@@ -9,7 +9,6 @@ import lk.uom.cse14.dsd.util.FileTransferUtils;
 
 public class DownloadHandler implements IHandler {
     private Scheduler scheduler;
-    //    private ExecutorService executorService;
     private String ownHost;
     private int ownPort;
 
@@ -17,7 +16,6 @@ public class DownloadHandler implements IHandler {
         this.scheduler = scheduler;
         this.ownHost = ownHost;
         this.ownPort = ownPort;
-//        this.executorService = Executors.newFixedThreadPool(5);
     }
 
     @Override
