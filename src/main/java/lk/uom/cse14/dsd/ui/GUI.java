@@ -211,6 +211,7 @@ public class GUI {
             }
         } catch (SocketException e) {
             // TODO Handle error
+            e.printStackTrace();
         }
 
         if (dev) {
