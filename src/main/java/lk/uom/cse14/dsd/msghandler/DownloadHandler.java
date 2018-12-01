@@ -40,8 +40,10 @@ public class DownloadHandler implements IHandler {
     public void handle(Request request) {
         try {
             DownloadRequest req = (DownloadRequest) request;
-            int destPort = req.getHostPort();
-            String destIP = req.getHostIP();
+            int destPort = req.getSourcePort();
+            String destIP = req.getSource();
+            req.setHostIP(destIP);
+            req.setHostPort(destPort);
             String filename = req.getFilename();
             DownloadResponse res = new DownloadResponse(ownHost, ownPort, destIP, destPort);
             res.setUuid(req.getUuid());
