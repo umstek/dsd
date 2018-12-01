@@ -69,6 +69,7 @@ public class FileTransferUtils {
 
         FileTransferUtils.send(file, hash, sock);
         sock.close();
+        serverSocket.close();
     }
 
     public static String receive(Socket socket) {
@@ -217,7 +218,7 @@ public class FileTransferUtils {
 //        fin.read(originalHash);
         byte[] originalHash = hash.getBytes();
 
-        System.out.println(FileGenerator.bytesToHex(originalHash));
+        System.out.println(hash);
         System.out.println(FileGenerator.bytesToHex(calculatedHash));
 
         return Arrays.equals(calculatedHash, originalHash);
