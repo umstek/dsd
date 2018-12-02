@@ -1,6 +1,5 @@
 package lk.uom.cse14.dsd.util;
 
-import lk.uom.cse14.dsd.scheduler.Scheduler;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -42,8 +41,9 @@ public class TextFileUtils {
      * @param newFile  newly downloaded file
      * @param filename name of the configuration file that contains the list of files to be hosted
      * @throws IOException if the configuration file is not found this will throw
+     * @return true if file is updated
      */
-    public static void updateFileContent(String newFile, String filename) throws IOException {
+    public static boolean updateFileContent(String newFile, String filename) throws IOException {
         ArrayList<String> f = TextFileUtils.readFileContent(filename);
         String[] existingFiles = f.toArray(new String[f.size()]);
         boolean contains = TextFileUtils.contains(existingFiles, newFile);
@@ -51,10 +51,13 @@ public class TextFileUtils {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get("").toAbsolutePath() + filename, true));
             bw.newLine();
             bw.write(newFile);
+            bw.newLine();
             bw.close();
-            System.out.println("Now we are hosting files");
-            log.info("Now we are hosting files");
+            System.out.println("Now we are hosting " + filename);
+            log.info("Now we are hosting " + filename);
+            return true;
         }
+        return false;
     }
 
     /**

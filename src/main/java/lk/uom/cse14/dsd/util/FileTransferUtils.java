@@ -33,7 +33,9 @@ public class FileTransferUtils {
             clientSock.close();
             validated = FileTransferUtils.validateDownload(new File(filename), hash);
         }
-        TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
+        boolean updated = TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
+        if (updated)
+            QueryUtils.updateHostedFilesConfig();
         System.out.println("File \"" + filename + "\" Downloaded successfully!\n");
         log.info("File "  + filename + " Downloaded successfully!");
 
