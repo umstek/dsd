@@ -165,10 +165,10 @@ public class Peer {
         ((QueryHandler) queryHandler).submitQuery(queryTask);
     }
 
-    public void download(RoutingEntry target,String file){
-        DownloadRequest request = new DownloadRequest(ownHost,ownPort,target.getPeerIP(),target.getPeerPort());
-        request.setFilename(file);
-        scheduler.schedule(request);
+    public void downloadFile(RoutingEntry routingEntry, String filenameSelected) {
+        DownloadRequest request = new DownloadRequest(ownHost, ownPort, routingEntry.getPeerIP(),
+                routingEntry.getPeerPort());
+        request.setFilename(filenameSelected);
+        this.scheduler.schedule(request);
     }
-
 }

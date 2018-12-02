@@ -1,6 +1,7 @@
 package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.comm.request.DownloadRequest;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.query.QueryTask;
@@ -73,6 +74,34 @@ public class GUI {
         return result;
     }
 
+    private static int readFileIndex(Scanner scanner) {
+        int file = -1;
+        do {
+            System.out.print("Select a file [0 to cancel]: ");
+            try {
+                file = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                // Don't do anything
+            }
+        } while (file <= -1 || file > GUI.queryTask.getQueryResult().getFileNames().size());
+
+        return file;
+    }
+
+    private static int readFileHost(Scanner scanner) {
+        int file = -1;
+        do {
+            System.out.print("Select a host [0 to cancel]: ");
+            try {
+                file = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                // Don't do anything
+            }
+        } while (file <= -1 || file > 65535);
+
+        return file;
+    }
+
     private static volatile boolean searching = false;
     private static volatile QueryTask queryTask = null;
 
@@ -89,6 +118,15 @@ public class GUI {
                         + (re.getPeerPort() + 5) + "\t"
                         + re.getStatus());
             }
+        }
+    }
+
+    private static void printHosts(String filename) {
+        for (RoutingEntry re : GUI.queryTask.getQueryResult().getRoutingEntries(filename)) {
+            System.out.println("\t\u2517\u2501\u2501\u2501"
+                    + re.getPeerIP() + "\t"
+                    + (re.getPeerPort() + 5) + "\t"
+                    + re.getStatus());
         }
     }
 
@@ -255,6 +293,17 @@ public class GUI {
 
                     if (GUI.queryTask != null) {
                         printResults();
+
+                        int fileI = readFileIndex(scanner);
+                        if (fileI > 0) {
+                            String filenameSelected = GUI.queryTask.getQueryResult().getFileNames().get(fileI - 1);
+                            printHosts(filenameSelected);
+
+                            int fileH = readFileHost(scanner);
+                            RoutingEntry routingEntry = GUI.queryTask.getQueryResult().getRoutingEntries(filenameSelected).get(fileH - 1);
+
+                            peer.downloadFile(routingEntry, filenameSelected);
+                        }
                     } else {
                         System.out.println("No results found. ");
                     }

@@ -9,7 +9,6 @@ import lk.uom.cse14.dsd.util.FileTransferUtils;
 
 public class DownloadHandler implements IHandler {
     private Scheduler scheduler;
-    //    private ExecutorService executorService;
     private String ownHost;
     private int ownPort;
 
@@ -17,7 +16,6 @@ public class DownloadHandler implements IHandler {
         this.scheduler = scheduler;
         this.ownHost = ownHost;
         this.ownPort = ownPort;
-//        this.executorService = Executors.newFixedThreadPool(5);
     }
 
     @Override
@@ -40,13 +38,15 @@ public class DownloadHandler implements IHandler {
     public void handle(Request request) {
         try {
             DownloadRequest req = (DownloadRequest) request;
-            int destPort = req.getHostPort();
-            String destIP = req.getHostIP();
+            int destPort = req.getSourcePort();
+            String destIP = req.getSource();
+            req.setHostIP(destIP);
+            req.setHostPort(destPort);
             String filename = req.getFilename();
-            DownloadResponse res = new DownloadResponse(ownHost, ownPort, destIP, destPort);
+            DownloadResponse res = new DownloadResponse(ownHost, ownPort + 1, destIP, destPort);
             res.setUuid(req.getUuid());
             scheduler.schedule(res);
-            FileTransferUtils.serveFile(ownPort, filename);
+            FileTransferUtils.serveFile(ownPort + 1, filename);
         } catch (Exception e) {
             e.printStackTrace();
         }
