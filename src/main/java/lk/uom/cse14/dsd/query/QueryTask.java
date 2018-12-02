@@ -1,8 +1,7 @@
 package lk.uom.cse14.dsd.query;
 
 import lk.uom.cse14.dsd.msghandler.QueryResultSet;
-import lk.uom.cse14.dsd.msghandler.RoutingEntry;
-import lk.uom.cse14.dsd.ui.QueryTaskListener;
+import lk.uom.cse14.dsd.main.QueryTaskListener;
 
 public class QueryTask implements Runnable {
     private String query;

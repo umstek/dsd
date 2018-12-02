@@ -1,4 +1,4 @@
-package lk.uom.cse14.dsd.ui;
+package lk.uom.cse14.dsd.main;
 
 import lk.uom.cse14.dsd.query.QueryTask;
 

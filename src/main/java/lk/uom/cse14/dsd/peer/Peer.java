@@ -10,7 +10,7 @@ import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.*;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import lk.uom.cse14.dsd.ui.QueryTaskListener;
+import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.util.QueryUtils;
 import lk.uom.cse14.dsd.util.TextFileUtils;
 import org.apache.log4j.Logger;
