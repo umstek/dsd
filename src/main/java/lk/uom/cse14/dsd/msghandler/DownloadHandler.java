@@ -4,18 +4,24 @@ import lk.uom.cse14.dsd.comm.request.DownloadRequest;
 import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.comm.response.DownloadResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
+import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.FileTransferUtils;
+import lk.uom.cse14.dsd.util.TextFileUtils;
+import org.apache.log4j.Logger;
 
 public class DownloadHandler implements IHandler {
+    private final Logger log = Logger.getLogger(TextFileUtils.class);
     private Scheduler scheduler;
     private String ownHost;
     private int ownPort;
+    private Peer peer;
 
-    public DownloadHandler(Scheduler scheduler, String ownHost, int ownPort) {
+    public DownloadHandler(Scheduler scheduler, String ownHost, int ownPort, Peer peer) {
         this.scheduler = scheduler;
         this.ownHost = ownHost;
         this.ownPort = ownPort;
+        this.peer = peer;
     }
 
     @Override
@@ -28,6 +34,7 @@ public class DownloadHandler implements IHandler {
             String hostIP = res.getSource();
             int hostPort = res.getSourcePort();
             FileTransferUtils.downloadFile(hostIP, hostPort, filename);
+            peer.updatePeer();
         } catch (Exception e) {
             e.printStackTrace();
         }

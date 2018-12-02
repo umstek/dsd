@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * QueryUtils provide the utility functions for searching
@@ -14,6 +15,7 @@ public class QueryUtils {
 
     public static final String QUERY_LIST = "/Queries.txt";
     public static final String FILE_LIST = "/File Names.txt";
+
     private static ArrayList<String> hostedFiles;
     private static ArrayList<String> queries;
 
@@ -28,6 +30,14 @@ public class QueryUtils {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println(QUERY_LIST + " file is missing");
+        }
+    }
+
+    public static void updateHostedFilesConfig() {
+        try {
+            QueryUtils.hostedFiles = TextFileUtils.readFileContent(FILE_LIST);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -90,12 +100,23 @@ public class QueryUtils {
         return new ArrayList<>(matches);
     }
 
+    /**
+     * this method randomly selects a query from the configuration file and return it
+     *
+     * @return a query string
+     */
+    public static String issueRandomSearchQuery() {
+        int index = ThreadLocalRandom.current().nextInt(QueryUtils.queries.size());
+        return QueryUtils.queries.get(index);
+    }
 
-//    public static QueryRequest issueSearchQuery() {
-//        int index = ThreadLocalRandom.current().nextInt(QueryUtils.queries.size());
-//        String query = QueryUtils.queries.get(index);
-//        QueryRequest qr = new QueryRequest();
-//    }
+    public static ArrayList<String> getHostedFiles() {
+        return hostedFiles;
+    }
+
+    public static ArrayList<String> getQueries() {
+        return queries;
+    }
 
 
 }

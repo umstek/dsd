@@ -3,6 +3,7 @@ package lk.uom.cse14.dsd.util;
 
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -12,15 +13,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class FileTransferUtils {
 
+    private final static Logger log = Logger.getLogger(TextFileUtils.class);
+
     /**
      * This method downloads the given file from the given host over TCP and updates the local file index
      * And also validates the file
      * @param hostIP   host IP
      * @param hostPort host Port
      * @param filename name of the file
-     * @throws IOException
-     * @throws ClassNotFoundException
-     * @throws NoSuchAlgorithmException
+     * @throws IOException              if the file is not downloaded this will throw in validation phase
+     * @throws ClassNotFoundException   this will be thrown by the validateFile method
+     * @throws NoSuchAlgorithmException this will be thrown by the validateFile method
      */
     public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         boolean validated = false;
@@ -30,18 +33,20 @@ public class FileTransferUtils {
             clientSock.close();
             validated = FileTransferUtils.validateDownload(new File(filename), hash);
         }
-        TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
         System.out.println("File \"" + filename + "\" Downloaded successfully!\n");
-
+        log.info("File " + filename + " Downloaded successfully!");
+        boolean updated = TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
+        if (updated)
+            QueryUtils.updateHostedFilesConfig();
     }
 
 
     /**
      * This method serves the given file in the given port over TCP
-     * @param serverPort TCP to listen for a client connection
-     * @param filename Name of the file to serve
-     * @throws IOException
-     * @throws NoSuchAlgorithmException
+     * @param serverPort    TCP to listen for a client connection
+     * @param filename      Name of the file to serve
+     * @throws IOException              if the file to serve is not found
+     * @throws NoSuchAlgorithmException if hashing algorithm is not known
      */
     public static void serveFile(int serverPort, String filename) throws IOException, NoSuchAlgorithmException {
 
@@ -54,9 +59,16 @@ public class FileTransferUtils {
         Socket sock = serverSocket.accept();
 
         FileTransferUtils.send(file, hash, sock);
+        log.info("Sending file " + filename + ".....");
         sock.close();
         serverSocket.close();
     }
+
+    /**
+     * This method connects to a host TCP port and downloads the file
+     * @param socket TCP port the server is listening on
+     * @return the hash of the received file
+     */
 
     public static String receive(Socket socket) {
 
@@ -67,11 +79,13 @@ public class FileTransferUtils {
 
             hash = dis.readUTF();
             System.out.println("SHA-256-checksum of the file " + filename + "\n" + hash);
+            log.info("SHA-256-checksum of the file " + filename + " " + hash);
 
             int n = 0;
             byte[] buf = new byte[8192];
 
             System.out.println("Receiving file: " + filename);
+            log.info("Receiving file: " + filename);
             File file = new File(Paths.get("").toAbsolutePath() + "/Downloads/" + filename);
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -92,6 +106,12 @@ public class FileTransferUtils {
         }
     }
 
+    /**
+     * This method transfers a file and its SHA-256 hash over a TCP connection
+     * @param file      the file that should be transferred
+     * @param hash      SHA-256 hash of the file
+     * @param socket    TCP socket the client will connect to
+     */
     public static void send(File file, String hash, Socket socket) {
 
         try {
@@ -110,9 +130,10 @@ public class FileTransferUtils {
 
             FileInputStream fis = new FileInputStream(file);
             System.out.println("Sending file: " + filename);
+            log.info("Sending file: " + filename);
             while ((n = fis.read(buf)) != -1) {
-                    dos.write(buf, 0, n);
-                    dos.flush();
+                dos.write(buf, 0, n);
+                dos.flush();
             }
             dos.close();
         } catch (IOException e) {
@@ -122,6 +143,15 @@ public class FileTransferUtils {
 
     }
 
+    /**
+     * this method validates a download by comparing the received SHA-256 hash with the downloaded files hash
+     * @param file the file to validate
+     * @param hash the SHA-256 hash of the file
+     * @return true if the file is validated
+     * @throws IOException              if the file is not found we throw this
+     * @throws NoSuchAlgorithmException if the hashing algorithms is not known this will throw
+     * @throws ClassNotFoundException   in case the received object fails to be casted in to a DummyFile object
+     */
     public static boolean validateDownload(File file, String hash) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
 
         byte[] fileBytes;
