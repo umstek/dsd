@@ -114,6 +114,9 @@ public class FileGenerator {
         return digest.digest(file);
     }
 
+    /**
+     * Helper methods for hashing
+     */
 
     public static byte[] getHashByteArray(String data) {
         MessageDigest digest = null;

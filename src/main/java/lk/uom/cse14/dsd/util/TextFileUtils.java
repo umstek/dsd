@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TextFileUtils {
 
@@ -33,11 +32,28 @@ public class TextFileUtils {
     }
 
     public static void updateFileContent(String newFile, String filename) throws IOException {
-        ArrayList<String> existingFiles = TextFileUtils.readFileContent(filename);
-        if (!Arrays.asList(existingFiles).contains(newFile)) {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get("").toAbsolutePath() + filename));
+        ArrayList<String> f = TextFileUtils.readFileContent(filename);
+        String[] existingFiles = f.toArray(new String[f.size()]);
+        boolean contains = TextFileUtils.contains(existingFiles, newFile);
+        if (!contains) {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get("").toAbsolutePath() + filename, true));
             bw.newLine();
             bw.write(newFile);
+            bw.close();
         }
+    }
+
+    public static <T> boolean contains(final T[] array, final T v) {
+        if (v == null) {
+            for (final T e : array)
+                if (e == null)
+                    return true;
+        } else {
+            for (final T e : array)
+                if (e == v || v.equals(e))
+                    return true;
+        }
+
+        return false;
     }
 }
