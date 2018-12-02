@@ -49,7 +49,7 @@ public class TextFileUtils {
         boolean contains = TextFileUtils.contains(existingFiles, newFile);
         if (!contains) {
             BufferedWriter bw = new BufferedWriter(new FileWriter(Paths.get("").toAbsolutePath() + filename, true));
-            bw.newLine();
+//            bw.newLine();
             bw.write(newFile);
             bw.newLine();
             bw.close();
