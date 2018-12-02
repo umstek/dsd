@@ -6,8 +6,11 @@ import lk.uom.cse14.dsd.comm.response.DownloadResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.util.FileTransferUtils;
+import lk.uom.cse14.dsd.util.TextFileUtils;
+import org.apache.log4j.Logger;
 
 public class DownloadHandler implements IHandler {
+    private final Logger log = Logger.getLogger(TextFileUtils.class);
     private Scheduler scheduler;
     private String ownHost;
     private int ownPort;

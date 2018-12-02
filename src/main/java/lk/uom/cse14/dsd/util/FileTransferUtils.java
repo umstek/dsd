@@ -3,6 +3,7 @@ package lk.uom.cse14.dsd.util;
 
 import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.fileio.FileGenerator;
+import org.apache.log4j.Logger;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -11,6 +12,8 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
 public class FileTransferUtils {
+
+    private final static Logger log = Logger.getLogger(TextFileUtils.class);
 
     /**
      * This method downloads the given file from the given host over TCP and updates the local file index
@@ -32,6 +35,7 @@ public class FileTransferUtils {
         }
         TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
         System.out.println("File \"" + filename + "\" Downloaded successfully!\n");
+        log.info("File "  + filename + " Downloaded successfully!");
 
     }
 
@@ -74,11 +78,13 @@ public class FileTransferUtils {
 
             hash = dis.readUTF();
             System.out.println("SHA-256-checksum of the file " + filename + "\n" + hash);
+            log.info("SHA-256-checksum of the file " + filename + " " + hash);
 
             int n = 0;
             byte[] buf = new byte[8192];
 
             System.out.println("Receiving file: " + filename);
+            log.info("Receiving file: " + filename);
             File file = new File(Paths.get("").toAbsolutePath() + "/Downloads/" + filename);
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -123,6 +129,7 @@ public class FileTransferUtils {
 
             FileInputStream fis = new FileInputStream(file);
             System.out.println("Sending file: " + filename);
+            log.info("Sending file: " + filename);
             while ((n = fis.read(buf)) != -1) {
                 dos.write(buf, 0, n);
                 dos.flush();

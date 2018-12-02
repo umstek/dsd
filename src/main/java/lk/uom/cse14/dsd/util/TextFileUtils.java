@@ -1,11 +1,16 @@
 package lk.uom.cse14.dsd.util;
 
+import lk.uom.cse14.dsd.scheduler.Scheduler;
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class TextFileUtils {
+
+    private final static Logger log = Logger.getLogger(TextFileUtils.class);
 
     /**
      * @param filename name of the file to read
@@ -47,6 +52,8 @@ public class TextFileUtils {
             bw.newLine();
             bw.write(newFile);
             bw.close();
+            System.out.println("Now we are hosting files");
+            log.info("Now we are hosting files");
         }
     }
 
