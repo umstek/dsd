@@ -58,6 +58,7 @@ public class FileTransferUtils {
         Socket sock = serverSocket.accept();
 
         FileTransferUtils.send(file, hash, sock);
+        log.info("Sending file " + filename + ".....");
         sock.close();
         serverSocket.close();
     }
