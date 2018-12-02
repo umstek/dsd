@@ -80,6 +80,9 @@ public class QueryHandler implements IHandler {
                     // UI.show result of notify file downloads handler
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
                     if (qt != null) {
+                        if(queryResponse.getQueryResultSet() == null){
+                            queryResponse.setQueryResultSet(new QueryResultSet());
+                        }
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester

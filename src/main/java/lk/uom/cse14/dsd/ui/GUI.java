@@ -115,7 +115,7 @@ public class GUI {
             for (RoutingEntry re : GUI.queryTask.getQueryResult().getRoutingEntries(filename)) {
                 System.out.println("\t\u2517\u2501\u2501\u2501"
                         + re.getPeerIP() + "\t"
-                        + (re.getPeerPort() + 5) + "\t"
+                        + (re.getPeerPort() + 1) + "\t"
                         + re.getStatus());
             }
         }
@@ -125,7 +125,7 @@ public class GUI {
         for (RoutingEntry re : GUI.queryTask.getQueryResult().getRoutingEntries(filename)) {
             System.out.println("\t\u2517\u2501\u2501\u2501"
                     + re.getPeerIP() + "\t"
-                    + (re.getPeerPort() + 5) + "\t"
+                    + (re.getPeerPort() + 1) + "\t"
                     + re.getStatus());
         }
     }
@@ -219,14 +219,13 @@ public class GUI {
         System.out.println("Starting on address " + address + " and port " + port);
 
         // Create a peer
-        Peer peer0 = null;
+        Peer peer = null;
         try {
-            peer0 = new Peer(bsAddr, bsPort, address, port, username);
-            peer0.startPeer();
+            peer = new Peer(bsAddr, bsPort, address, port, username);
+            peer.startPeer();
         } catch (IOException | RegisterException e) {
             e.printStackTrace();
         }
-        final Peer peer = peer0;
 
         // MAIN_LOOP
         String query;
@@ -273,9 +272,6 @@ public class GUI {
                         public void notifyQueryComplete(QueryTask queryTask) {
                             GUI.queryTask = queryTask;
                             GUI.searching = false;
-                            peer.download(queryTask.getQueryResult().getRoutingEntries(
-                                    (queryTask.getQueryResult().getFileNames()).get(0)).get(0),
-                                    (queryTask.getQueryResult().getFileNames()).get(0));
                         }
                     }, query, !useCache);
 

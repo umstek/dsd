@@ -121,7 +121,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                     RoutingEntry routingEntry = new RoutingEntry(
                             heartbeatRequest.getSource(),
                             heartbeatRequest.getSourcePort(),
-                            RoutingEntry.Status.ONLINE,
+                            RoutingEntry.Status.UNKNOWN,
                             0);
                     routingEntries.add(routingEntry);
                 }

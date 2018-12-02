@@ -52,7 +52,7 @@ public class CacheQueryProcessor implements ICacheQuery {
             }
             return QueryProcessor.constructCacheQueryResult(cacheHits);
         }
-        System.out.println("Cache miss");
+        //System.out.println("Cache miss");
         return null;
     }
 
