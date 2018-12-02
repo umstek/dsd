@@ -6,20 +6,17 @@ import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.DownloadRequest;
-import lk.uom.cse14.dsd.fileio.DummyFile;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.*;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.ui.QueryTaskListener;
 import lk.uom.cse14.dsd.util.QueryUtils;
-import lk.uom.cse14.dsd.util.TextFileUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,7 +46,6 @@ public class Peer {
     private IFileQuery fileQueryProcessor;
     private ICacheQuery cacheQueryProcessor;
     private ArrayList<String> hostedFileNames;
-    private HashMap<String, DummyFile> hostedFiles;
     private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
@@ -73,7 +69,7 @@ public class Peer {
             this.cacheQueryProcessor = new CacheQueryProcessor();
             this.queryHandler = new QueryHandler(routingTable, scheduler, cacheQueryProcessor, fileQueryProcessor, ownHost, ownPort);
             this.heartbeatHandler = new HeartbeatHandler(ownHost, ownPort, scheduler, routingTable);
-            this.downloadHandler = new DownloadHandler(scheduler, ownHost, ownPort);
+            this.downloadHandler = new DownloadHandler(scheduler, ownHost, ownPort, this);
             this.scheduler.setHeartbeatHandler(heartbeatHandler);
             this.scheduler.setQueryHandler(queryHandler);
             this.scheduler.setPeerDiscoveryHandler(peerDiscoveryHandler);
@@ -86,10 +82,6 @@ public class Peer {
 
     public ArrayList<String> getHostedFileNames() {
         return hostedFileNames;
-    }
-
-    public HashMap<String, DummyFile> getHostedFiles() {
-        return hostedFiles;
     }
 
     public void startPeer() {
@@ -108,7 +100,7 @@ public class Peer {
 //        System.out.println("Local Address: " + ownHost + ":" + ownPort);
         log.info("DisFish Peer Started at: {}");
         log.info("Local Address: {}, {}");
-        this.generateFiles();
+        this.updatePeer();
 //        System.out.println("\n************** List of hosted files **************\n");
         log.info("************** List of hosted files **************");
         for (String filename : this.hostedFileNames
@@ -117,21 +109,9 @@ public class Peer {
         }
     }
 
-    private void generateFiles() {
-        ArrayList<String> filenames = null;
-        try {
-            filenames = TextFileUtils.readFileContent(FILE_LIST);
-            this.hostedFileNames = filenames;
-//            this.hostedFiles = FileGenerator.generateAllHostedFiles(filenames);
-//            System.out.println("Files have been successfully generated");
-            log.info("Files have been successfully generated");
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println(FILE_LIST + " is not initialized. Initialize it with the filenames to be hosted");
-        }
-//        catch (NoSuchAlgorithmException e) {
-//            e.printStackTrace();
-//        }
+    public void updatePeer() {
+        this.hostedFileNames = QueryUtils.getHostedFiles();
+        log.info("List of hosted files updated");
     }
 
     public UdpSender getUdpSender() {
