@@ -54,7 +54,10 @@ public class QueryHandler implements IHandler {
             if (response != null) {
                 queryResponse = (QueryResponse) response;
             }
-            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS) { // if successful response, update cache
+            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS && (
+                    this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no cache update
+                            this.ownPort == queryRequest.getGetRequesterPort()
+                    )) { // if successful response, update cache
                 cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
             }
 
@@ -123,6 +126,9 @@ public class QueryHandler implements IHandler {
             }
             QueryResultSet result = null;
             if (!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())) {
+                result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
+            }
+            if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
                 result = cacheQueryProcessor.query(queryRequest.getQuery());
             }
             if (result == null) {

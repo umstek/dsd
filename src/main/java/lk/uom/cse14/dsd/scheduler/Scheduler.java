@@ -142,7 +142,7 @@ public class Scheduler implements Runnable {
                 }
                 if (flag) {
                     log.info("Scheduler Sleeping for 1 Second");
-                    Thread.sleep(1000);
+                    Thread.sleep(100);
                     log.info("Scheduler Woke Up");
                 }
             } catch (InterruptedException e) {
