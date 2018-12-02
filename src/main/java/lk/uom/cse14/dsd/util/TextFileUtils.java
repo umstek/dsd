@@ -31,6 +31,13 @@ public class TextFileUtils {
         return content;
     }
 
+    /**
+     * this method will update the hosting file index after a download
+     *
+     * @param newFile  newly downloaded file
+     * @param filename name of the configuration file that contains the list of files to be hosted
+     * @throws IOException if the configuration file is not found this will throw
+     */
     public static void updateFileContent(String newFile, String filename) throws IOException {
         ArrayList<String> f = TextFileUtils.readFileContent(filename);
         String[] existingFiles = f.toArray(new String[f.size()]);
@@ -43,6 +50,13 @@ public class TextFileUtils {
         }
     }
 
+    /**
+     * Generic helper method implementation for searching for an object in an array
+     * @param array the array of objects
+     * @param v     the object
+     * @param <T>   type of the above objects
+     * @return true if the given array contains the given object
+     */
     public static <T> boolean contains(final T[] array, final T v) {
         if (v == null) {
             for (final T e : array)
