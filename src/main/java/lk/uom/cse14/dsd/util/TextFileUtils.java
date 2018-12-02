@@ -53,8 +53,8 @@ public class TextFileUtils {
             bw.write(newFile);
             bw.newLine();
             bw.close();
-            System.out.println("Now we are hosting " + filename);
-            log.info("Now we are hosting " + filename);
+            System.out.println("Now we are hosting " + newFile);
+            log.info("Now we are hosting " + newFile);
             return true;
         }
         return false;
