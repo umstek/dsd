@@ -65,7 +65,6 @@ public class FileTransferUtils {
 
     /**
      * This method connects to a host TCP port and downloads the file
-     *
      * @param socket TCP port the server is listening on
      * @return the hash of the received file
      */

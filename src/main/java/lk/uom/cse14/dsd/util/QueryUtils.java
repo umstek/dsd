@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * QueryUtils provide the utility functions for searching
@@ -90,12 +91,15 @@ public class QueryUtils {
         return new ArrayList<>(matches);
     }
 
-
-//    public static QueryRequest issueSearchQuery() {
-//        int index = ThreadLocalRandom.current().nextInt(QueryUtils.queries.size());
-//        String query = QueryUtils.queries.get(index);
-//        QueryRequest qr = new QueryRequest();
-//    }
+    /**
+     * this method randomly selects a query from the configuration file and return it
+     *
+     * @return a query string
+     */
+    public static String issueRandomSearchQuery() {
+        int index = ThreadLocalRandom.current().nextInt(QueryUtils.queries.size());
+        return QueryUtils.queries.get(index);
+    }
 
 
 }
