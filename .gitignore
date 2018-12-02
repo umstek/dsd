@@ -124,3 +124,6 @@ buildNumber.properties
 
 # Debugger files
 .attach_pid*
+
+# Configuration files
+*.txt

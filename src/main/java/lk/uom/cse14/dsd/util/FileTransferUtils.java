@@ -14,7 +14,7 @@ public class FileTransferUtils {
 
     /**
      * This method downloads the given file from the given host over TCP and updates the local file index
-     *
+     * And also validates the file
      * @param hostIP   host IP
      * @param hostPort host Port
      * @param filename name of the file
@@ -31,14 +31,15 @@ public class FileTransferUtils {
             validated = FileTransferUtils.validateDownload(new File(filename), hash);
         }
         TextFileUtils.updateFileContent(filename, QueryUtils.FILE_LIST);
-        System.out.println("File \"" + filename + "\" Downloaded successfully!");
+        System.out.println("File \"" + filename + "\" Downloaded successfully!\n");
+
     }
 
 
     /**
      * This method serves the given file in the given port over TCP
-     * @param serverPort
-     * @param filename
+     * @param serverPort TCP to listen for a client connection
+     * @param filename Name of the file to serve
      * @throws IOException
      * @throws NoSuchAlgorithmException
      */
