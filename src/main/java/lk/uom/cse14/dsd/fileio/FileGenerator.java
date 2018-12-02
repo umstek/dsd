@@ -52,10 +52,11 @@ public class FileGenerator {
     }
 
     /**
+     * this method generates a dummy file based on a large random integer
+     *
      * @return a DummyFile object
-     * @throws NoSuchAlgorithmException
      */
-    public static DummyFile generateDummyFile() throws NoSuchAlgorithmException {
+    public static DummyFile generateDummyFile() {
         byte[] bigint = FileGenerator.generateLargeNumber();
         int size = bigint.length;
         int sizeMB = size / (1024 * 1024);
@@ -65,7 +66,6 @@ public class FileGenerator {
             sb.append('a');
         }
         String data = sb.toString();
-//        System.out.println("Filename : " + filename + "\nFile size : " + sizeMB + " MB\nHash : " + hash.toString() + "\n");
 
         DummyFile df = new DummyFile();
         df.setSize(sizeMB);
@@ -85,40 +85,22 @@ public class FileGenerator {
     public static byte[] generateFile(String filename) throws IOException, NoSuchAlgorithmException {
 
         File file = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/" + filename);
-//        File hash = new File(Paths.get("").toAbsolutePath() + "/Hosted_Files/SHA-256-checksum-" + filename);
-
         file.getParentFile().mkdirs();
-//        hash.getParentFile().mkdirs();
-
         file.createNewFile();
-//        hash.createNewFile();
 
-        FileOutputStream fileos = new FileOutputStream(file);
-//        FileOutputStream hashos = new FileOutputStream(hash);
-
-        ObjectOutputStream fileOut = new ObjectOutputStream(fileos);
-//        ObjectOutputStream hashOut = new ObjectOutputStream(hashos);
+        ObjectOutputStream fileOut = new ObjectOutputStream(new FileOutputStream(file));
 
         DummyFile dummyFile = FileGenerator.generateDummyFile();
 
         //writing object to file
         fileOut.writeObject(dummyFile);
         fileOut.close();
-        fileos.close();
 
         byte[] bytes;
         bytes = dummyFile.toByteArray();
 
         //calculating the hash of the dummy file and writing it
         byte[] fileHash = FileGenerator.generateHash(bytes);
-//        hashOut.write(fileHash);
-//        hashOut.close();
-//        hashos.close();
-
-        //generate FileWrapper object for sending
-//        FileWrapper fw = new FileWrapper(hash, dummyFile);
-//
-//        return fw;
         return fileHash;
     }
 
@@ -132,6 +114,9 @@ public class FileGenerator {
         return digest.digest(file);
     }
 
+    /**
+     * Helper methods for hashing
+     */
 
     public static byte[] getHashByteArray(String data) {
         MessageDigest digest = null;
@@ -166,32 +151,5 @@ public class FileGenerator {
     public static String getHash(String data) {
         return bytesToHex(getHashByteArray(data));
     }
-
-//    public static class FileWrapper{
-//        byte[] hash;
-//        DummyFile dummyFile;
-//
-//        FileWrapper(byte[] hash, DummyFile dummyFile){
-//            this.hash = hash;
-//            this.dummyFile = dummyFile;
-//        }
-//
-//        public byte[] getHash() {
-//            return hash;
-//        }
-//
-//        public void setHash(byte[] hash) {
-//            this.hash = hash;
-//        }
-//
-//        public DummyFile getDummyFile() {
-//            return dummyFile;
-//        }
-//
-//        public void setDummyFile(DummyFile dummyFile) {
-//            this.dummyFile = dummyFile;
-//        }
-//
-//    }
 
 }
