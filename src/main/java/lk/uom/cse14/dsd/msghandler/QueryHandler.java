@@ -48,6 +48,9 @@ public class QueryHandler implements IHandler {
         try {
             QueryRequest queryRequest = (QueryRequest) request;
             QueryResponse queryResponse = null;
+            long timeNow = System.nanoTime();
+            long latency = timeNow - request.getUuid();
+            logger.debug("Latency for request:"+request.getUuid()+" : "+latency+" ns");
             if (response != null) {
                 queryResponse = (QueryResponse) response;
             }
@@ -68,8 +71,8 @@ public class QueryHandler implements IHandler {
                     if (oldRequest != null) {
                         QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
                         response1.setUuid(oldRequest.getUuid());
-                        response1.setStatus(Response.SUCCESS);
-                        response1.setHopCount(oldRequest.getHopCount());
+                        response1.setStatus(Response.FAIL);
+                        response1.setHopCount(oldRequest.getHopCount() + 1);
                         scheduler.schedule(response1);
                     }
 
@@ -83,6 +86,7 @@ public class QueryHandler implements IHandler {
                         if(queryResponse.getQueryResultSet() == null){
                             queryResponse.setQueryResultSet(new QueryResultSet());
                         }
+                        logger.debug("Number of Hops for query:"+queryResponse.getHopCount() + 1);
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
@@ -90,7 +94,8 @@ public class QueryHandler implements IHandler {
                     if (oldRequest != null) {
                         QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
                         response1.setUuid(oldRequest.getUuid());
-                        response1.setHopCount(oldRequest.getHopCount());
+                        response1.setStatus(response.getStatus());
+                        response1.setHopCount(response.getHopCount() + 1);
                         scheduler.schedule(response1);
                     }
 
@@ -112,15 +117,12 @@ public class QueryHandler implements IHandler {
                 response.setStatus(QueryResponse.FAIL);
                 response.setQueryResultSet(new QueryResultSet());
                 response.setUuid(request.getUuid());
-                response.setHopCount(request.getHopCount());
+                response.setHopCount(request.getHopCount() + 1);
                 scheduler.schedule(response);
                 return;
             }
             QueryResultSet result = null;
             if (!(this.ownHost.equals(queryRequest.getRequesterHost()) && this.ownPort == queryRequest.getGetRequesterPort())) {
-                result = fileQueryProcessor.query(queryRequest.getQuery(), ownHost, ownPort);
-            }
-            if (result == null && !queryRequest.isSkipCache()) { // check query in local cache if cache is not skipped
                 result = cacheQueryProcessor.query(queryRequest.getQuery());
             }
             if (result == null) {
@@ -145,7 +147,7 @@ public class QueryHandler implements IHandler {
                         QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
                         response.setStatus(QueryResponse.FAIL);
                         response.setUuid(request.getUuid());
-                        response.setHopCount(request.getHopCount());
+                        response.setHopCount(request.getHopCount() + 1);
                         scheduler.schedule(response);
                     } else { // neighbour is found AND can redirect query to the neighbour
                         QueryRequest request1 = new QueryRequest(ownHost, ownPort, destinationEntry.getPeerIP(), destinationEntry.getPeerPort(),
@@ -167,12 +169,14 @@ public class QueryHandler implements IHandler {
                     if (qt != null) {
                         qt.setQueryResult(result);
                     }
+                    logger.debug("Number of Hops for query:"+queryRequest.getHopCount());
                 } else {
                     QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
                             queryRequest.getSourcePort());
                     response.setStatus(QueryResponse.SUCCESS);
                     response.setQueryResultSet(result);
                     response.setUuid(request.getUuid());
+                    response.setHopCount(request.getHopCount() + 1);
                     scheduler.schedule(response);
                 }
             }
