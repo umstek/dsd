@@ -22,13 +22,14 @@ public class Scheduler implements Runnable {
     private IHandler peerDiscoveryHandler;
     private UdpReceiver udpReceiver;
     private UdpSender udpSender;
-    private Map<Long, MessageHandler> messageHandlerMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Long, MessageHandler> messageHandlerMap;
     private IHandler downloadHandler;
 
-    public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
+    public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender,ConcurrentHashMap<Long, MessageHandler> messageHandlerMap) {
         this.udpReceiver = udpReceiver;
         this.udpSender = udpSender;
         this.executorService = Executors.newFixedThreadPool(100);
+        this.messageHandlerMap = messageHandlerMap;
     }
 
     public void setQueryHandler(IHandler queryHandler) {
@@ -153,10 +154,10 @@ public class Scheduler implements Runnable {
                 }
                 if (flag) {
                     log.info("Scheduler Sleeping for 1 Second");
-                    Thread.sleep(100);
+                    Thread.sleep(1);
                     log.info("Scheduler Woke Up");
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

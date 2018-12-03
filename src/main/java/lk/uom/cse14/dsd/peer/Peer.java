@@ -19,6 +19,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -50,6 +51,7 @@ public class Peer {
     private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
+    private ConcurrentHashMap<Long,MessageHandler> messageHandlerConcurrentHashMap;
 
     public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, RegisterException {
         TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);
@@ -58,10 +60,11 @@ public class Peer {
             this.ownPort = ownPort;
             this.socket = new DatagramSocket(ownPort);
             this.taskExecutor = Executors.newFixedThreadPool(10);
-            this.udpSender = new UdpSender(1000, 100, socket);
+            this.udpSender = new UdpSender(1, 100, socket);
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
-            this.scheduler = new Scheduler(udpReceiver, udpSender);
+            this.messageHandlerConcurrentHashMap = new ConcurrentHashMap<>();
+            this.scheduler = new Scheduler(udpReceiver, udpSender,messageHandlerConcurrentHashMap);
             List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
             this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
 //            this.fileQueryProcessor = new DummyFileQueryProcessor();
@@ -157,6 +160,7 @@ public class Peer {
                     Long timeNow = System.nanoTime();
                     log.debug("Time taken for query: "+queryTask.getQuery()+" :"+
                             (timeNow-queryTask.getStartTime())+" ns. Hop Count: "+queryTask.getHopCount());
+                    log.debug("Start Time: "+queryTask.getStartTime()+" Now: "+timeNow+ " Diff: "+(timeNow-queryTask.getStartTime()));
                     Long endTime = System.nanoTime();
                     log.debug("Test end time: " + endTime);
                 }

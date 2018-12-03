@@ -151,7 +151,7 @@ public class Main {
         boolean dev = argExists(argsList, "--dev");
 
         // Set-up port to run peer
-        int port = 3000;
+        int port = 6050;
         try {
             port = Integer.parseInt(argValue(argsList, "-p"));
         } catch (NumberFormatException e) {

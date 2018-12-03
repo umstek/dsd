@@ -40,7 +40,7 @@ public class MessageHandler extends Thread {
                     }
                     this.setStatus(Status.SENT);
                     this.incrementRetryCount();
-                    Thread.sleep(10000);
+                    Thread.sleep(5000);
                 } else {
                     this.setStatus(Status.DEAD);
                     this.handler.handle((Request) this.getMessage(),null);

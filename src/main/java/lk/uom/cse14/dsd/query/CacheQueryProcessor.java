@@ -10,48 +10,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CacheQueryProcessor implements ICacheQuery {
 
-    private HashMap<String, ArrayList<RoutingEntry>> QueryCache = new HashMap<>();
+    private volatile ConcurrentHashMap<String, ArrayList<RoutingEntry>> QueryCache = new ConcurrentHashMap<>();
 
     @Override
     public void updateCache(QueryResultSet resultSet,String query) {
-        ArrayList<String> fileToUpdate = resultSet.getFileNames();
+        synchronized (CacheQueryProcessor.class){
+            ArrayList<String> fileToUpdate = resultSet.getFileNames();
 
-        for (String file : fileToUpdate) {
-            ArrayList<RoutingEntry> entriesToUpdate = resultSet.getRoutingEntries(file);
-            ArrayList<RoutingEntry> cachedFileEntries = QueryCache.get(file);
+            for (String file : fileToUpdate) {
+                ArrayList<RoutingEntry> entriesToUpdate = resultSet.getRoutingEntries(file);
+                ArrayList<RoutingEntry> cachedFileEntries = QueryCache.get(file);
 
-            for (RoutingEntry re : entriesToUpdate) {
-                String IP = re.getPeerIP();
-                if (cachedFileEntries != null) {
-                    for (RoutingEntry cre : cachedFileEntries) {
-                        String cachedIP = cre.getPeerIP();
-                        if (cachedIP.equals(IP)) {
-                            break;
-                        } else {
-                            cachedFileEntries.add(re);
+                for (RoutingEntry re : entriesToUpdate) {
+                    String IP = re.getPeerIP();
+                    if (cachedFileEntries != null) {
+                        ArrayList<RoutingEntry> tempList = new ArrayList<>();
+                        for (RoutingEntry cre : cachedFileEntries) {
+                            String cachedIP = cre.getPeerIP();
+                            if (cachedIP.equals(IP)) {
+                                break;
+                            } else {
+                                tempList.add(re);
+                            }
                         }
+                        cachedFileEntries.addAll(tempList);
+                    } else {
+                        cachedFileEntries = entriesToUpdate;
                     }
-                } else {
-                    cachedFileEntries = entriesToUpdate;
                 }
+                QueryCache.put(file, cachedFileEntries);
             }
-            QueryCache.put(file, cachedFileEntries);
         }
-
     }
 
     @Override
-    public QueryResultSet query(String query) {
-        ArrayList<String> cachedFiles = new ArrayList<>(QueryCache.keySet());
-        ArrayList<String> cacheHitFiles = QueryUtils.search(query, cachedFiles);
+    public synchronized QueryResultSet query(String query) {
+        synchronized (CacheQueryProcessor.class){
+            ArrayList<String> cachedFiles = new ArrayList<>(QueryCache.keySet());
+            ArrayList<String> cacheHitFiles = QueryUtils.search(query, cachedFiles);
 
-        if (!cacheHitFiles.isEmpty()) {
-            HashMap<String, ArrayList<RoutingEntry>> cacheHits = new HashMap<>();
-            for (String file : cacheHitFiles) {
-                ArrayList<RoutingEntry> peers = QueryCache.get(file);
-                cacheHits.put(file, peers);
+            if (!cacheHitFiles.isEmpty()) {
+                HashMap<String, ArrayList<RoutingEntry>> cacheHits = new HashMap<>();
+                for (String file : cacheHitFiles) {
+                    ArrayList<RoutingEntry> peers = QueryCache.get(file);
+                    cacheHits.put(file, peers);
+                }
+                return QueryProcessor.constructCacheQueryResult(cacheHits);
             }
-            return QueryProcessor.constructCacheQueryResult(cacheHits);
         }
         //System.out.println("Cache miss");
         return null;

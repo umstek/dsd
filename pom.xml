@@ -32,7 +32,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>lk.uom.cse14.dsd.main.Main</mainClass>
+                            <mainClass>lk.uom.cse14.dsd.ui.GUI</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -53,7 +53,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>lk.uom.cse14.dsd.main.Main</mainClass>
+                            <mainClass>lk.uom.cse14.dsd.ui.GUI</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

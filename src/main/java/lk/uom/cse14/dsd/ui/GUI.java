@@ -1,6 +1,7 @@
 package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
+import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.query.QueryTask;
@@ -125,7 +126,7 @@ public class GUI {
         for (RoutingEntry re : GUI.queryTask.getQueryResult().getRoutingEntries(filename)) {
             System.out.println("\t\u2517\u2501\u2501\u2501"
                     + re.getPeerIP() + "\t"
-                    + (re.getPeerPort() + 5) + "\t"
+                    + (re.getPeerPort() + 1) + "\t"
                     + re.getStatus());
         }
     }
@@ -254,6 +255,29 @@ public class GUI {
                                 System.out.println(peer.getHostedFileNames().get(i));
                             }
                         }
+                        break;
+                    case ":test":
+                        System.out.print("Enter test iteration count :");
+                        int iterations = 100;
+                        try {
+                            iterations = scanner.nextInt();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("Error when selecting inputs.");
+                            System.exit(78);
+                        }
+                        System.out.print("Skip Cache? 1-Yes 0-No :");
+                        int skipCache = 0;
+                        try {
+                            skipCache = scanner.nextInt();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("Error when selecting inputs.");
+                            System.exit(78);
+                        }
+                        assert peer != null;
+                        peer.testQuery(iterations, skipCache == 1);
+                        System.out.println("All Queries Submitted!");
                         break;
                     case ":exit":
                         System.exit(1);

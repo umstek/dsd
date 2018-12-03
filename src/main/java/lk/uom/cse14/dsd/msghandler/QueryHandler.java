@@ -54,16 +54,9 @@ public class QueryHandler implements IHandler {
             if (response != null) {
                 queryResponse = (QueryResponse) response;
             }
-            synchronized (QueryHandler.class){
-                if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS && !(
-                    this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no cache update
-                            this.ownPort == queryRequest.getGetRequesterPort()
-                    )) { // if successful response, update cache
-                    cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
-                }
+            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS) { // if successful response, update cache
+                cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
             }
-
-
             if (queryResponse == null) {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                         this.ownPort == queryRequest.getGetRequesterPort()) {

@@ -28,6 +28,11 @@ public class FileTransferUtils {
     public static void downloadFile(String hostIP, int hostPort, String filename) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         boolean validated = false;
         while (!validated) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             Socket clientSock = new Socket(hostIP, hostPort);
             String hash = FileTransferUtils.receive(clientSock);
             clientSock.close();
@@ -59,7 +64,7 @@ public class FileTransferUtils {
         Socket sock = serverSocket.accept();
 
         FileTransferUtils.send(file, hash, sock);
-        log.info("Sending file " + filename + ".....");
+        //log.info("Sending file " + filename + ".....");
         sock.close();
         serverSocket.close();
     }
@@ -129,7 +134,7 @@ public class FileTransferUtils {
             byte[] buf = new byte[4092];
 
             FileInputStream fis = new FileInputStream(file);
-            System.out.println("Sending file: " + filename);
+            //System.out.println("Sending file: " + filename);
             log.info("Sending file: " + filename);
             while ((n = fis.read(buf)) != -1) {
                 dos.write(buf, 0, n);
