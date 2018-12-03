@@ -253,6 +253,29 @@ public class Main {
                             }
                         }
                         break;
+                    case ":test":
+                        System.out.print("Enter test iteration count :");
+                        int iterations = 100;
+                        try {
+                            iterations = scanner.nextInt();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("Error when selecting inputs.");
+                            System.exit(78);
+                        }
+                        System.out.print("Skip Cache? 1-Yes 0-No :");
+                        int skipCache = 0;
+                        try {
+                            skipCache = scanner.nextInt();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            System.out.println("Error when selecting inputs.");
+                            System.exit(78);
+                        }
+                        assert peer != null;
+                        peer.testQuery(iterations, skipCache == 1);
+                        System.out.println("All Queries Submitted!");
+                        break;
                     case ":exit":
                         System.exit(1);
                         break main_loop;

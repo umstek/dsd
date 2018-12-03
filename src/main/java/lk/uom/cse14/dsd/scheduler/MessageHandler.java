@@ -1,21 +1,24 @@
 package lk.uom.cse14.dsd.scheduler;
 
+import lk.uom.cse14.dsd.comm.Message;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.Request;
 import lk.uom.cse14.dsd.msghandler.IHandler;
 import org.apache.log4j.Logger;
 
-public class MessageHandler implements Runnable {
+public class MessageHandler extends Thread {
 
     private final Logger log = Logger.getLogger(MessageHandler.class);
-    private MessageTracker messageTracker;
     private boolean active;
     private UdpSender udpSender;
     private IHandler handler;
+    private long uuid;
+    private Message message;
+    private volatile Status status;
+    private int retryCount = 0;
 
-    public MessageHandler(MessageTracker messageTracker, UdpSender udpSender,
+    public MessageHandler(UdpSender udpSender,
                           IHandler handler) {
-        this.messageTracker = messageTracker;
         active = true;
         this.udpSender = udpSender;
         this.handler = handler;
@@ -26,27 +29,65 @@ public class MessageHandler implements Runnable {
         while (active) {
             try {
                 boolean flag = false;
-                if (messageTracker.getRetryCount() < 6) {
-                    if (messageTracker.getStatus() == Status.SENT) {
-                        udpSender.sendMessage(messageTracker.getMessage());
+                if (this.getRetryCount() < 3) {
+                    if (this.getStatus() == Status.SENT) {
+                        udpSender.sendMessage(message);
                         log.info("{} Message Resent to: {}");
                         log.info("Handler sleeping uuid: {}");
-                    } else if (messageTracker.getStatus() == Status.RESPONSED) {
-                        messageTracker.setStatus(Status.DEAD);
+                    } else if (this.getStatus() == Status.RESPONSED) {
+                        this.setStatus(Status.DEAD);
                         active = false;
                     }
-                    messageTracker.setStatus(Status.SENT);
-                    messageTracker.incrementRetryCount();
-                    Thread.sleep(2000);
+                    this.setStatus(Status.SENT);
+                    this.incrementRetryCount();
+                    Thread.sleep(10000);
                 } else {
-                    messageTracker.setStatus(Status.DEAD);
-                    this.handler.handle((Request) this.messageTracker.getMessage(),null);
+                    this.setStatus(Status.DEAD);
+                    this.handler.handle((Request) this.getMessage(),null);
                     log.info("Retry count exceeded. Status set to DEAD, uuid: {}");
                     active = false;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (InterruptedException e) {
+                log.info("Woke up thread from interrupt. Tracker ID: "+this.getUuid());
+            } catch (Exception ex){
+                ex.printStackTrace();
             }
         }
+    }
+
+    public long getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(long uuid) {
+        this.uuid = uuid;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public void setRetryCount(int retryCount) {
+        this.retryCount = retryCount;
+    }
+
+    public void incrementRetryCount() {
+        retryCount++;
     }
 }

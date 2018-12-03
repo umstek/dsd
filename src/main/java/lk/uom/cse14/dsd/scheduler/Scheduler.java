@@ -22,13 +22,13 @@ public class Scheduler implements Runnable {
     private IHandler peerDiscoveryHandler;
     private UdpReceiver udpReceiver;
     private UdpSender udpSender;
-    private Map<Long, MessageTracker> messageTrackerMap = new ConcurrentHashMap<>();
+    private Map<Long, MessageHandler> messageHandlerMap = new ConcurrentHashMap<>();
     private IHandler downloadHandler;
 
     public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender) {
         this.udpReceiver = udpReceiver;
         this.udpSender = udpSender;
-        this.executorService = Executors.newFixedThreadPool(70);
+        this.executorService = Executors.newFixedThreadPool(100);
     }
 
     public void setQueryHandler(IHandler queryHandler) {
@@ -57,34 +57,44 @@ public class Scheduler implements Runnable {
                 return;
             }
             log.info("Request type : {}");
-            MessageTracker messageTracker = new MessageTracker(message);
-            messageTrackerMap.put(messageTracker.getUuid(), messageTracker);
             udpSender.sendMessage(message);
             //messageTracker.setStatus(Status.SENT);
             log.info("Request sent to: {}");
             switch (message.getType()){
                 case HEARTBEAT:
                     log.info("HEARTBEAT Request");
-                    MessageHandler messageHandlerH = new MessageHandler(messageTracker, udpSender,this.heartbeatHandler);
+                    MessageHandler messageHandlerH = new MessageHandler(udpSender,this.heartbeatHandler);
                     log.info("Handler created");
+                    messageHandlerH.setMessage(message);
+                    messageHandlerH.setStatus(Status.SCHEDULED);
+                    messageHandlerMap.put(message.getUuid(), messageHandlerH);
                     this.executorService.submit(messageHandlerH);
                     break;
 
                 case QUERY:
                     log.info("QUERY Request");
-                    MessageHandler messageHandlerQ = new MessageHandler(messageTracker, udpSender,this.queryHandler);
+                    MessageHandler messageHandlerQ = new MessageHandler(udpSender,this.queryHandler);
+                    messageHandlerQ.setMessage(message);
+                    messageHandlerQ.setStatus(Status.SCHEDULED);
+                    messageHandlerMap.put(message.getUuid(), messageHandlerQ);
                     this.executorService.submit(messageHandlerQ);
                     break;
 
                 case DISCOVERY:
                     log.info("DISCOVERY Request");
-                    MessageHandler messageHandlerD = new MessageHandler(messageTracker, udpSender,this.peerDiscoveryHandler);
+                    MessageHandler messageHandlerD = new MessageHandler(udpSender,this.peerDiscoveryHandler);
+                    messageHandlerD.setMessage(message);
+                    messageHandlerMap.put(message.getUuid(), messageHandlerD);
+                    messageHandlerD.setStatus(Status.SCHEDULED);
                     this.executorService.submit(messageHandlerD);
                     break;
 
                 case DOWNLOAD:
                     log.info("DOWNLOAD Request");
-                    MessageHandler messageHandlerDo = new MessageHandler(messageTracker, udpSender, this.downloadHandler);
+                    MessageHandler messageHandlerDo = new MessageHandler(udpSender, this.downloadHandler);
+                    messageHandlerDo.setMessage(message);
+                    messageHandlerMap.put(message.getUuid(), messageHandlerDo);
+                    messageHandlerDo.setStatus(Status.SCHEDULED);
                     this.executorService.submit(messageHandlerDo);
                     break;
 
@@ -111,11 +121,12 @@ public class Scheduler implements Runnable {
                         MessageType receivedMessageType = receivedMessage.getType();
                         if (isItMyMessage(receivedMessage)) {
                             log.info("Response to my message, uuid: {}");
-                            MessageTracker messageTracker = messageTrackerMap.get(receivedMessage.getUuid());
+                            MessageHandler messageHandler = messageHandlerMap.get(receivedMessage.getUuid());
                             Message myMessage = null;
                             //synchronized (MessageTracker.class) {
-                            myMessage = messageTracker.getMessage();
-                            messageTracker.setStatus(Status.RESPONSED);
+                            myMessage = messageHandler.getMessage();
+                            messageHandler.setStatus(Status.RESPONSED);
+                            messageHandler.interrupt();
                             log.info("Status changed to Request: {}");
                             //}
                             if (myMessage != null) {
@@ -154,7 +165,7 @@ public class Scheduler implements Runnable {
     public boolean isItMyMessage(Message message) {
         long uuid = message.getUuid();
         if (uuid != 0) {
-            return messageTrackerMap.containsKey(uuid);
+            return messageHandlerMap.containsKey(uuid);
         }
         return false;
     }
@@ -212,10 +223,10 @@ public class Scheduler implements Runnable {
     }
 
     public void removeDeadTrackers() {
-        for (Long k : messageTrackerMap.keySet()) {
-            if (messageTrackerMap.get(k).getStatus() == Status.DEAD) {
+        for (Long k : messageHandlerMap.keySet()) {
+            if (messageHandlerMap.get(k).getStatus() == Status.DEAD) {
                 log.info("Removing Dead Tracker: {}");
-                messageTrackerMap.remove(k);
+                messageHandlerMap.remove(k);
             }
         }
     }

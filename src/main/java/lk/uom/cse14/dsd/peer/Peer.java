@@ -8,6 +8,7 @@ import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.DownloadRequest;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.*;
+import lk.uom.cse14.dsd.scheduler.MessageHandler;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.util.QueryUtils;
@@ -143,6 +144,33 @@ public class Peer {
     public void query(QueryTaskListener queryTaskListener, String queryStr, boolean skipCache) {
         QueryTask queryTask = new QueryTask(queryTaskListener, queryStr, skipCache);
         ((QueryHandler) queryHandler).submitQuery(queryTask);
+    }
+
+    public void testQuery(int iterations,boolean skipCache){
+        Long startTime = System.nanoTime();
+        log.debug("Test start time: "+startTime);
+        for(int i=0;i<iterations;i++){
+            QueryTaskListener qtl = new QueryTaskListener() {
+                private final Logger log = Logger.getLogger(Peer.class);
+                @Override
+                public void notifyQueryComplete(QueryTask queryTask) {
+                    Long timeNow = System.nanoTime();
+                    log.debug("Time taken for query: "+queryTask.getQuery()+" :"+
+                            (timeNow-queryTask.getStartTime())+" ns. Hop Count: "+queryTask.getHopCount());
+                    Long endTime = System.nanoTime();
+                    log.debug("Test end time: " + endTime);
+                }
+            };
+            String query = QueryUtils.issueRandomSearchQuery();
+            log.debug("Testing Query: "+query);
+            QueryTask qt = new QueryTask(qtl,query,skipCache);
+            Long queryStartTime = System.nanoTime();
+            qt.setStartTime(queryStartTime);
+            ((QueryHandler) queryHandler).submitQuery(qt);
+        }
+
+
+
     }
 
     public void downloadFile(RoutingEntry routingEntry, String filenameSelected) {

@@ -54,18 +54,22 @@ public class QueryHandler implements IHandler {
             if (response != null) {
                 queryResponse = (QueryResponse) response;
             }
-            if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS && (
+            synchronized (QueryHandler.class){
+                if (queryResponse != null && queryResponse.getStatus() == Response.SUCCESS && !(
                     this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no cache update
                             this.ownPort == queryRequest.getGetRequesterPort()
                     )) { // if successful response, update cache
-                cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
+                    cacheQueryProcessor.updateCache(queryResponse.getQueryResultSet(), queryRequest.getQuery());
+                }
             }
+
 
             if (queryResponse == null) {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) && // originated from this Host/Port, no redirection
                         this.ownPort == queryRequest.getGetRequesterPort()) {
                     // UI.show result of notify file downloads handler
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    qt.setHopCount(33);
                     if (qt != null) {
                         qt.setQueryResult(new QueryResultSet());
                     }
@@ -89,7 +93,8 @@ public class QueryHandler implements IHandler {
                         if(queryResponse.getQueryResultSet() == null){
                             queryResponse.setQueryResultSet(new QueryResultSet());
                         }
-                        logger.debug("Number of Hops for query:"+queryResponse.getHopCount() + 1);
+                        logger.debug("Number of Hops for query:"+(queryResponse.getHopCount() + 1));
+                        qt.setHopCount(queryResponse.getHopCount() + 1);
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
                 } else { // originated from somewhere else. should redirect to the requester
@@ -98,6 +103,7 @@ public class QueryHandler implements IHandler {
                         QueryResponse response1 = new QueryResponse(ownHost, ownPort, oldRequest.getSource(), oldRequest.getSourcePort());
                         response1.setUuid(oldRequest.getUuid());
                         response1.setStatus(response.getStatus());
+                        response1.setQueryResultSet(queryResponse.getQueryResultSet());
                         response1.setHopCount(response.getHopCount() + 1);
                         scheduler.schedule(response1);
                     }
@@ -116,9 +122,9 @@ public class QueryHandler implements IHandler {
         try {
             QueryRequest queryRequest = (QueryRequest) request;
             if (queryRequest.getHopCount() > maxHopCount) {
-                QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
+                QueryResponse response = new QueryResponse(ownHost, ownPort,
+                        queryRequest.getRequesterHost(), queryRequest.getGetRequesterPort());
                 response.setStatus(QueryResponse.FAIL);
-                response.setQueryResultSet(new QueryResultSet());
                 response.setUuid(request.getUuid());
                 response.setHopCount(request.getHopCount() + 1);
                 scheduler.schedule(response);
@@ -149,8 +155,8 @@ public class QueryHandler implements IHandler {
                         }
                         count++;
                     }
-                    if (destinationEntry == null) { // cant find a neighbour OR hop count exceeded
-                        QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(), queryRequest.getSourcePort());
+                    if (destinationEntry == null) { // cant find a neighbour
+                        QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getRequesterHost(), queryRequest.getGetRequesterPort());
                         response.setStatus(QueryResponse.FAIL);
                         response.setUuid(request.getUuid());
                         response.setHopCount(request.getHopCount() + 1);
@@ -164,6 +170,7 @@ public class QueryHandler implements IHandler {
                         //request1.setUuid(request.getUuid());
                         request1.setHopCount(request.getHopCount() + 1);
                         request1.setType(MessageType.QUERY);
+                        request1.setSkipCache(queryRequest.isSkipCache());
                         oldRequestMap.put(request1.getUuid(), request);
                         scheduler.schedule(request1);
                     }
@@ -172,6 +179,7 @@ public class QueryHandler implements IHandler {
                 if (this.ownHost.equals(queryRequest.getRequesterHost()) &&
                         this.ownPort == queryRequest.getGetRequesterPort()) {
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
+                    qt.setHopCount(queryRequest.getHopCount());
                     if (qt != null) {
                         qt.setQueryResult(result);
                     }

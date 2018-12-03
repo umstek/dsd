@@ -6,6 +6,7 @@ import lk.uom.cse14.dsd.util.QueryUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CacheQueryProcessor implements ICacheQuery {
 

@@ -7,8 +7,11 @@ public class QueryTask implements Runnable {
     private String query;
     private boolean skipCache;
     private QueryResultSet queryResult = null;
-    private int retryCount = 20;
+    private int retryCount = 1000;
     private QueryTaskListener listener;
+    private boolean isDone = false;
+    private long startTime;
+    private int hopCount;
 
     public QueryTask(QueryTaskListener listener, String query, boolean skipCache) {
         this.listener = listener;
@@ -24,8 +27,8 @@ public class QueryTask implements Runnable {
                 break;
             } else {
                 try {
-                    System.out.println(" ");
-                    Thread.sleep(2000);
+                    //System.out.println(" ");
+                    Thread.sleep(100);
                     count++;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -35,7 +38,10 @@ public class QueryTask implements Runnable {
         if(count>=retryCount){
             this.queryResult = new QueryResultSet();
         }
-        listener.notifyQueryComplete(this);
+        if(!isDone){
+            isDone = true;
+            listener.notifyQueryComplete(this);
+        }
     }
 
     public String getQuery() {
@@ -64,5 +70,21 @@ public class QueryTask implements Runnable {
 
     public void setQueryResult(QueryResultSet queryResult) {
         this.queryResult = queryResult;
+    }
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
+    }
+
+    public int getHopCount() {
+        return hopCount;
+    }
+
+    public void setHopCount(int hopCount) {
+        this.hopCount = hopCount;
     }
 }
