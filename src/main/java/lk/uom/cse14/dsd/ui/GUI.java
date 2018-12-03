@@ -1,7 +1,6 @@
 package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
-import lk.uom.cse14.dsd.comm.request.DownloadRequest;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
 import lk.uom.cse14.dsd.query.QueryTask;
@@ -103,6 +102,7 @@ public class GUI {
     }
 
     private static volatile boolean searching = false;
+    private static volatile boolean downloading = false;
     private static volatile QueryTask queryTask = null;
 
     private static void printResults() {
@@ -268,6 +268,7 @@ public class GUI {
                     GUI.searching = true;
                     GUI.queryTask = null;
 
+                    //noinspection Convert2Lambda
                     peer.query(new QueryTaskListener() {
                         @Override
                         public void notifyQueryComplete(QueryTask queryTask) {
@@ -291,15 +292,30 @@ public class GUI {
                     if (GUI.queryTask != null) {
                         printResults();
 
-                        int fileI = readFileIndex(scanner);
-                        if (fileI > 0) {
-                            String filenameSelected = GUI.queryTask.getQueryResult().getFileNames().get(fileI - 1);
-                            printHosts(filenameSelected);
+                        if (GUI.queryTask.getQueryResult().getFileNames().size() > 0) {
+                            int fileI = readFileIndex(scanner);
+                            if (fileI > 0) {
+                                String filenameSelected = GUI.queryTask.getQueryResult().getFileNames().get(fileI - 1);
+                                printHosts(filenameSelected);
 
-                            int fileH = readFileHost(scanner);
-                            RoutingEntry routingEntry = GUI.queryTask.getQueryResult().getRoutingEntries(filenameSelected).get(fileH - 1);
+                                int fileH = readFileHost(scanner);
+                                RoutingEntry routingEntry = GUI.queryTask.getQueryResult()
+                                        .getRoutingEntries(filenameSelected).get(fileH - 1);
 
-                            peer.downloadFile(routingEntry, filenameSelected);
+                                // TODO Set downloading to true
+                                peer.downloadFile(routingEntry, filenameSelected);
+                                // TODO Capture download event somehow and set downloading to false
+
+                                System.out.println("Downloading...");
+                                while (downloading) {
+                                    System.out.print(".");
+                                    try {
+                                        Thread.sleep(100);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
                         }
                     } else {
                         System.out.println("No results found. ");
