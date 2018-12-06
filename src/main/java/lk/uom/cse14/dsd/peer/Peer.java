@@ -3,14 +3,15 @@ package lk.uom.cse14.dsd.peer;
 import lk.uom.cse14.dsd.bscom.PeerInfo;
 import lk.uom.cse14.dsd.bscom.RegisterException;
 import lk.uom.cse14.dsd.bscom.TcpRegistryCommunicator;
+import lk.uom.cse14.dsd.bscom.UnknownUnregisterResponseException;
 import lk.uom.cse14.dsd.comm.UdpReceiver;
 import lk.uom.cse14.dsd.comm.UdpSender;
 import lk.uom.cse14.dsd.comm.request.DownloadRequest;
+import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.msghandler.*;
 import lk.uom.cse14.dsd.query.*;
 import lk.uom.cse14.dsd.scheduler.MessageHandler;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
-import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.util.QueryUtils;
 import org.apache.log4j.Logger;
 
@@ -51,10 +52,11 @@ public class Peer {
     private ArrayList<RoutingEntry> routingTable;
     private String ownHost;
     private int ownPort;
-    private ConcurrentHashMap<Long,MessageHandler> messageHandlerConcurrentHashMap;
+    private ConcurrentHashMap<Long, MessageHandler> messageHandlerConcurrentHashMap;
+    private final TcpRegistryCommunicator tcpRegistryCommunicator;
 
     public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, RegisterException {
-        TcpRegistryCommunicator tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);
+        tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);
         try {
             this.ownHost = ownHost;
             this.ownPort = ownPort;
@@ -64,7 +66,7 @@ public class Peer {
             this.udpReceiver = new UdpReceiver(socket);
             this.routingTable = new ArrayList<>();
             this.messageHandlerConcurrentHashMap = new ConcurrentHashMap<>();
-            this.scheduler = new Scheduler(udpReceiver, udpSender,messageHandlerConcurrentHashMap);
+            this.scheduler = new Scheduler(udpReceiver, udpSender, messageHandlerConcurrentHashMap);
             List<PeerInfo> peers = tcpRegistryCommunicator.register(ownHost, ownPort, userName);
             this.peerDiscoveryHandler = new PeerDiscoveryHandler(routingTable, ownHost, ownPort, scheduler, peers);
 //            this.fileQueryProcessor = new DummyFileQueryProcessor();
@@ -149,30 +151,30 @@ public class Peer {
         ((QueryHandler) queryHandler).submitQuery(queryTask);
     }
 
-    public void testQuery(int iterations,boolean skipCache){
+    public void testQuery(int iterations, boolean skipCache) {
         Long startTime = System.nanoTime();
-        log.debug("Test start time: "+startTime);
-        for(int i=0;i<iterations;i++){
+        log.debug("Test start time: " + startTime);
+        for (int i = 0; i < iterations; i++) {
             QueryTaskListener qtl = new QueryTaskListener() {
                 private final Logger log = Logger.getLogger(Peer.class);
+
                 @Override
                 public void notifyQueryComplete(QueryTask queryTask) {
                     Long timeNow = System.nanoTime();
-                    log.debug("Time taken for query: "+queryTask.getQuery()+" :"+
-                            (timeNow-queryTask.getStartTime())+" ns. Hop Count: "+queryTask.getHopCount());
-                    log.debug("Start Time: "+queryTask.getStartTime()+" Now: "+timeNow+ " Diff: "+(timeNow-queryTask.getStartTime()));
+                    log.debug("Time taken for query: " + queryTask.getQuery() + " :" +
+                            (timeNow - queryTask.getStartTime()) + " ns. Hop Count: " + queryTask.getHopCount());
+                    log.debug("Start Time: " + queryTask.getStartTime() + " Now: " + timeNow + " Diff: " + (timeNow - queryTask.getStartTime()));
                     Long endTime = System.nanoTime();
                     log.debug("Test end time: " + endTime);
                 }
             };
             String query = QueryUtils.issueRandomSearchQuery();
-            log.debug("Testing Query: "+query);
-            QueryTask qt = new QueryTask(qtl,query,skipCache);
+            log.debug("Testing Query: " + query);
+            QueryTask qt = new QueryTask(qtl, query, skipCache);
             Long queryStartTime = System.nanoTime();
             qt.setStartTime(queryStartTime);
             ((QueryHandler) queryHandler).submitQuery(qt);
         }
-
 
 
     }
@@ -182,5 +184,13 @@ public class Peer {
                 routingEntry.getPeerPort());
         request.setFilename(filenameSelected);
         this.scheduler.schedule(request);
+    }
+
+    public void exit() {
+        try {
+            tcpRegistryCommunicator.unregister();
+        } catch (IOException | UnknownUnregisterResponseException e) {
+            // pass silently
+        }
     }
 }

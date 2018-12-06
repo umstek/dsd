@@ -280,6 +280,9 @@ public class GUI {
                         System.out.println("All Queries Submitted!");
                         break;
                     case ":exit":
+                        if (peer != null) {
+                            peer.exit();
+                        }
                         System.exit(1);
                         break main_loop;
                     default:
