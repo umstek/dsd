@@ -9,10 +9,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.Arrays;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static String readQuery(Scanner scanner) {
@@ -75,28 +72,40 @@ public class Main {
 
     private static int readFileIndex(Scanner scanner) {
         int file = -1;
+        int count = 0;
         do {
+            if(count>10){
+                System.out.println("File index cannot be captured!");
+                break;
+            }
             System.out.print("Select a file [0 to cancel]: ");
+            count++;
             try {
                 file = scanner.nextInt();
             } catch (InputMismatchException e) {
                 // Don't do anything
             }
-        } while (file <= -1 || file > Main.queryTask.getQueryResult().getFileNames().size());
+        } while ((file <= -1 || file > Main.queryTask.getQueryResult().getFileNames().size()) && count < 12);
 
         return file;
     }
 
     private static int readFileHost(Scanner scanner) {
         int file = -1;
+        int count = 0;
         do {
+            if(count>10){
+                System.out.println("File host cannot be captured!");
+                break;
+            }
             System.out.print("Select a host [0 to cancel]: ");
+            count++;
             try {
                 file = scanner.nextInt();
             } catch (InputMismatchException e) {
                 // Don't do anything
             }
-        } while (file <= -1 || file > 65535);
+        } while ((file <= -1 || file > 65535) && count < 12);
 
         return file;
     }
@@ -111,21 +120,31 @@ public class Main {
         for (int i = 0; i < fileNames.size(); i++) {
             String filename = fileNames.get(i);
             System.out.println((i + 1) + ".\t" + filename);
-            for (RoutingEntry re : Main.queryTask.getQueryResult().getRoutingEntries(filename)) {
+            HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+            ArrayList<RoutingEntry> routingEntriesList = Main.queryTask.getQueryResult().getRoutingEntries(filename);
+            for (RoutingEntry re : routingEntriesList) {
+                routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+            }
+            for (RoutingEntry re : routingEntriesMap.values()) {
                 System.out.println("\t\u2517\u2501\u2501\u2501"
                         + re.getPeerIP() + "\t"
                         + (re.getPeerPort() + 1) + "\t"
-                        + re.getStatus());
+                        + "UNKNOWN");
             }
         }
     }
 
     private static void printHosts(String filename) {
-        for (RoutingEntry re : Main.queryTask.getQueryResult().getRoutingEntries(filename)) {
+        HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+        ArrayList<RoutingEntry> routingEntriesList = Main.queryTask.getQueryResult().getRoutingEntries(filename);
+        for (RoutingEntry re : routingEntriesList) {
+            routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+        }
+        for (RoutingEntry re : routingEntriesMap.values()) {
             System.out.println("\t\u2517\u2501\u2501\u2501"
                     + re.getPeerIP() + "\t"
                     + (re.getPeerPort() + 1) + "\t"
-                    + re.getStatus());
+                    + "UNKNOWN");
         }
     }
 

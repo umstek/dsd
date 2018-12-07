@@ -27,6 +27,11 @@ public class DownloadHandler implements IHandler {
     @Override
     public void handle(Request request, Response response) {
         try {
+            if(response == null){
+                System.out.println("Cannot reach the host: "+request.getDestination()+":"+(request.getDestinationPort()+1));
+                System.out.println("Try again after host comes online!");
+                return;
+            }
             DownloadRequest req = (DownloadRequest) request;
             DownloadResponse res = (DownloadResponse) response;
 

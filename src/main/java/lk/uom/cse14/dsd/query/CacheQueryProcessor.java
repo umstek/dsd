@@ -22,7 +22,8 @@ public class CacheQueryProcessor implements ICacheQuery {
                 ArrayList<RoutingEntry> cachedFileEntries = QueryCache.get(file);
 
                 for (RoutingEntry re : entriesToUpdate) {
-                    String IP = re.getPeerIP();
+                    RoutingEntry routingEntryClone = re.clone();
+                    String IP = routingEntryClone.getPeerIP();
                     if (cachedFileEntries != null) {
                         ArrayList<RoutingEntry> tempList = new ArrayList<>();
                         for (RoutingEntry cre : cachedFileEntries) {
@@ -30,7 +31,7 @@ public class CacheQueryProcessor implements ICacheQuery {
                             if (cachedIP.equals(IP)) {
                                 break;
                             } else {
-                                tempList.add(re);
+                                tempList.add(routingEntryClone);
                             }
                         }
                         cachedFileEntries.addAll(tempList);
