@@ -1,7 +1,6 @@
 package lk.uom.cse14.dsd.ui;
 
 import lk.uom.cse14.dsd.bscom.RegisterException;
-import lk.uom.cse14.dsd.main.Main;
 import lk.uom.cse14.dsd.main.QueryTaskListener;
 import lk.uom.cse14.dsd.msghandler.RoutingEntry;
 import lk.uom.cse14.dsd.peer.Peer;
@@ -14,6 +13,10 @@ import java.net.SocketException;
 import java.util.*;
 
 public class GUI {
+    private static volatile boolean searching = false;
+    private static volatile boolean downloading = false;
+    private static volatile QueryTask queryTask = null;
+
     private static String readQuery(Scanner scanner) {
         System.out.print("> ");
         return scanner.next();
@@ -76,7 +79,7 @@ public class GUI {
         int file = -1;
         int count = 0;
         do {
-            if(count>10){
+            if (count > 10) {
                 System.out.println("File index cannot be captured!");
                 break;
             }
@@ -96,7 +99,7 @@ public class GUI {
         int file = -1;
         int count = 0;
         do {
-            if(count>10){
+            if (count > 10) {
                 System.out.println("Host index cannot be captured!");
                 break;
             }
@@ -112,10 +115,6 @@ public class GUI {
         return file;
     }
 
-    private static volatile boolean searching = false;
-    private static volatile boolean downloading = false;
-    private static volatile QueryTask queryTask = null;
-
     private static void printResults() {
 //        System.out.println(GUI);
         System.out.println("Results [" + GUI.queryTask.getQueryResult().getFileNames().size() + "]: ");
@@ -123,10 +122,10 @@ public class GUI {
         for (int i = 0; i < fileNames.size(); i++) {
             String filename = fileNames.get(i);
             System.out.println((i + 1) + ".\t" + filename);
-            HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+            HashMap<String, RoutingEntry> routingEntriesMap = new HashMap<>();
             ArrayList<RoutingEntry> routingEntriesList = GUI.queryTask.getQueryResult().getRoutingEntries(filename);
             for (RoutingEntry re : routingEntriesList) {
-                routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+                routingEntriesMap.put((re.getPeerIP() + re.getPeerPort()), re);
             }
             for (RoutingEntry re : routingEntriesMap.values()) {
                 System.out.println("\t\u2517\u2501\u2501\u2501"
@@ -138,10 +137,10 @@ public class GUI {
     }
 
     private static void printHosts(String filename) {
-        HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+        HashMap<String, RoutingEntry> routingEntriesMap = new HashMap<>();
         ArrayList<RoutingEntry> routingEntriesList = GUI.queryTask.getQueryResult().getRoutingEntries(filename);
         for (RoutingEntry re : routingEntriesList) {
-            routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+            routingEntriesMap.put((re.getPeerIP() + re.getPeerPort()), re);
         }
         for (RoutingEntry re : routingEntriesMap.values()) {
             System.out.println("\t\u2517\u2501\u2501\u2501"

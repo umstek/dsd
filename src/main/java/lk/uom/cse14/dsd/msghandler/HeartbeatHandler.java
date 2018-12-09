@@ -13,11 +13,11 @@ import java.util.ArrayList;
  * Handles Heartbeat messages
  */
 public class HeartbeatHandler implements IHandler, Runnable {
+    private final Logger log = Logger.getLogger(HeartbeatHandler.class);
     private Scheduler scheduler;
     private String ownHost;
     private int ownPort;
     private ArrayList<RoutingEntry> routingEntries;
-    private final Logger log = Logger.getLogger(HeartbeatHandler.class);
 
 
     public HeartbeatHandler(String ownHost, int ownPort, Scheduler scheduler, ArrayList<RoutingEntry> routingEntries) {
@@ -36,23 +36,23 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void handle(Request request, Response response) {
         // N.B.: Destination of the original request and the source of its reply response are the same and vice versa.
-        try{
-            if(!(request instanceof HeartbeatRequest) || (!(response instanceof HeartbeatResponse) && response != null)){
+        try {
+            if (!(request instanceof HeartbeatRequest) || (!(response instanceof HeartbeatResponse) && response != null)) {
                 return;
             }
-            synchronized (RoutingEntry.class){
+            synchronized (RoutingEntry.class) {
                 if (response == null) {
                     for (RoutingEntry routingEntry : routingEntries) {
                         if (routingEntry.getPeerIP().equals(request.getDestination())
                                 && routingEntry.getPeerPort() == request.getDestinationPort()) {
-                            log.info("RoutingEntry for "+routingEntry.getPeerIP()+","+routingEntry.getPeerPort()+" OFFLINE");
+                            log.info("RoutingEntry for " + routingEntry.getPeerIP() + "," + routingEntry.getPeerPort() + " OFFLINE");
                             routingEntry.setStatus(RoutingEntry.Status.OFFLINE);
                             routingEntry.setRetryCount(routingEntry.getRetryCount() + 1);
-                            if(routingEntry.getRetryCount()>4){
+                            if (routingEntry.getRetryCount() > 4) {
                                 routingEntries.remove(routingEntry);
                             }
                             break;
-                        }else{
+                        } else {
                             log.info("Non Existing RoutingEntry was tried to remove");
                         }
                     }
@@ -68,7 +68,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -81,8 +81,8 @@ public class HeartbeatHandler implements IHandler, Runnable {
      */
     @Override
     public void handle(Request request) {
-        try{
-            if(!(request instanceof HeartbeatRequest)){
+        try {
+            if (!(request instanceof HeartbeatRequest)) {
                 return;
             }
             if (request == null) { // XXX
@@ -126,7 +126,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                     routingEntries.add(routingEntry);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -135,8 +135,8 @@ public class HeartbeatHandler implements IHandler, Runnable {
     @Override
     public void run() {
         while (true) {
-            try{
-                synchronized (RoutingEntry.class){
+            try {
+                synchronized (RoutingEntry.class) {
                     try {
                         int entryCount = routingEntries.size();
                         if (entryCount > 1) {
@@ -147,7 +147,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                                 scheduler.schedule(heartbeatRequest);
                             }
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -156,7 +156,7 @@ public class HeartbeatHandler implements IHandler, Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

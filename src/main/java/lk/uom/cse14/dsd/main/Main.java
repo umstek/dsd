@@ -12,6 +12,9 @@ import java.net.SocketException;
 import java.util.*;
 
 public class Main {
+    private static volatile boolean searching = false;
+    private static volatile QueryTask queryTask = null;
+
     private static String readQuery(Scanner scanner) {
         System.out.print("> ");
         return scanner.next();
@@ -74,7 +77,7 @@ public class Main {
         int file = -1;
         int count = 0;
         do {
-            if(count>10){
+            if (count > 10) {
                 System.out.println("File index cannot be captured!");
                 break;
             }
@@ -94,7 +97,7 @@ public class Main {
         int file = -1;
         int count = 0;
         do {
-            if(count>10){
+            if (count > 10) {
                 System.out.println("File host cannot be captured!");
                 break;
             }
@@ -110,9 +113,6 @@ public class Main {
         return file;
     }
 
-    private static volatile boolean searching = false;
-    private static volatile QueryTask queryTask = null;
-
     private static void printResults() {
 //        System.out.println(Main);
         System.out.println("Results [" + Main.queryTask.getQueryResult().getFileNames().size() + "]: ");
@@ -120,10 +120,10 @@ public class Main {
         for (int i = 0; i < fileNames.size(); i++) {
             String filename = fileNames.get(i);
             System.out.println((i + 1) + ".\t" + filename);
-            HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+            HashMap<String, RoutingEntry> routingEntriesMap = new HashMap<>();
             ArrayList<RoutingEntry> routingEntriesList = Main.queryTask.getQueryResult().getRoutingEntries(filename);
             for (RoutingEntry re : routingEntriesList) {
-                routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+                routingEntriesMap.put((re.getPeerIP() + re.getPeerPort()), re);
             }
             for (RoutingEntry re : routingEntriesMap.values()) {
                 System.out.println("\t\u2517\u2501\u2501\u2501"
@@ -135,10 +135,10 @@ public class Main {
     }
 
     private static void printHosts(String filename) {
-        HashMap<String,RoutingEntry> routingEntriesMap = new HashMap<>();
+        HashMap<String, RoutingEntry> routingEntriesMap = new HashMap<>();
         ArrayList<RoutingEntry> routingEntriesList = Main.queryTask.getQueryResult().getRoutingEntries(filename);
         for (RoutingEntry re : routingEntriesList) {
-            routingEntriesMap.put((re.getPeerIP()+re.getPeerPort()),re);
+            routingEntriesMap.put((re.getPeerIP() + re.getPeerPort()), re);
         }
         for (RoutingEntry re : routingEntriesMap.values()) {
             System.out.println("\t\u2517\u2501\u2501\u2501"

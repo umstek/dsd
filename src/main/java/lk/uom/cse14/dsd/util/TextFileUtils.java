@@ -40,8 +40,8 @@ public class TextFileUtils {
      *
      * @param newFile  newly downloaded file
      * @param filename name of the configuration file that contains the list of files to be hosted
-     * @throws IOException if the configuration file is not found this will throw
      * @return true if file is updated
+     * @throws IOException if the configuration file is not found this will throw
      */
     public static boolean updateFileContent(String newFile, String filename) throws IOException {
         ArrayList<String> f = TextFileUtils.readFileContent(filename);
@@ -62,6 +62,7 @@ public class TextFileUtils {
 
     /**
      * Generic helper method implementation for searching for an object in an array
+     *
      * @param array the array of objects
      * @param v     the object
      * @param <T>   type of the above objects

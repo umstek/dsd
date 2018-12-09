@@ -1,7 +1,7 @@
 package lk.uom.cse14.dsd.query;
 
-import lk.uom.cse14.dsd.msghandler.QueryResultSet;
 import lk.uom.cse14.dsd.main.QueryTaskListener;
+import lk.uom.cse14.dsd.msghandler.QueryResultSet;
 
 public class QueryTask implements Runnable {
     private String query;
@@ -35,10 +35,10 @@ public class QueryTask implements Runnable {
                 }
             }
         }
-        if(count>=retryCount){
+        if (count >= retryCount) {
             this.queryResult = new QueryResultSet();
         }
-        if(!isDone){
+        if (!isDone) {
             isDone = true;
             listener.notifyQueryComplete(this);
         }

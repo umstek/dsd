@@ -50,7 +50,7 @@ public class QueryHandler implements IHandler {
             QueryResponse queryResponse = null;
             long timeNow = System.nanoTime();
             long latency = timeNow - request.getUuid();
-            logger.debug("Latency for request:"+request.getUuid()+" : "+latency+" ns");
+            logger.debug("Latency for request:" + request.getUuid() + " : " + latency + " ns");
             if (response != null) {
                 queryResponse = (QueryResponse) response;
             }
@@ -83,10 +83,10 @@ public class QueryHandler implements IHandler {
                     // UI.show result of notify file downloads handler
                     QueryTask qt = this.queryTasks.get(queryRequest.getRequestID());
                     if (qt != null) {
-                        if(queryResponse.getQueryResultSet() == null){
+                        if (queryResponse.getQueryResultSet() == null) {
                             queryResponse.setQueryResultSet(new QueryResultSet());
                         }
-                        logger.debug("Number of Hops for query:"+(queryResponse.getHopCount() + 1));
+                        logger.debug("Number of Hops for query:" + (queryResponse.getHopCount() + 1));
                         qt.setHopCount(queryResponse.getHopCount() + 1);
                         qt.setQueryResult(queryResponse.getQueryResultSet());
                     }
@@ -176,7 +176,7 @@ public class QueryHandler implements IHandler {
                     if (qt != null) {
                         qt.setQueryResult(result);
                     }
-                    logger.debug("Number of Hops for query:"+queryRequest.getHopCount());
+                    logger.debug("Number of Hops for query:" + queryRequest.getHopCount());
                 } else {
                     QueryResponse response = new QueryResponse(ownHost, ownPort, queryRequest.getSource(),
                             queryRequest.getSourcePort());

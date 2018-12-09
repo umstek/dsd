@@ -18,6 +18,7 @@ public class FileTransferUtils {
     /**
      * This method downloads the given file from the given host over TCP and updates the local file index
      * And also validates the file
+     *
      * @param hostIP   host IP
      * @param hostPort host Port
      * @param filename name of the file
@@ -48,8 +49,9 @@ public class FileTransferUtils {
 
     /**
      * This method serves the given file in the given port over TCP
-     * @param serverPort    TCP to listen for a client connection
-     * @param filename      Name of the file to serve
+     *
+     * @param serverPort TCP to listen for a client connection
+     * @param filename   Name of the file to serve
      * @throws IOException              if the file to serve is not found
      * @throws NoSuchAlgorithmException if hashing algorithm is not known
      */
@@ -71,6 +73,7 @@ public class FileTransferUtils {
 
     /**
      * This method connects to a host TCP port and downloads the file
+     *
      * @param socket TCP port the server is listening on
      * @return the hash of the received file
      */
@@ -113,9 +116,10 @@ public class FileTransferUtils {
 
     /**
      * This method transfers a file and its SHA-256 hash over a TCP connection
-     * @param file      the file that should be transferred
-     * @param hash      SHA-256 hash of the file
-     * @param socket    TCP socket the client will connect to
+     *
+     * @param file   the file that should be transferred
+     * @param hash   SHA-256 hash of the file
+     * @param socket TCP socket the client will connect to
      */
     public static void send(File file, String hash, Socket socket) {
 
@@ -150,6 +154,7 @@ public class FileTransferUtils {
 
     /**
      * this method validates a download by comparing the received SHA-256 hash with the downloaded files hash
+     *
      * @param file the file to validate
      * @param hash the SHA-256 hash of the file
      * @return true if the file is validated

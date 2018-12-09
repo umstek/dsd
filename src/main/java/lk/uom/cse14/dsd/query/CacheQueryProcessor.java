@@ -13,8 +13,8 @@ public class CacheQueryProcessor implements ICacheQuery {
     private volatile ConcurrentHashMap<String, ArrayList<RoutingEntry>> QueryCache = new ConcurrentHashMap<>();
 
     @Override
-    public void updateCache(QueryResultSet resultSet,String query) {
-        synchronized (CacheQueryProcessor.class){
+    public void updateCache(QueryResultSet resultSet, String query) {
+        synchronized (CacheQueryProcessor.class) {
             ArrayList<String> fileToUpdate = resultSet.getFileNames();
 
             for (String file : fileToUpdate) {
@@ -46,7 +46,7 @@ public class CacheQueryProcessor implements ICacheQuery {
 
     @Override
     public synchronized QueryResultSet query(String query) {
-        synchronized (CacheQueryProcessor.class){
+        synchronized (CacheQueryProcessor.class) {
             ArrayList<String> cachedFiles = new ArrayList<>(QueryCache.keySet());
             ArrayList<String> cacheHitFiles = QueryUtils.search(query, cachedFiles);
 

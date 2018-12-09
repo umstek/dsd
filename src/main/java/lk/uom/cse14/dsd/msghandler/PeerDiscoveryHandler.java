@@ -8,7 +8,6 @@ import lk.uom.cse14.dsd.comm.response.DiscoveryResponse;
 import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.scheduler.Scheduler;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +32,11 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
 
     public void init(List<PeerInfo> peersList) {
         try {
-            synchronized (RoutingEntry.class){
+            synchronized (RoutingEntry.class) {
                 ArrayList<PeerInfo> peers = new ArrayList<>();
                 logger.info("Peers found from BS server SIZE:" + peers.size());
-                for(PeerInfo peer:peersList){
-                    if(!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort){
+                for (PeerInfo peer : peersList) {
+                    if (!peer.getHost().equals(this.ownHost) || peer.getPort() != this.ownPort) {
                         peers.add(peer);
                     }
                 }
@@ -73,7 +72,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     routingTable.add(routingEntry2);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -83,7 +82,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
         while (running) {
             boolean flag1 = false;
             try {
-                synchronized (RoutingEntry.class){
+                synchronized (RoutingEntry.class) {
                     logger.info("Trying to find neighbours. Routing table size:" + routingTable.size());
                     if (routingTable.size() < peerLimit - 3 && !routingTable.isEmpty()) {
                         int randomEntryIndex = (int) (Math.random() * 100) % routingTable.size();
@@ -99,7 +98,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                         }
                     }
                 }
-                if(flag1){
+                if (flag1) {
                     Thread.sleep(5000);
                 }
                 Thread.sleep(3000);
@@ -111,13 +110,13 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
 
     @Override
     public void handle(Request request, Response response) {
-        try{
+        try {
             synchronized (RoutingEntry.class) {
                 if (response != null &&
                         response instanceof DiscoveryResponse) {
                     DiscoveryResponse dResponse = (DiscoveryResponse) response;
                     for (RoutingEntry discoveredEntry : dResponse.getDiscoveredPeers()) {
-                        if(routingTable.size() > peerLimit){
+                        if (routingTable.size() > peerLimit) {
                             break;
                         }
                         boolean entryInRoutingTable = false;
@@ -139,7 +138,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     //logger.info(routingTable.toString());
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -162,7 +161,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
                     RoutingEntry checkingPeer = routingTable.get(i);
                     if (checkingPeer.getStatus() == RoutingEntry.Status.ONLINE
                             && (!checkingPeer.getPeerIP().equals(request.getSource()) ||
-                            checkingPeer.getPeerPort() != request.getSourcePort()) ) {
+                            checkingPeer.getPeerPort() != request.getSourcePort())) {
                         discoveredPeersList.add(checkingPeer.clone());
                     }
                 }
@@ -172,7 +171,7 @@ public class PeerDiscoveryHandler implements Runnable, IHandler {
             //logger.info(response.toString());
             response.setDiscoveredPeers(discoveredPeersList);
             scheduler.schedule(response);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

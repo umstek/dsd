@@ -9,7 +9,6 @@ import lk.uom.cse14.dsd.comm.response.Response;
 import lk.uom.cse14.dsd.msghandler.IHandler;
 import org.apache.log4j.Logger;
 
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,7 +24,7 @@ public class Scheduler implements Runnable {
     private ConcurrentHashMap<Long, MessageHandler> messageHandlerMap;
     private IHandler downloadHandler;
 
-    public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender,ConcurrentHashMap<Long, MessageHandler> messageHandlerMap) {
+    public Scheduler(UdpReceiver udpReceiver, UdpSender udpSender, ConcurrentHashMap<Long, MessageHandler> messageHandlerMap) {
         this.udpReceiver = udpReceiver;
         this.udpSender = udpSender;
         this.executorService = Executors.newFixedThreadPool(100);
@@ -49,7 +48,7 @@ public class Scheduler implements Runnable {
     }
 
     public void schedule(Message message) {
-        if(message != null){
+        if (message != null) {
             log.info("Inside Schedule");
             if (message instanceof Response) {
                 udpSender.sendMessage(message);
@@ -61,10 +60,10 @@ public class Scheduler implements Runnable {
             udpSender.sendMessage(message);
             //messageTracker.setStatus(Status.SENT);
             log.info("Request sent to: {}");
-            switch (message.getType()){
+            switch (message.getType()) {
                 case HEARTBEAT:
                     log.info("HEARTBEAT Request");
-                    MessageHandler messageHandlerH = new MessageHandler(udpSender,this.heartbeatHandler);
+                    MessageHandler messageHandlerH = new MessageHandler(udpSender, this.heartbeatHandler);
                     log.info("Handler created");
                     messageHandlerH.setMessage(message);
                     messageHandlerH.setStatus(Status.SCHEDULED);
@@ -74,7 +73,7 @@ public class Scheduler implements Runnable {
 
                 case QUERY:
                     log.info("QUERY Request");
-                    MessageHandler messageHandlerQ = new MessageHandler(udpSender,this.queryHandler);
+                    MessageHandler messageHandlerQ = new MessageHandler(udpSender, this.queryHandler);
                     messageHandlerQ.setMessage(message);
                     messageHandlerQ.setStatus(Status.SCHEDULED);
                     messageHandlerMap.put(message.getUuid(), messageHandlerQ);
@@ -83,7 +82,7 @@ public class Scheduler implements Runnable {
 
                 case DISCOVERY:
                     log.info("DISCOVERY Request");
-                    MessageHandler messageHandlerD = new MessageHandler(udpSender,this.peerDiscoveryHandler);
+                    MessageHandler messageHandlerD = new MessageHandler(udpSender, this.peerDiscoveryHandler);
                     messageHandlerD.setMessage(message);
                     messageHandlerMap.put(message.getUuid(), messageHandlerD);
                     messageHandlerD.setStatus(Status.SCHEDULED);
@@ -100,7 +99,7 @@ public class Scheduler implements Runnable {
                     break;
 
             }
-        }   else {
+        } else {
             log.info("Tried to schedule a null message");
         }
 
@@ -112,7 +111,7 @@ public class Scheduler implements Runnable {
             log.info("Scheduler Up ->->->->->->->->->->->->->->->->->->->->->->->->->->->");
             try {
                 boolean flag = false;
-                synchronized (MessageTracker.class){
+                synchronized (MessageTracker.class) {
                     Message receivedMessage = udpReceiver.getMessage();
                     if (receivedMessage == null) {
                         log.info("Empty udpReceiver");
@@ -139,12 +138,12 @@ public class Scheduler implements Runnable {
                             }
                         } else {
                             log.info("Casting to RequestMessage");
-                            if(receivedMessage instanceof Request){
+                            if (receivedMessage instanceof Request) {
                                 Request receivedRequest = (Request) receivedMessage;
                                 log.info("Passing to handleRequestMessage");
                                 handleRequestMessage(receivedRequest, receivedMessageType);
                                 log.info("Passing to handleRequestMessage done");
-                            }else{
+                            } else {
                                 log.info("Ignoring unknown request message");
                             }
 
@@ -172,7 +171,7 @@ public class Scheduler implements Runnable {
     }
 
     public void handleRequestMessage(Request request, MessageType messageType) {
-        if(request != null){
+        if (request != null) {
             switch (messageType) {
                 case HEARTBEAT:
                     log.info("HEARTBEAT Request");

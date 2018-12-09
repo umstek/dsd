@@ -43,13 +43,13 @@ public class MessageHandler extends Thread {
                     Thread.sleep(5000);
                 } else {
                     this.setStatus(Status.DEAD);
-                    this.handler.handle((Request) this.getMessage(),null);
+                    this.handler.handle((Request) this.getMessage(), null);
                     log.info("Retry count exceeded. Status set to DEAD, uuid: {}");
                     active = false;
                 }
             } catch (InterruptedException e) {
-                log.info("Woke up thread from interrupt. Tracker ID: "+this.getUuid());
-            } catch (Exception ex){
+                log.info("Woke up thread from interrupt. Tracker ID: " + this.getUuid());
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }

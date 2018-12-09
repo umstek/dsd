@@ -37,6 +37,7 @@ public class Peer {
      */
     private final Logger log = Logger.getLogger(Peer.class);
     private final String FILE_LIST = "/File Names.txt";
+    private final TcpRegistryCommunicator tcpRegistryCommunicator;
     private DownloadHandler downloadHandler;
     private DatagramSocket socket;
     private UdpSender udpSender;
@@ -53,7 +54,6 @@ public class Peer {
     private String ownHost;
     private int ownPort;
     private ConcurrentHashMap<Long, MessageHandler> messageHandlerConcurrentHashMap;
-    private final TcpRegistryCommunicator tcpRegistryCommunicator;
 
     public Peer(String BSHost, int BSPort, String ownHost, int ownPort, String userName) throws IOException, RegisterException {
         tcpRegistryCommunicator = new TcpRegistryCommunicator(BSHost, BSPort);

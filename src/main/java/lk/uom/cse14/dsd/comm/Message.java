@@ -4,15 +4,6 @@ import java.io.Serializable;
 
 public class Message implements Serializable {
     private MessageType type;
-
-    public MessageKind getDirection() {
-        return direction;
-    }
-
-    public void setDirection(MessageKind direction) {
-        this.direction = direction;
-    }
-
     private MessageKind direction;
     private long uuid;
     private String source;
@@ -20,11 +11,9 @@ public class Message implements Serializable {
     private String destination;
     private int destinationPort;
     private int hopCount = 0;
-
     public Message() {
 
     }
-
     public Message(String source, int sourcePort, String destination, int destinationPort) {
         this.source = source;
         this.sourcePort = sourcePort;
@@ -39,6 +28,14 @@ public class Message implements Serializable {
         this.destination = destination;
         this.destinationPort = destinationPort;
         this.uuid = uuid;
+    }
+
+    public MessageKind getDirection() {
+        return direction;
+    }
+
+    public void setDirection(MessageKind direction) {
+        this.direction = direction;
     }
 
     public void redirectRequest(String source, int sourcePort, String destination, int destinationPort) {
@@ -102,15 +99,15 @@ public class Message implements Serializable {
         return hopCount;
     }
 
+    public void setHopCount(int hopCount) {
+        this.hopCount = hopCount;
+    }
+
     public long getUuid() {
         return uuid;
     }
 
     public void setUuid(long uuid) {
         this.uuid = uuid;
-    }
-
-    public void setHopCount(int hopCount) {
-        this.hopCount = hopCount;
     }
 }

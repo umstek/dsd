@@ -12,7 +12,7 @@ public class QueryProcessor {
     /**
      * constructs the query result for local search results
      *
-     * @param files list of files matching the query
+     * @param files   list of files matching the query
      * @param ownIP
      * @param ownPort
      * @return QueryResultSet object
